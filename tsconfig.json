@@ -38,6 +38,8 @@
   ],
   "exclude": [
     "node_modules",
-    "_archive"
+    "_archive",
+    "jest.config.ts",
+    "playwright.config.ts"
   ]
 }
