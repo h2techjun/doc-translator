@@ -40,6 +40,7 @@
     "node_modules",
     "_archive",
     "jest.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "prisma.config.ts"
   ]
 }
