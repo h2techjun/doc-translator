@@ -1,0 +1,60 @@
+{
+    "Index": {
+        "title": "AI Dịch Tài liệu",
+        "description": "Dịch nhanh và chính xác các tệp Word, PDF và Excel trong khi vẫn giữ nguyên định dạng ban đầu.",
+        "placeholder": "Kéo và thả tệp vào đây hoặc nhấp để tải lên",
+        "supportedFormats": "Định dạng hỗ trợ: Word, PDF, Excel (Tối đa 20MB)",
+        "uploading": "Đang tải lên...",
+        "processing": "Đang dịch...",
+        "translating": "Đang dịch...",
+        "upload": "Tải lên tài liệu",
+        "dragDrop": "Kéo và thả tệp vào đây hoặc nhấp để tải lên",
+        "targetLanguage": "Ngôn ngữ đích",
+        "outputFormat": "Định dạng đầu ra",
+        "translate": "Dịch",
+        "languages": {
+            "ko": "Tiếng Hàn",
+            "en": "Tiếng Anh",
+            "zh": "Tiếng Trung",
+            "ja": "Tiếng Nhật",
+            "th": "Tiếng Thái",
+            "vi": "Tiếng Việt",
+            "ru": "Tiếng Nga",
+            "hi": "Tiếng Hindi"
+        },
+        "formats": {
+            "pdf": "Tài liệu PDF",
+            "docx": "Tài liệu Word",
+            "xlsx": "Bảng tính Excel"
+        },
+        "completed": "Dịch hoàn tất",
+        "failed": "Dịch thất bại",
+        "download": "Tải xuống",
+        "success": "Tải lên tệp thành công! Đã bắt đầu dịch.",
+        "error": "Tải lên thất bại. Vui lòng thử lại."
+    },
+    "Login": {
+        "title": "Chào mừng trở lại",
+        "description": "Đăng nhập vào tài khoản của bạn để bắt đầu dịch tài liệu.",
+        "google": "Đăng nhập bằng Google",
+        "apple": "Đăng nhập bằng Apple",
+        "emailLabel": "Địa chỉ Email",
+        "emailPlaceholder": "name@example.com",
+        "emailButton": "Gửi liên kết đăng nhập",
+        "or": "HOẶC TIẾP TỤC VỚI",
+        "devLogin": "Đăng nhập thử nghiệm cho nhà phát triển"
+    },
+    "Common": {
+        "nav": {
+            "home": "Trang chủ",
+            "dashboard": "Bảng điều khiển",
+            "community": "Cộng đồng",
+            "admin": "Quản trị viên",
+            "login": "Đăng nhập"
+        },
+        "footer": {
+            "privacy": "Chính sách bảo mật",
+            "terms": "Điều khoản dịch vụ"
+        }
+    }
+}

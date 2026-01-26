@@ -1,0 +1,61 @@
+{
+    "Index": {
+        "title": "Document Translation AI",
+        "description": "Translate Word, PDF, and Excel files quickly and accurately while preserving original formatting.",
+        "placeholder": "Drag & drop files here or click to upload",
+        "supportedFormats": "Supported formats: Word, PDF, Excel (Max 20MB)",
+        "uploading": "Uploading...",
+        "processing": "Translating...",
+        "translating": "Translating...",
+        "upload": "Upload Document",
+        "dragDrop": "Drag & drop files here or click to upload",
+        "targetLanguage": "Target Language",
+        "outputFormat": "Output Format",
+        "translate": "Translate",
+        "languages": {
+            "ko": "Korean",
+            "en": "English",
+            "zh": "Chinese",
+            "ja": "Japanese",
+            "th": "Thai",
+            "vi": "Vietnamese",
+            "ru": "Russian",
+            "hi": "Hindi"
+        },
+        "formats": {
+            "pdf": "PDF Document",
+            "docx": "Word Document",
+            "xlsx": "Excel Sheet",
+            "pptx": "PowerPoint Presentation"
+        },
+        "completed": "Translation Complete",
+        "failed": "Translation Failed",
+        "download": "Download",
+        "success": "File uploaded successfully! Translation started.",
+        "error": "Upload failed. Please try again."
+    },
+    "Login": {
+        "title": "Welcome Back",
+        "description": "Log in to your account to start translating documents.",
+        "google": "Sign in with Google",
+        "apple": "Sign in with Apple",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "name@example.com",
+        "emailButton": "Send Magic Link",
+        "or": "OR CONTINUE WITH",
+        "devLogin": "Developer Test Login"
+    },
+    "Common": {
+        "nav": {
+            "home": "Home",
+            "dashboard": "Dashboard",
+            "community": "Community",
+            "admin": "Admin",
+            "login": "Log In"
+        },
+        "footer": {
+            "privacy": "Privacy Policy",
+            "terms": "Terms of Service"
+        }
+    }
+}

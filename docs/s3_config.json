@@ -1,0 +1,17 @@
+{
+    "Rules": [
+        {
+            "ID": "DeleteOldFiles",
+            "Status": "Enabled",
+            "Filter": {
+                "Prefix": ""
+            },
+            "Expiration": {
+                "Days": 7
+            },
+            "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 7
+            }
+        }
+    ]
+}
