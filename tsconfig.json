@@ -30,17 +30,14 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "_archive",
-    "jest.config.ts",
-    "playwright.config.ts",
-    "prisma.config.ts"
+    "tests",
+    "playwright-report"
   ]
 }
