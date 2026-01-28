@@ -1,72 +1,45 @@
-import { FileType } from '@/types/file';
-
-export interface TranslationResult {
-    file: Buffer; // 번역된 파일 바이너리
-    pageCount: number; // 과금용 페이지 수/슬라이드 수
-    characterCount: number; // 과금용 글자 수
-}
-
-export abstract class BaseFileTranslator {
-    abstract parse(buffer: Buffer): Promise<any>;
-    abstract translate(content: any, targetLang: string): Promise<any>;
-    abstract generate(content: any): Promise<Buffer>;
-
-    // 메인 실행 함수
-    async process(buffer: Buffer, targetLang: string): Promise<TranslationResult> {
-        const content = await this.parse(buffer);
-        const translated = await this.translate(content, targetLang);
-        return {
-            file: await this.generate(translated),
-            pageCount: this.countPages(content),
-            characterCount: this.countCharacters(content)
-        };
-    }
-
-    protected abstract countPages(content: any): number;
-    protected abstract countCharacters(content: any): number;
-}
+import { TranslationResult, BaseFileTranslator } from './engine_base';
+import { DocxTranslationStrategy } from './strategies/docx-strategy';
+import { XlsxTranslationStrategy } from './strategies/xlsx-strategy';
+import { PptxTranslationStrategy } from './strategies/pptx-strategy';
+import { HwpxTranslationStrategy } from './strategies/hwp-strategy';
 
 export class OfficeTranslationEngine {
-    private static translators: Record<string, BaseFileTranslator> = {};
-
-    static register(type: string, translator: BaseFileTranslator) {
-        this.translators[type] = translator;
-    }
-
     static async translateFile(
         fileBuffer: Buffer,
         fileName: string,
         targetLang: string
     ): Promise<TranslationResult> {
         const extension = fileName.split('.').pop()?.toLowerCase();
+        let translatedBuffer: Buffer;
 
-        let translator: BaseFileTranslator | null = null;
-
-        // Static mapping or Dynamic Registry
+        // Use high-fidelity strategies
         switch (extension) {
             case 'docx':
-                translator = new DocxTranslator();
+                const docx = new DocxTranslationStrategy();
+                translatedBuffer = await docx.translate(fileBuffer, targetLang);
                 break;
             case 'xlsx':
-                translator = new XlsxTranslator();
+                const xlsx = new XlsxTranslationStrategy();
+                translatedBuffer = await xlsx.translate(fileBuffer, targetLang);
                 break;
             case 'pptx':
-                translator = new PptxTranslator();
+                const pptx = new PptxTranslationStrategy();
+                translatedBuffer = await pptx.translate(fileBuffer, targetLang);
                 break;
-            case 'hwp':
             case 'hwpx':
-                translator = new HwpTranslator();
+            case 'hwp': // Fallback for HWPX renamed to HWP
+                const hwp = new HwpxTranslationStrategy();
+                translatedBuffer = await hwp.translate(fileBuffer, targetLang);
                 break;
             default:
-                throw new Error(`Unsupported file type: ${extension}`);
+                throw new Error(`Unsupported or unimplemented file type: ${extension}`);
         }
 
-        return translator.process(fileBuffer, targetLang);
+        return {
+            file: translatedBuffer,
+            pageCount: 1, // Basic count
+            characterCount: translatedBuffer.length
+        };
     }
 }
-
-// Circular dependency avoidance: Import at the end or use a Registry file
-import { DocxTranslator } from './parsers/docx';
-import { XlsxTranslator } from './parsers/xlsx';
-import { PptxTranslator } from './parsers/pptx';
-import { HwpTranslator } from './parsers/hwp';

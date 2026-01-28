@@ -5,6 +5,8 @@ import { XlsxTranslationStrategy } from "./strategies/xlsx-strategy";
 import { PdfTranslationStrategy } from "./strategies/pdf-strategy";
 import { Pdf2zhTranslationStrategy } from "./strategies/pdf2zh-strategy";
 
+import { PptxTranslationStrategy } from "./strategies/pptx-strategy";
+
 /**
  * 🏭 번역 전략 팩토리 (Translation Strategy Factory)
  * 
@@ -24,6 +26,8 @@ export class TranslationProcessorFactory {
                 return new DocxTranslationStrategy();
             case 'xlsx':
                 return new XlsxTranslationStrategy();
+            case 'pptx':
+                return new PptxTranslationStrategy();
             case 'pdf':
                 return this.getPdfStrategy();
             default:

@@ -17,8 +17,8 @@ export async function updateSession(request: NextRequest) {
                 getAll() {
                     return request.cookies.getAll()
                 },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
+                setAll(cookiesToSet: any[]) {
+                    cookiesToSet.forEach(({ name, value }) =>
                         request.cookies.set(name, value)
                     )
                     response = NextResponse.next({
@@ -38,25 +38,26 @@ export async function updateSession(request: NextRequest) {
     // Admin Route Protection
     if (request.nextUrl.pathname.startsWith('/admin')) {
         if (!user) {
-            return NextResponse.redirect(new URL('/login', request.url))
+            return NextResponse.redirect(new URL('/signin', request.url))
         }
 
-        // Check Admin Role (Fetching from public.users)
-        // For MVP, we might hardcode admin email check to save DB call cost in middleware
-        // or assume custom_claims via auth hook.
-        // Here we do a lightweight check:
-        /*
+        // Check Admin Role
         const { data: profile } = await supabase
-          .from('users')
-          .select('subscription_tier') // or role
-          .eq('id', user.id)
-          .single()
-          
-        if (profile?.subscription_tier !== 'admin') {
-           return NextResponse.redirect(new URL('/', request.url))
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        if (profile?.role !== 'ADMIN') {
+            // If not admin, verify if it's a legacy superuser check (optional, but cleaner to stick to DB role)
+            // For now, strict check on role.
+            return NextResponse.redirect(new URL('/', request.url))
         }
-        */
     }
+
+    // Google Drive Picker 팝업 통신 허용 (Fix for Cross-Origin-Opener-Policy warning)
+    // Supabase setAll에서 response가 재할당될 수 있으므로, 반환 직전에 헤더를 설정해야 함.
+    response.headers.set('Cross-Origin-Opener-Policy', 'unsafe-none');
 
     return response
 }

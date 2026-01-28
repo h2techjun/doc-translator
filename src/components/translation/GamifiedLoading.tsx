@@ -5,12 +5,21 @@ import { Zap, Gamepad2, Download, CheckCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface GamifiedLoadingProps {
+    t: {
+        uploading: { title: string; desc: string };
+        processing: { title: string; desc: string };
+        completed: { title: string; desc: string };
+        failed: { title: string; desc: string };
+        success: { title: string; desc: string };
+        download: string;
+    };
     progress: number; // 0 ~ 100
     status: 'uploading' | 'processing' | 'completed' | 'failed';
+    errorMessage?: string; // Optional error message
     onDownload?: () => void;
 }
 
-export function GamifiedLoading({ progress, status, onDownload }: GamifiedLoadingProps) {
+export function GamifiedLoading({ t, progress, status, errorMessage, onDownload }: GamifiedLoadingProps) {
     const [showGame, setShowGame] = useState(false);
 
     useEffect(() => {
@@ -21,81 +30,80 @@ export function GamifiedLoading({ progress, status, onDownload }: GamifiedLoadin
     }, [progress, status]);
 
     return (
-        <div className="w-full max-w-4xl mx-auto bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden p-8 relative">
+        <div className="w-full max-w-2xl mx-auto rounded-3xl overflow-hidden shadow-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+            <div className="flex flex-col justify-center p-8 lg:p-12 space-y-8 bg-zinc-50/50 dark:bg-zinc-900/50">
 
-            {/* 1. Header Area with Progress */}
-            <div className="mb-8 text-center space-y-4">
-                <h2 className="text-2xl font-bold flex items-center justify-center gap-2">
-                    {status === 'uploading' && 'Uploading Document...'}
-                    {status === 'processing' && (showGame ? 'Playing while Working...' : 'Analyzing Layout...')}
-                    {status === 'completed' && 'Translation Ready!'}
-                    {status === 'failed' && 'Oops, something went wrong.'}
-                </h2>
-
-                {/* Progress Bar */}
-                <div className="h-4 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden relative">
-                    <motion.div
-                        className="h-full bg-gradient-to-r from-blue-500 to-violet-600"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 0.5 }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-zinc-500">
-                        {progress.toFixed(0)}%
-                    </div>
+                {/* Status Header */}
+                <div className="space-y-2 text-center">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                        {status === 'uploading' && t.uploading.title}
+                        {status === 'processing' && t.processing.title}
+                        {status === 'completed' && t.completed.title}
+                        {status === 'failed' && t.failed.title}
+                    </h2>
+                    <p className="text-muted-foreground">
+                        {status === 'uploading' && t.uploading.desc}
+                        {status === 'processing' && t.processing.desc}
+                        {status === 'completed' && t.completed.desc}
+                        {status === 'failed' && t.failed.desc}
+                    </p>
                 </div>
-            </div>
 
-            {/* 2. Main Content Area (Game Ad or Status Icon) */}
-            <div className="aspect-video bg-zinc-50 dark:bg-black rounded-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center relative overflow-hidden group">
-
+                {/* Progress Bar or Result */}
                 {status === 'completed' ? (
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="text-center space-y-4 p-10"
-                    >
-                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/20">
-                            <CheckCircle className="w-10 h-10 text-white" />
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-2xl p-6 flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-green-500/20">
+                                <CheckCircle className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-green-800 dark:text-green-300">{t.success.title}</p>
+                                <p className="text-sm text-green-700 dark:text-green-400">{t.success.desc}</p>
+                            </div>
                         </div>
-                        <h3 className="text-xl font-bold">Document Translated Successfully</h3>
+
                         <button
                             onClick={onDownload}
-                            className="px-8 py-3 bg-black text-white rounded-xl hover:bg-zinc-800 transition flex items-center gap-2 mx-auto"
+                            className="w-full py-5 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
                             <Download className="w-5 h-5" />
-                            Download Result
+                            {t.download}
                         </button>
-                    </motion.div>
-                ) : showGame ? (
-                    // Playable Ad Container
-                    <div className="w-full h-full relative">
-                        <div className="absolute top-4 left-4 z-10 bg-black/50 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-bold border border-white/10">
-                            AD · Playable
-                        </div>
-
-                        {/* 실제 AdSense/AdMob 태그가 들어갈 곳. 여기서는 Mock Game Iframe */}
-                        <iframe
-                            src="https://snake.googlemaps.com"
-                            className="w-full h-full border-none"
-                            title="Playable Ad"
-                        />
-
-                        <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
-                            <span className="bg-black/50 backdrop-blur text-white px-4 py-2 rounded-full text-sm">
-                                잠시 게임을 즐겨보세요! 변환이 완료되면 알려드릴게요.
-                            </span>
-                        </div>
+                    </div>
+                ) : status === 'failed' ? (
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-red-600 dark:text-red-400">
+                        <p className="font-bold mb-1">{t.failed.title}</p>
+                        <p className="text-sm break-all">{errorMessage || "Unknown error occurred."}</p>
                     </div>
                 ) : (
-                    // Initial Loading State
-                    <div className="text-center text-zinc-400 space-y-4">
-                        <Zap className="w-12 h-12 animate-pulse mx-auto" />
-                        <p>Connecting to Translation Engine...</p>
+                    <div className="space-y-6">
+                        {/* Progress Bar */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm font-medium">
+                                <span>Progress</span>
+                                <span>{progress.toFixed(0)}%</span>
+                            </div>
+                            <div className="h-5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden p-1">
+                                <motion.div
+                                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progress}%` }}
+                                    transition={{ duration: 0.5 }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Tip or Quote */}
+                        <div className="p-4 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm text-sm text-muted-foreground flex items-start gap-3">
+                            <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                            <p>
+                                Using <strong>Gemini 2.0 Flash</strong> for lightning fast speed.
+                                Large files might take a moment.
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>
-
         </div>
     );
 }

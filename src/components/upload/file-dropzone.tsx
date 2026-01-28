@@ -17,6 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { GoogleDrivePicker, DriveFile } from '../drive/GoogleDrivePicker';
 
 interface FileDropzoneProps {
     onUploadComplete?: (jobId: string) => void;
@@ -42,6 +43,8 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
     const [outputFormat, setOutputFormat] = useState('pdf');
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const [remainingTime, setRemainingTime] = useState<number | null>(null); // ETA (seconds)
+
+    const [driveFile, setDriveFile] = useState<DriveFile | null>(null);
 
     // 작업 상태 폴링 (Polling for job status)
     useEffect(() => {
@@ -83,6 +86,7 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
         if (acceptedFiles?.length > 0) {
             const selectedFile = acceptedFiles[0];
             setFile(selectedFile);
+            setDriveFile(null); // Clear drive file
             setDownloadUrl(null);
             setStatus('IDLE');
             setProgress(0);
@@ -100,6 +104,27 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
         }
     }, []);
 
+    const handleDriveSelect = useCallback((dFile: DriveFile) => {
+        setDriveFile(dFile);
+        setFile(null); // Clear local file
+        setDownloadUrl(null);
+        setStatus('IDLE');
+        setProgress(0);
+
+        // Auto-detect format from mimeType
+        if (dFile.mimeType.includes('spreadsheet')) {
+            setOutputFormat('xlsx');
+        } else if (dFile.mimeType.includes('presentation')) {
+            setOutputFormat('pptx');
+        } else if (dFile.mimeType === 'application/pdf') {
+            setOutputFormat('pdf');
+        } else {
+            setOutputFormat('docx');
+        }
+
+        toast.success(`Selected from Drive: ${dFile.name}`);
+    }, []);
+
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         maxFiles: 1,
@@ -113,59 +138,87 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
     });
 
     const handleUpload = async () => {
-        if (!file) return;
+        if (!file && !driveFile) return;
 
         setUploading(true);
         setStatus('UPLOADING');
         setProgress(10);
 
         try {
-            // 1. 업로드 URL 요청
-            const res = await fetch('/api/translation/upload', {
-                method: 'POST',
-                body: JSON.stringify({
-                    filename: file.name,
-                    fileType: file.type,
-                    size: file.size,
-                    targetLang,
-                }),
-            });
+            let newJobId = '';
 
-            if (!res.ok) {
-                if (res.status === 401) {
-                    toast.error("Please login first to translate documents.");
-                    return;
-                }
+            if (driveFile) {
+                // --- Google Drive Upload Flow ---
+                const res = await fetch('/api/translation/upload/drive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileId: driveFile.id,
+                        accessToken: driveFile.oauthToken,
+                        filename: driveFile.name,
+                        mimeType: driveFile.mimeType,
+                        sizeBytes: driveFile.sizeBytes
+                    }),
+                });
 
-                let errorMessage = 'Failed to get upload URL';
-                try {
+                if (!res.ok) {
                     const errorData = await res.json();
-                    if (errorData.details) {
-                        errorMessage = `Upload Failed: ${errorData.details}`;
-                    } else if (errorData.error) {
-                        errorMessage = errorData.error;
-                    }
-                } catch (e) {
-                    console.warn("Failed to parse error response", e);
+                    throw new Error(errorData.error || 'Drive upload failed');
                 }
 
-                throw new Error(errorMessage);
+                const data = await res.json();
+                newJobId = data.jobId;
+
+            } else if (file) {
+                // --- Local File Upload Flow ---
+                // 1. 업로드 URL 요청
+                const res = await fetch('/api/translation/upload', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        filename: file.name,
+                        fileType: file.type,
+                        size: file.size,
+                        targetLang, // Note: This might not be needed here if start API sets it
+                    }),
+                });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        toast.error("Please login first to translate documents.");
+                        return;
+                    }
+
+                    let errorMessage = 'Failed to get upload URL';
+                    try {
+                        const errorData = await res.json();
+                        if (errorData.details) {
+                            errorMessage = `Upload Failed: ${errorData.details}`;
+                        } else if (errorData.error) {
+                            errorMessage = errorData.error;
+                        }
+                    } catch (e) {
+                        console.warn("Failed to parse error response", e);
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                const { uploadUrl, jobId: generatedJobId } = await res.json();
+                newJobId = generatedJobId;
+                setProgress(40);
+
+                // 2. S3 업로드
+                await fetch(uploadUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: { 'Content-Type': file.type },
+                });
             }
 
-            const { uploadUrl, jobId: newJobId } = await res.json();
             setJobId(newJobId);
-            setProgress(40);
-
-            // 2. S3 업로드
-            await fetch(uploadUrl, {
-                method: 'PUT',
-                body: file,
-                headers: { 'Content-Type': file.type },
-            });
-
             setProgress(70);
 
-            // 3. 변환 시작
+            // 3. 변환 시작 (Common Flow)
             const startRes = await fetch(`/api/translation/${newJobId}/start`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -191,9 +244,9 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
     };
 
     const handleDownload = () => {
-        if (!downloadUrl || !file) return;
+        if (!downloadUrl || (!file && !driveFile)) return;
 
-        const originalName = file.name;
+        const originalName = file?.name || driveFile?.name || 'document';
         const lastDot = originalName.lastIndexOf('.');
         const nameWithoutExt = lastDot !== -1 ? originalName.substring(0, lastDot) : originalName;
         const ext = downloadUrl.split('?')[0].split('.').pop();
@@ -210,40 +263,52 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
 
     return (
         <div className="w-full max-w-2xl mx-auto space-y-6">
-            <div
-                {...getRootProps()}
-                className={cn(
-                    "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 focus:outline-none",
-                    isDragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground/25 hover:border-primary/50",
-                    (uploading || status === 'PROCESSING') && "pointer-events-none opacity-50"
-                )}
-            >
-                <input {...getInputProps()} />
-                <div className="flex flex-col items-center justify-center gap-6">
-                    <div className="p-6 bg-background rounded-2xl shadow-xl ring-1 ring-border">
-                        {status === 'PROCESSING' ? (
-                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                        ) : status === 'COMPLETED' ? (
-                            <CheckCircle2 className="h-10 w-10 text-green-500" />
-                        ) : (
-                            <UploadCloud className="h-10 w-10 text-muted-foreground" />
-                        )}
-                    </div>
+            <div className="flex flex-col gap-4">
+                <div
+                    {...getRootProps()}
+                    className={cn(
+                        "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 focus:outline-none",
+                        isDragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground/25 hover:border-primary/50",
+                        (uploading || status === 'PROCESSING') && "pointer-events-none opacity-50"
+                    )}
+                >
+                    <input {...getInputProps()} />
+                    <div className="flex flex-col items-center justify-center gap-6">
+                        <div className="p-6 bg-background rounded-2xl shadow-xl ring-1 ring-border">
+                            {status === 'PROCESSING' ? (
+                                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                            ) : status === 'COMPLETED' ? (
+                                <CheckCircle2 className="h-10 w-10 text-green-500" />
+                            ) : (
+                                <UploadCloud className="h-10 w-10 text-muted-foreground" />
+                            )}
+                        </div>
 
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-xl tracking-tight">
-                            {status === 'PROCESSING' ? t('processing') :
-                                status === 'COMPLETED' ? t('completed') :
-                                    file ? file.name : t('upload')}
-                        </h3>
-                        <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                            {isDragActive ? "Drop it now!" : t('dragDrop')}
-                        </p>
+                        <div className="space-y-2">
+                            <h3 className="font-bold text-xl tracking-tight">
+                                {status === 'PROCESSING' ? t('processing') :
+                                    status === 'COMPLETED' ? t('completed') :
+                                        (file || driveFile) ? (file?.name || driveFile?.name) : t('upload')}
+                            </h3>
+                            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                                {isDragActive ? "Drop it now!" : t('dragDrop')}
+                            </p>
+                        </div>
                     </div>
                 </div>
+
+                {/* Google Drive Picker Button - Only show if no file selected or processing */}
+                {!file && !driveFile && status === 'IDLE' && (
+                    <div className="flex justify-center">
+                        <GoogleDrivePicker
+                            onSelect={handleDriveSelect}
+                            onError={(err) => toast.error(`Drive Error: ${err}`)}
+                        />
+                    </div>
+                )}
             </div>
 
-            {file && status !== 'COMPLETED' && (
+            {(file || driveFile) && status !== 'COMPLETED' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-card border rounded-2xl shadow-sm animate-in zoom-in-95 duration-300">
                     <div className="space-y-2">
                         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -275,9 +340,9 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {file?.type.includes('spreadsheetml') ? (
+                                {(file?.type.includes('spreadsheetml') || driveFile?.mimeType.includes('spreadsheet')) ? (
                                     <SelectItem value="xlsx">{t('formats.xlsx')}</SelectItem>
-                                ) : file?.type.includes('presentationml') ? (
+                                ) : (file?.type.includes('presentationml') || driveFile?.mimeType.includes('presentation')) ? (
                                     <SelectItem value="pptx">{t('formats.pptx')}</SelectItem>
                                 ) : (
                                     <>
@@ -310,7 +375,7 @@ export function FileDropzone({ onUploadComplete }: FileDropzoneProps) {
                                 <FileIcon className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-sm font-bold truncate max-w-[200px]">{file?.name}</p>
+                                <p className="text-sm font-bold truncate max-w-[200px]">{file?.name || driveFile?.name}</p>
                                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
                                     {status === 'COMPLETED' ? 'Ready' : 'In Progress'}
                                 </p>

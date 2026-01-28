@@ -2,98 +2,142 @@ import { Readable, PassThrough } from 'stream';
 import { BaseTranslationStrategy } from './base-strategy';
 import PizZip from 'pizzip';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
+import { ContentAnalyzer } from '../../ai/content-analyzer';
 
 /**
- * 📝 워드 문서 번역 전략 (PizZip + XML 핸들링 - Buffer Mode)
+ * 📝 워드 문서 번역 전략 (PizZip + XML 핸들링 - Paragraph Mode)
  * 
  * 🎯 목적 (Purpose):
- * Word 문서의 모든 서식과 레이아웃을 100% 보존하면서 텍스트만 번역합니다.
+ * Word 문서의 텍스트를 '문단(Paragraph)' 단위로 병합하여 번역함으로써
+ * 문맥 단절 및 잔여 텍스트(Residual Text) 문제를 근본적으로 해결합니다.
  * 
- * 🔄 처리 흐름 (Workflow):
- * 1. DOCX 파일을 ZIP 아카이브로 압축 해제 (PizZip)
- * 2. word/document.xml 파일 추출 및 XML DOM 파싱
- * 3. <w:t> 태그(텍스트 노드) 순회하며 Gemini API 번역
- * 4. 번역된 텍스트를 XML에 다시 삽입
- * 5. ZIP으로 재압축하여 DOCX 파일 생성
- * 
- * ✅ 보존되는 요소 (Preserved Elements):
- * - 문단 스타일 (제목, 본문, 인용 등)
- * - 글꼴, 크기, 색상, 굵기, 기울임
- * - 표(Table) 구조 및 셀 병합
- * - 이미지 및 도형
- * - 머리글/바닥글
- * - 페이지 레이아웃 및 여백
- * 
- * 📦 의존성 (Dependencies):
- * - PizZip: ZIP 압축/해제 라이브러리
- * - @xmldom/xmldom: XML DOM 파싱 및 직렬화
- * - BaseTranslationStrategy: Gemini API 번역 기능 제공
+ * ⚠️ Trade-off:
+ * 문단 내의 스타일(글자 색, 굵기 등)이 혼재된 경우, 
+ * 번역 후에는 문단의 **첫 번째 스타일**로 통일될 수 있습니다.
+ * 하지만 이는 "번역되지 않은 원문이 남는 것"보다 훨씬 나은 사용자 경험을 제공합니다.
  */
 export class DocxTranslationStrategy extends BaseTranslationStrategy {
-    /**
-     * 📝 Word 파일 번역 실행
-     * 
-     * @param fileBuffer - 원본 DOCX 파일의 Buffer
-     * @param targetLang - 목표 언어 (예: "Korean", "English", "Japanese")
-     * @returns 번역된 DOCX 파일의 Buffer
-     * 
-     * @throws {Error} DOCX 파일 구조가 올바르지 않을 때
-     * @throws {Error} XML 파싱 실패 시
-     */
     async translate(fileBuffer: Buffer, targetLang: string): Promise<Buffer> {
-        console.log(`[DocxStrategy] 📝 Word 번역 시작 (목표 언어: ${targetLang})`);
+        console.log(`[DocxStrategy] 📝 Word 번역 시작 (Paragraph Mode | 목표: ${targetLang})`);
 
-        // 1️⃣ DOCX 파일을 ZIP 아카이브로 로드
-        // DOCX는 내부적으로 XML 파일들을 ZIP으로 압축한 형태입니다.
+        // 1️⃣ DOCX -> XML 추출
         const zip = new PizZip(fileBuffer);
-
-        // 2️⃣ 핵심 문서 내용이 담긴 word/document.xml 추출
-        // 이 파일에 모든 텍스트, 스타일, 구조 정보가 포함되어 있습니다.
         const xmlContent = zip.file('word/document.xml')?.asText();
         if (!xmlContent) {
             throw new Error('Word 문서 구조가 올바르지 않습니다 (document.xml 누락)');
         }
 
-        // 3️⃣ XML 문자열을 DOM 객체로 파싱
-        // DOM을 사용하면 태그별로 쉽게 접근하고 수정할 수 있습니다.
+        // 2️⃣ XML 파싱
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlContent, 'application/xml');
 
-        // 4️⃣ 모든 텍스트 노드 추출
-        // <w:t> 태그는 Word XML에서 실제 텍스트를 담는 요소입니다.
-        const textElements = xmlDoc.getElementsByTagName('w:t');
-        console.log(`  ✅ 발견된 텍스트 노드 수: ${textElements.length}`);
+        // 3️⃣ 문단(Paragraph) 단위 데이터 추출
+        const paragraphs = xmlDoc.getElementsByTagName('w:p');
+        const batchRequests: { fullText: string; textNodes: Element[] }[] = [];
 
-        // 5️⃣ 각 텍스트 노드를 순회하며 번역
-        // ⚠️ 최적화 고려사항:
-        // - 병렬 처리 가능하나 Gemini API Rate Limit을 고려하여 순차 처리
-        // - 프로덕션에서는 문단 단위 배치 처리 권장
-        for (let i = 0; i < textElements.length; i++) {
-            const element = textElements[i];
-            const originalText = element.textContent;
+        // 각 문단을 순회하며 텍스트 수집
+        for (let i = 0; i < paragraphs.length; i++) {
+            const p = paragraphs[i];
+            const textNodes = Array.from(p.getElementsByTagName('w:t'));
 
-            // 6️⃣ 의미 있는 텍스트만 번역 (공백/짧은 텍스트 제외)
-            if (originalText && originalText.trim().length > 1) {
-                const translated = await this.translateText(originalText, targetLang);
-                element.textContent = translated;
+            if (textNodes.length === 0) continue;
 
-                // 진행률 로깅 (매 10개마다)
-                if ((i + 1) % 10 === 0) {
-                    console.log(`  🔄 번역 진행: ${i + 1}/${textElements.length}`);
-                }
+            // 문단 내 텍스트 병합 (Run Aggregation)
+            // 예: ["제", "1", "조"] -> "제1조"
+            const fullText = textNodes.map(node => node.textContent || '').join('');
+
+            if (fullText.trim().length > 1) { // 1글자 이상의 유의미한 텍스트만
+                batchRequests.push({ fullText, textNodes });
             }
         }
 
-        // 7️⃣ 수정된 DOM을 다시 XML 문자열로 직렬화
+        console.log(`  ✅ 번역 대상 문단 발견: ${batchRequests.length}개`);
+
+        // 4️⃣ 모델 분석 (첫 20개 문단 샘플링)
+        if (batchRequests.length > 0) {
+            const sampleText = batchRequests.slice(0, 20).map(r => r.fullText).join("\n");
+            const analyzer = new ContentAnalyzer(process.env.GEMINI_API_KEY!);
+
+            console.log("  🕵️ 문서 유형 분석 중...");
+            const analysis = await analyzer.analyzeAndRecommend(sampleText);
+            console.log(`  🔍 분석 결과: [${analysis.docType.toUpperCase()}] - ${analysis.reason}`);
+            console.log(`  🤖 추천 모델: ${analysis.recommendedModel.name}`);
+
+            this.setModel(analysis.recommendedModel);
+        }
+
+        // 5️⃣ 배치 처리 준비
+        const MAX_BATCH_CHARS = 15000; // 문맥이 길어지므로 조금 더 보수적으로 잡음
+        const MAX_BATCH_SEGMENTS = 100; // 문단 단위이므로 개수를 줄임
+
+        const batches: { texts: string[]; requestIndices: number[] }[] = [];
+        let currentBatchTexts: string[] = [];
+        let currentBatchIndices: number[] = [];
+        let currentBatchLength = 0;
+
+        for (let i = 0; i < batchRequests.length; i++) {
+            const text = batchRequests[i].fullText;
+
+            if (currentBatchTexts.length > 0 &&
+                (currentBatchLength + text.length > MAX_BATCH_CHARS || currentBatchTexts.length >= MAX_BATCH_SEGMENTS)) {
+
+                batches.push({ texts: currentBatchTexts, requestIndices: currentBatchIndices });
+                currentBatchTexts = [];
+                currentBatchIndices = [];
+                currentBatchLength = 0;
+            }
+
+            currentBatchTexts.push(text);
+            currentBatchIndices.push(i);
+            currentBatchLength += text.length;
+        }
+
+        if (currentBatchTexts.length > 0) {
+            batches.push({ texts: currentBatchTexts, requestIndices: currentBatchIndices });
+        }
+
+        console.log(`  📊 배치 최적화: 총 ${batches.length}개 배치 (문단 ${batchRequests.length}개)`);
+
+        // 6️⃣ 번역 실행 및 결과 주입
+        for (let i = 0; i < batches.length; i++) {
+            const { texts, requestIndices } = batches[i];
+
+            // Throttling
+            const delay = this.currentModelSpec.throttleDelayMs;
+            if (i > 0 && delay > 0) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            console.log(`  🔬 Processing Batch ${i + 1}/${batches.length} (${texts.length} paragraphs)`);
+
+            // 번역 호출
+            const translatedBatch = await this.translateBatch(texts, targetLang);
+
+            // 결과 주입 (Logic Check Re-injection)
+            translatedBatch.forEach((translatedText, batchIndex) => {
+                const originalRequestIdx = requestIndices[batchIndex];
+                const { textNodes } = batchRequests[originalRequestIdx];
+
+                // 🌟 핵심 로직: 첫 번째 노드에 몰아넣고 나머지는 비운다.
+                if (textNodes.length > 0) {
+                    // 1. 첫 번째 텍스트 노드에 번역본 전체 삽입
+                    textNodes[0].textContent = translatedText;
+
+                    // 2. 나머지 노드는 빈 문자열로 처리 (삭제하면 안됨, XML 구조 유지)
+                    for (let k = 1; k < textNodes.length; k++) {
+                        textNodes[k].textContent = "";
+                    }
+                }
+            });
+        }
+
+        // 7️⃣ XML 재조립 및 반환
         const serializer = new XMLSerializer();
         const newXmlContent = serializer.serializeToString(xmlDoc);
-
-        // 8️⃣ ZIP 아카이브 내의 document.xml을 업데이트
         zip.file('word/document.xml', newXmlContent);
 
-        // 9️⃣ 수정된 ZIP을 Buffer로 생성하여 반환
         const resultBuffer = zip.generate({ type: 'nodebuffer' });
-        console.log(`  ✅ Word 번역 완료 (출력 크기: ${resultBuffer.length} bytes)`);
+        console.log(`  ✅ Word 번역 완료 (출력: ${resultBuffer.length} bytes)`);
 
         return resultBuffer;
     }
