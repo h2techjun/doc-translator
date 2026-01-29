@@ -1,4 +1,4 @@
-import { BaseFileTranslator } from '../engine';
+import { BaseFileTranslator } from '../engine_base';
 import PizZip from 'pizzip';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import { TranslatorService, MockTranslatorService } from '../service';

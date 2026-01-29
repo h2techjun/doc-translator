@@ -53,7 +53,7 @@ export class PointManager {
         if (profile.tier === 'GOLD' || profile.tier === 'MASTER') {
             // 횟수만 기록
             await supabase.from('profiles').update({
-                total_translations: profile.totalTranslations + 1
+                total_translations: (profile.totalTranslations ?? 0) + 1
             }).eq('id', userId);
 
             await supabase.from('point_transactions').insert({
@@ -65,7 +65,7 @@ export class PointManager {
             return true;
         }
 
-        if (profile.points < amount) return false;
+        if ((profile.points || 0) < amount) return false;
 
         // 1. 트랜잭션 기록
         const { error: txError } = await supabase
@@ -83,8 +83,8 @@ export class PointManager {
         const { error: updateError } = await supabase
             .from('profiles')
             .update({
-                points: profile.points - amount,
-                total_translations: profile.totalTranslations + 1
+                points: (profile.points || 0) - amount,
+                total_translations: (profile.totalTranslations || 0) + 1
             })
             .eq('id', userId);
 
@@ -117,7 +117,7 @@ export class PointManager {
         // 2. 포인트 업데이트
         await supabase
             .from('profiles')
-            .update({ points: profile.points + amount })
+            .update({ points: (profile.points ?? 0) + amount })
             .eq('id', userId);
     }
 }

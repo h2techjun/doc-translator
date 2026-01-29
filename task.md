@@ -25,11 +25,12 @@
     - [x] 하루 5회 제한 및 1분 쿨다운 타이머
     - [x] IP 기반 자동 차단 (Anti-Abuse)
     - [x] 어드민 차단 관리 대시보드
-- [/] GitHub 연동 및 외부 테스트 배포
+- [x] GitHub 연동 및 외부 테스트 배포
     - [x] 로컬 Git 초기화 및 커밋 완료
     - [x] GitHub Remote 연결 및 Push
     - [x] 환경 변수(Env) 설정 및 빌드 트리거
-    - [ ] Vercel 클라우드 배포 완료 확인 및 URL 확보
+    - [x] Vercel 클라우드 배포 완료 확인 (https://doc-translator-2026.vercel.app)
+- [ ] Supabase Redirect URL 최종 설정 및 실서버 테스트
 
 ## 💻 Phase 3.3: 사용자 대시보드 및 경험 개선
 핵심 목표: 사용자에게 작업 제어권과 가시성 제공.

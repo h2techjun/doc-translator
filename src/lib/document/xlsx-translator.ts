@@ -68,7 +68,7 @@ export class XlsxTranslator {
     async translate(targetLang: string): Promise<Buffer> {
         console.log("➡️ Loading XLSX Workbook...");
         const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(this.buffer);
+        await workbook.xlsx.load(this.buffer as any);
 
         // 1. 번역할 셀 수집
         const cellsToTranslate: {
@@ -82,7 +82,7 @@ export class XlsxTranslator {
             worksheet.eachRow((row, rowNumber) => {
                 row.eachCell((cell, colNumber) => {
                     if (cell.type === ExcelJS.ValueType.String && cell.text) {
-                        const text = cell.text.trim();
+                        const text = (cell.text || '').trim();
                         if (text.length > 0) {
                             cellsToTranslate.push({
                                 sheetId: worksheet.id,
@@ -181,6 +181,6 @@ ${JSON.stringify(sourceTexts)}
 
         // 4. 저장
         const newBuffer = await workbook.xlsx.writeBuffer();
-        return newBuffer as Buffer;
+        return newBuffer as any;
     }
 }

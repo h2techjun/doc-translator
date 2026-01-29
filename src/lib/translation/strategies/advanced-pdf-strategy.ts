@@ -66,14 +66,14 @@ export class AdvancedPdfTranslationStrategy extends BaseTranslationStrategy {
             let stdout = '';
             let stderr = '';
 
-            proc.stdout.on('data', (data) => {
+            proc.stdout.on('data', (data: any) => {
                 const str = data.toString();
                 stdout += str;
                 // 프로그레스 로그가 있다면 추출 가능 (__PROGRESS__ format)
                 process.stdout.write(data);
             });
 
-            proc.stderr.on('data', (data) => {
+            proc.stderr.on('data', (data: any) => {
                 stderr += data.toString();
                 process.stderr.write(data);
             });
@@ -89,7 +89,7 @@ export class AdvancedPdfTranslationStrategy extends BaseTranslationStrategy {
                             // 폴백: 전체 출력 시도
                             resolve(JSON.parse(stdout));
                         }
-                    } catch (e) {
+                    } catch (e: any) {
                         reject(new Error(`Failed to parse Python output: ${e.message}\nStdout: ${stdout}`));
                     }
                 } else {

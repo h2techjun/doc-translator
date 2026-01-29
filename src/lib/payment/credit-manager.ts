@@ -2,9 +2,10 @@
 import { createClient } from '@/lib/supabase/server';
 import {
     TransactionType,
-    TransactionRecord,
-    UserCreditInfo,
-    CREDIT_COSTS
+    PointTransactionRecord as TransactionRecord,
+    UserProfileInfo as UserCreditInfo,
+    POINT_COSTS as CREDIT_COSTS,
+    UserTier
 } from './types';
 
 /**
@@ -40,7 +41,7 @@ export class CreditManager {
         return {
             userId,
             balance: data.credit_balance || 0,
-            subscriptionTier: data.subscription_tier || 'free'
+            subscriptionTier: (data.subscription_tier as UserTier) || 'BRONZE'
         };
     }
 
@@ -65,7 +66,7 @@ export class CreditManager {
         // 1. 잔액 확인 (가장 최신 데이터)
         const user = await this.getUserCreditInfo(userId);
 
-        if (user.balance < amount) {
+        if ((user.balance || 0) < amount) {
             return false; // 잔액 부족
         }
 
@@ -90,7 +91,7 @@ export class CreditManager {
         // 잔액 차감
         const { error: updateError } = await supabase
             .from('users')
-            .update({ credit_balance: user.balance - amount })
+            .update({ credit_balance: (user.balance || 0) - amount })
             .eq('id', userId);
 
         if (updateError) {

@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         const sheet = workbook.addWorksheet('QA Test');
         sheet.addRow(['ID', 'Original Text']);
         sheet.addRow([1, 'Hello World']);
-        const xlsxBuffer = await workbook.xlsx.writeBuffer() as Buffer;
+        const xlsxBuffer = Buffer.from(await workbook.xlsx.writeBuffer() as ArrayBuffer);
 
         console.log('[QA] 📊 Running XLSX Translation...');
         const translatedXlsx = await xlsxStrategy.translate(xlsxBuffer, 'Korean');

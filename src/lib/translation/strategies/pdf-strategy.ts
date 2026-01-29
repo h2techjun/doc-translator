@@ -118,8 +118,8 @@ export class PdfTranslationStrategy extends BaseTranslationStrategy {
         }
 
         // pdf-parse로 전체 텍스트 추출
-        const pdfParse = (await import('pdf-parse')).default;
-        const parseResult = await pdfParse(fileBuffer);
+        const pdfParse = (await import('pdf-parse')) as any;
+        const parseResult = await (pdfParse.default || pdfParse)(fileBuffer);
         textData.totalChars = parseResult.text.length;
         textData.fullText = parseResult.text;
 
@@ -217,7 +217,7 @@ export class PdfTranslationStrategy extends BaseTranslationStrategy {
 
             // pdf-parse 텍스트를 번역하여 단순 문단으로 구성
             const fullText = pdfTextData.fullText || "";
-            const paragraphs = fullText.split('\n\n').filter(p => p.trim().length > 0);
+            const paragraphs = fullText.split('\n\n').filter((p: string) => p.trim().length > 0);
 
             for (const para of paragraphs.slice(0, 50)) { // 최대 50개 문단
                 const translatedText = await this.translateText(para.trim(), targetLang);
@@ -320,7 +320,7 @@ export class PdfTranslationStrategy extends BaseTranslationStrategy {
     /**
      * 🎨 정렬 문자열을 docx AlignmentType으로 변환
      */
-    private mapAlignment(align?: AlignString): typeof AlignmentType[keyof typeof AlignmentType] {
+    private mapAlignment(align?: AlignString): any {
         if (align === "center") return AlignmentType.CENTER;
         if (align === "right") return AlignmentType.RIGHT;
         return AlignmentType.BOTH; // 기본값: 양쪽 정렬
@@ -330,7 +330,7 @@ export class PdfTranslationStrategy extends BaseTranslationStrategy {
      * 📌 제목 생성
      */
     private createHeading(text: string, level: number, align?: AlignString): Paragraph {
-        let headingLevel: typeof HeadingLevel[keyof typeof HeadingLevel] = HeadingLevel.HEADING_1;
+        let headingLevel: any = HeadingLevel.HEADING_1;
         if (level === 2) headingLevel = HeadingLevel.HEADING_2;
         if (level === 3) headingLevel = HeadingLevel.HEADING_3;
 

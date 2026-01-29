@@ -24,9 +24,11 @@ export const POINT_COSTS = {
 // 사용자 포인트 정보 인터페이스
 export interface UserProfileInfo {
     userId: string;
-    points: number;
-    tier: UserTier;
-    totalTranslations: number;
+    balance?: number;           // CreditManager use
+    subscriptionTier?: UserTier; // CreditManager use
+    points?: number;            // PointManager use
+    tier?: UserTier;            // PointManager use
+    totalTranslations?: number;
 }
 
 // 트랜잭션 레코드 인터페이스

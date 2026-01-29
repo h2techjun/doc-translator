@@ -1,4 +1,4 @@
-import { BaseFileTranslator } from '../engine';
+import { BaseFileTranslator } from '../engine_base';
 import { TranslatorService, MockTranslatorService } from '../service';
 
 /**

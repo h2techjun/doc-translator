@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 
-// Service Role Client for Admin Operations
-const supabaseAdmin = createClient(
+// Service Role Client for Admin Operations (Lazy initialized to avoid build-time errors)
+const getAdminClient = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Fetch Users from View
+    const supabaseAdmin = getAdminClient();
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');

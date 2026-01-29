@@ -128,14 +128,14 @@ export class PdfTranslator {
 
     // --- Helper Methods ---
 
-    private mapAlignment(align?: AlignString): AlignmentType {
+    private mapAlignment(align?: AlignString): any {
         if (align === "center") return AlignmentType.CENTER;
         if (align === "right") return AlignmentType.RIGHT;
         return AlignmentType.BOTH; // Default to Justified/Left
     }
 
     private createHeading(text: string, level: number, align?: AlignString): Paragraph {
-        let headingLevel = HeadingLevel.HEADING_1;
+        let headingLevel: any = HeadingLevel.HEADING_1;
         if (level === 2) headingLevel = HeadingLevel.HEADING_2;
         if (level === 3) headingLevel = HeadingLevel.HEADING_3;
 

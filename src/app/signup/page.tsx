@@ -12,7 +12,9 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 
-export default function SignUpPage() {
+import { Suspense } from 'react';
+
+function SignUpContent() {
     const { uiLang, t } = useGeoSmart();
     const searchParams = useSearchParams();
     const initialEmail = searchParams.get('email') || '';
@@ -277,5 +279,13 @@ export default function SignUpPage() {
                 </Card>
             </motion.div>
         </div>
+    );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">Loading...</div>}>
+            <SignUpContent />
+        </Suspense>
     );
 }

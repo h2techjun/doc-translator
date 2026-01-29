@@ -38,6 +38,7 @@
     "node_modules",
     "_archive",
     "tests",
-    "playwright-report"
+    "playwright-report",
+    "src/**/*.test.ts"
   ]
 }

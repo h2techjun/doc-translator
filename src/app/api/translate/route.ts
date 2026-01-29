@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         headers.set('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(`translated_${file.name}`)}`);
         headers.set('X-Page-Count', result.pageCount.toString());
 
-        return new NextResponse(result.file, { status: 200, headers });
+        return new NextResponse(result.file as any, { status: 200, headers });
 
     } catch (error: any) {
         console.error('Translation Error:', error);

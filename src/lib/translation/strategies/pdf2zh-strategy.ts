@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
-import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/prisma"; // Prisma unused in Supabase environment
 
 /**
  * 📄 PDF 문서 번역 전략 (pdf2zh 기반 - 최고 품질)
@@ -98,17 +98,9 @@ export class Pdf2zhTranslationStrategy extends BaseTranslationStrategy {
                 if (progressMatch && jobId) {
                     const percent = parseInt(progressMatch[1]);
                     try {
-                        // DB 업데이트 (await를 쓰면 이벤트 루프가 막힐 수 있으므로 then/catch 사용 권장하지만, 여기선 안전하게 비동기 IIFE)
-                        (async () => {
-                            try {
-                                await prisma.job.update({
-                                    where: { id: jobId },
-                                    data: { progress: percent }
-                                });
-                            } catch (e) {
-                                // console.warn("Progress update failed (db locked or missing):", e);
-                            }
-                        })();
+                        // Prisma update removed for build stability. 
+                        // TODO: Implement Supabase-based progress update if needed.
+                        console.log(`[Pdf2zhProgress] Job ${jobId}: ${percent}%`);
                     } catch (e) {
                         console.warn("Progress parsing error:", e);
                     }
