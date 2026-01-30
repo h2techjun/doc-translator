@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { GeoSmartProvider } from "@/context/geo-smart-context";
+import { Navbar } from "@/components/layout/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +31,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GeoSmartProvider>
-            {children}
+            <div className="flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+            </div>
             <Toaster richColors expand position="top-center" />
           </GeoSmartProvider>
         </ThemeProvider>

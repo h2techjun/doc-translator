@@ -39,6 +39,22 @@ export default function SignInPage() {
         }
     };
 
+    const handleSocialLogin = async (provider: 'kakao' | 'google') => { // Naver requires specific setup, starting with Kakao/Google
+        setIsLoading(true);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+        } catch (error: any) {
+            toast.error(`Social login failed: ${error.message}`);
+            setIsLoading(false);
+        }
+    };
+
     const handleResendConfirmation = async () => {
         if (cooldown > 0) return;
         setIsLoading(true);
@@ -204,7 +220,18 @@ export default function SignInPage() {
                             </Button>
                         </div>
 
-                        <div className="relative my-2">
+
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('kakao')} disabled={isLoading} className="border-yellow-400/20 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-500">
+                                <span className="font-bold">Kakao</span>
+                            </Button>
+                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('google')} disabled={isLoading} className="border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                                <span className="font-bold">Google</span>
+                            </Button>
+                        </div>
+
+                        <div className="relative my-4">
                             <div className="absolute inset-0 flex items-center">
                                 <span className="w-full border-t border-white/5" />
                             </div>
@@ -297,7 +324,7 @@ export default function SignInPage() {
                         </div>
                     </CardFooter>
                 </Card>
-            </motion.div>
-        </div>
+            </motion.div >
+        </div >
     );
 }

@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/config';
+import { useGeoSmart } from '@/context/geo-smart-context';
 
 // Mock Data for the cybernetic dashboard
 const data = [
@@ -33,6 +34,9 @@ const data = [
  * 색상: Emerald & Cyan Neon accents on Deep Indigo
  */
 export default function AdminDashboard() {
+    const { t: rootT } = useGeoSmart();
+    const t = rootT.admin;
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -53,6 +57,28 @@ export default function AdminDashboard() {
             console.error('Fetch banned list error:', err);
         }
     };
+
+    const [users, setUsers] = useState<any[]>([]);
+    const [jobs, setJobs] = useState<any[]>([]);
+
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch('/api/admin/users');
+            if (res.ok) setUsers(await res.json());
+        } catch (err) { console.error(err); }
+    };
+
+    const fetchJobs = async () => {
+        try {
+            const res = await fetch('/api/admin/jobs');
+            if (res.ok) setJobs(await res.json());
+        } catch (err) { console.error(err); }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'users') fetchUsers();
+        if (activeTab === 'jobs') fetchJobs();
+    }, [activeTab]);
 
     useEffect(() => {
         const checkAdmin = async () => {
@@ -93,7 +119,7 @@ export default function AdminDashboard() {
             <div className="min-h-screen bg-[#020617] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
-                    <p className="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest">Master Identity Verifying...</p>
+                    <p className="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest">{t.verifying}</p>
                 </div>
             </div>
         );
@@ -113,9 +139,10 @@ export default function AdminDashboard() {
                 </div>
 
                 <nav className="flex-grow px-4 space-y-2 mt-4">
-                    <NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} isOpen={isSidebarOpen} onClick={() => setActiveTab('dashboard')} />
-                    <NavItem icon={<Users />} label="Users" active={activeTab === 'users'} isOpen={isSidebarOpen} onClick={() => setActiveTab('users')} />
-                    <NavItem icon={<ShieldAlert />} label="Security" active={activeTab === 'security'} isOpen={isSidebarOpen} onClick={() => setActiveTab('security')} />
+                    <NavItem icon={<LayoutDashboard />} label={t.dashboard} active={activeTab === 'dashboard'} isOpen={isSidebarOpen} onClick={() => setActiveTab('dashboard')} />
+                    <NavItem icon={<Users />} label={t.users} active={activeTab === 'users'} isOpen={isSidebarOpen} onClick={() => setActiveTab('users')} />
+                    <NavItem icon={<Globe />} label={t.jobs} active={activeTab === 'jobs'} isOpen={isSidebarOpen} onClick={() => setActiveTab('jobs')} />
+                    <NavItem icon={<ShieldAlert />} label={t.security} active={activeTab === 'security'} isOpen={isSidebarOpen} onClick={() => setActiveTab('security')} />
                 </nav>
 
                 <div className="p-4 border-t border-[#1e293b]">
@@ -125,7 +152,7 @@ export default function AdminDashboard() {
                         onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')}
                     >
                         <LogOut className="w-5 h-5 mr-3" />
-                        {isSidebarOpen && "Shutdown"}
+                        {isSidebarOpen && t.shutdown}
                     </Button>
                 </div>
             </aside>
@@ -199,16 +226,79 @@ export default function AdminDashboard() {
                     </>
                 )}
 
+                {activeTab === 'users' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
+                            <CardHeader>
+                                <CardTitle className="text-emerald-400">{t.userManagement}</CardTitle>
+                                <CardDescription>{t.totalUsers}: {users.length}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {users.map(user => (
+                                        <div key={user.id} className="flex items-center justify-between p-4 bg-[#1e293b]/50 rounded-lg border border-[#1e293b]">
+                                            <div>
+                                                <p className="font-bold">{user.email}</p>
+                                                <p className="text-xs text-slate-500">{user.id}</p>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                                                    {user.role || 'USER'}
+                                                </span>
+                                                <span className="text-xs text-slate-500">{new Date(user.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+
+                {activeTab === 'jobs' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
+                            <CardHeader>
+                                <CardTitle className="text-cyan-400">{t.translationJobs}</CardTitle>
+                                <CardDescription>{t.recentActivity}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {jobs.map(job => (
+                                        <div key={job.id} className="flex items-center justify-between p-4 bg-[#1e293b]/50 rounded-lg border border-[#1e293b]">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
+                                                    {job.original_filename?.split('.').pop()?.toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-sm">{job.original_filename}</p>
+                                                    <p className="text-xs text-slate-500">{job.target_language} • {new Date(job.created_at).toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
+                                                    'bg-yellow-500/20 text-yellow-400'
+                                                }`}>
+                                                {job.status}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+
                 {activeTab === 'security' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                         <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
                             <CardHeader>
                                 <CardTitle className="text-rose-400 flex items-center gap-2">
                                     <ShieldAlert className="w-6 h-6" />
-                                    Ban Management System
+                                    {t.banSystem}
                                 </CardTitle>
                                 <CardDescription className="text-slate-400">
-                                    마스터의 권한으로 침입자를 격리하거나 오해를 해소합니다.
+                                    {t.banDesc}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>

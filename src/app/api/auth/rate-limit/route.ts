@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
     try {
         const { email, type } = await request.json();
+        console.log(`[API/RateLimit] Check request for: ${email} (${type})`);
 
         // 0. 클라이언트 IP 가져오기 (Proxy 등 고려)
         const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||

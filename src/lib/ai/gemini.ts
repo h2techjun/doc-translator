@@ -55,9 +55,8 @@ Text:
         const response = await result.response;
         return response.text().trim();
     } catch (error) {
-        console.error("❌ Gemini Translation Error:", error);
-        // 에러 발생 시 원문 반환 (Graceful Degradation) 또는 에러 throw
-        // 여기서는 에러를 throw하여 재시도하게 함
+        console.error("❌ Gemini 번역 에러:", error);
+        // 에러 발생 시 재시도를 위해 에러를 전파(throw)합니다.
         throw error;
     }
 };

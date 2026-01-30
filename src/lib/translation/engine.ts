@@ -13,7 +13,7 @@ export class OfficeTranslationEngine {
         const extension = fileName.split('.').pop()?.toLowerCase();
         let translatedBuffer: Buffer;
 
-        // Use high-fidelity strategies
+        // 고정밀 번역 전략 사용
         switch (extension) {
             case 'docx':
                 const docx = new DocxTranslationStrategy();
@@ -38,7 +38,7 @@ export class OfficeTranslationEngine {
 
         return {
             file: translatedBuffer,
-            pageCount: 1, // Basic count
+            pageCount: 1, // 기본 페이지 수
             characterCount: translatedBuffer.length
         };
     }

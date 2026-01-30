@@ -80,36 +80,31 @@ export function UserMenu() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-12 w-auto flex items-center gap-3 px-3 hover:bg-white/5 border border-white/5 rounded-full transition-all duration-300 shadow-sm">
-                    <div className="flex flex-col items-end hidden sm:flex justify-center h-full py-1">
-                        <span className="text-xs font-black leading-tight text-white tracking-tight">
-                            {profile?.email?.split('@')[0] || 'Guest User'}
+                <Button variant="ghost" className="relative h-10 w-auto flex items-center gap-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-full transition-all duration-300 shadow-sm ml-2">
+                    <div className="flex items-center gap-2 px-1">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${profile?.tier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-600' :
+                            profile?.tier === 'SILVER' ? 'bg-blue-500/20 text-blue-600' :
+                                'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            }`}>
+                            {profile?.tier === 'GOLD' ? t.nav.tierGold :
+                                profile?.tier === 'SILVER' ? t.nav.tierSilver :
+                                    t.nav.tierBronze}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className={`text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider ${profile?.tier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-500' :
-                                profile?.tier === 'SILVER' ? 'bg-blue-500/20 text-blue-400' :
-                                    'bg-emerald-500/10 text-emerald-500/80 border border-emerald-500/20'
-                                }`}>
-                                {profile?.tier === 'GOLD' ? t.nav.tierGold :
-                                    profile?.tier === 'SILVER' ? t.nav.tierSilver :
-                                        t.nav.tierBronze}
-                            </span>
-                            <div className="flex items-center text-[10px] text-slate-400 font-bold ml-0.5">
-                                <Coins className="w-3 h-3 mr-1 text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]" />
-                                {profile?.points || 0}
-                            </div>
+                        <div className="flex items-center text-[11px] text-zinc-600 dark:text-zinc-400 font-bold">
+                            <Coins className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                            {profile?.points || 0}
                         </div>
                     </div>
-                    <div className="relative">
-                        <Avatar className="h-8 w-8 border border-white/10 shadow-[0_0_10px_rgba(0,0,0,0.5)] ring-1 ring-white/5">
+                    <div className="relative ml-1">
+                        <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-700">
                             <AvatarImage src={user.user_metadata?.avatar_url} />
-                            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-[10px] font-black">
+                            <AvatarFallback className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] font-bold">
                                 {(user.email?.[0] || 'G').toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#0a0a0a] rounded-full" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-black rounded-full" />
                     </div>
-                    <ChevronDown className="h-3.5 w-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                    <ChevronDown className="h-3.5 w-3.5 text-zinc-400 group-hover:text-zinc-600 transition-colors mr-1" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 mt-2 p-2 border-border/50 bg-background/95 backdrop-blur-md shadow-xl" align="end">
@@ -131,9 +126,21 @@ export function UserMenu() {
                     </DropdownMenuItem>
                 )}
                 <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
+                    <Link href="/dashboard" className="flex items-center w-full">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        <span>대시보드</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
                     <Link href="/my-translations" className="flex items-center w-full">
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         <span>{t.nav.myHistory}</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
+                    <Link href="/settings/profile" className="flex items-center w-full">
+                        <Settings className="w-4 h-4 mr-2" />
+                        <span>프로필 설정</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">

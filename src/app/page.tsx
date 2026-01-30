@@ -2,14 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, FileSpreadsheet, FileIcon, ShieldCheck, Zap, Globe, Github } from 'lucide-react';
+import { Upload, FileText, FileSpreadsheet, FileIcon, ShieldCheck, Zap, Globe } from 'lucide-react';
 import { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Footer } from '@/components/ui/Footer';
 import { GamifiedLoading } from '@/components/translation/GamifiedLoading';
-import { PersistentGameAd } from '@/components/translation/PersistentGameAd';
-import { ModeToggle } from '@/components/mode-toggle';
-import { UserMenu } from '@/components/layout/UserMenu';
+// import { PersistentGameAd } from '@/components/translation/PersistentGameAd';
+import { GameAd } from '@/components/ads/GameAd';
+import { GoogleAd } from '@/components/ads/GoogleAd';
 import {
     Select,
     SelectContent,
@@ -26,10 +26,10 @@ import { GoogleDrivePicker, DriveFile } from '@/components/drive/GoogleDrivePick
 import { toast } from 'sonner';
 
 export default function HomePage() {
-    // State for File & Processing
+    // 파일 및 처리 상태 관리를 위한 상태값
     const [file, setFile] = useState<File | null>(null);
     const [driveFile, setDriveFile] = useState<DriveFile | null>(null);
-    const [jobId, setJobId] = useState<string | null>(null); // For Drive/Job-based processing
+    const [jobId, setJobId] = useState<string | null>(null); // 드라이브/작업 기반 처리를 위한 ID
     const [status, setStatus] = useState<'idle' | 'ready' | 'uploading' | 'processing' | 'completed' | 'failed'>('idle');
     const [progress, setProgress] = useState(0);
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -37,15 +37,15 @@ export default function HomePage() {
     const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
 
-    // 🌏 Global Geo-Smart Context Hook (Replaces previous inline logic)
-    // This hook manages Region, Currency, PPP, UI Lang, and Target Lang centrally.
+    // 🌏 글로벌 Geo-Smart 컨텍스트 훅 (중앙 상태 관리)
+    // 이 훅은 지역, 통화, PPP, UI 언어 및 대상 언어를 중앙에서 관리합니다.
     const {
-        region, currency, currencySymbol, pppFactor, // Immutable (Pricing)
-        uiLang, targetLang,                          // Mutable (User Preference)
-        t,                                           // Translations (Auto-synced)
+        region, currency, currencySymbol, pppFactor, // 불변 값 (가격 정책)
+        uiLang, targetLang,                          // 가변 값 (사용자 기본 설정)
+        t,                                           // 번역 데이터 (자동 동기화)
         setUiLang, setTargetLang,
         isLoading: isGeoLoading
-    } = useGeoSmart(); // Start with Korean fallback, but hook will override based on IP
+    } = useGeoSmart(); // IP 기반으로 위치를 파악하며, 기본값은 한국어입니다.
 
     // Remove local T logic as it is now provided by useGeoSmart
 
@@ -57,7 +57,7 @@ export default function HomePage() {
             setFile(acceptedFiles[0]);
             setDriveFile(null); // Clear drive file
             setStatus('ready');
-            // Reset states
+            // 상태 초기화
             setJobId(null);
             setProgress(0);
             setDownloadUrl(null);
@@ -65,25 +65,25 @@ export default function HomePage() {
             setEstimatedTime(null);
             setErrorMessage('');
 
-            // ✨ Smart Estimation Call
+            // ✨ 스마트 예상 시간 호출
             estimateTime(acceptedFiles[0]);
         }
     }, [estimateTime]);
 
     const handleDriveSelect = useCallback((dFile: DriveFile) => {
-        toast.success(`Selected from Drive: ${dFile.name}`);
+        toast.success(`드라이브에서 선택됨: ${dFile.name}`);
         setDriveFile(dFile);
-        setFile(null); // Clear local file
+        setFile(null); // 로컬 파일 초기화
         setStatus('ready');
         setJobId(null);
         setProgress(0);
         setDownloadUrl(null);
         setResultFileName('');
         setErrorMessage('');
-        setEstimatedTime(30); // Default estimate for drive files
+        setEstimatedTime(30); // 드라이브 파일의 기본 예상 시간
     }, []);
 
-    // Polling for Job Status (For Drive Files)
+    // 작업 상태 폴링 (드라이브 파일 처리용)
     useEffect(() => {
         let timer: NodeJS.Timeout;
         if (status === 'processing' && jobId) {
@@ -92,29 +92,29 @@ export default function HomePage() {
                     const res = await fetch(`/api/translation/${jobId}`);
                     if (res.ok) {
                         const data = await res.json();
-                        // Update progress from server if available
+                        // 서버로부터 진행 상황 업데이트
                         if (data.progress) setProgress(data.progress);
                         if (data.remainingSeconds) setEstimatedTime(data.remainingSeconds);
 
                         if (data.status === 'COMPLETED') {
-                            console.log('Job Completed. Data:', data); // Debug Log
+                            console.log('작업 완료. 데이터:', data); // 디버그 로그
                             setStatus('completed');
                             setDownloadUrl(data.translatedFileUrl);
-                            console.log('Download URL set to:', data.translatedFileUrl); // Debug Log
-                            setResultFileName(`${data.originalFilename || 'translated'}_${targetLang}.docx`); // Fallback extension
+                            console.log('다운로드 URL 설정:', data.translatedFileUrl); // 디버그 로그
+                            setResultFileName(`${data.originalFilename || 'translated'}_${targetLang}.docx`); // 기본 확장자 폴백
                             setProgress(100);
                             setEstimatedTime(0);
                             clearInterval(timer);
-                            toast.success("Translation completed!");
+                            toast.success("번역이 완료되었습니다!");
                         } else if (data.status === 'FAILED') {
                             setStatus('failed');
-                            setErrorMessage('Translation failed on server.');
+                            setErrorMessage('서버에서 번역 처리에 실패했습니다.');
                             clearInterval(timer);
-                            toast.error("Translation failed.");
+                            toast.error("번역 실패.");
                         }
                     }
                 } catch (error) {
-                    console.error("Polling error:", error);
+                    console.error("폴링 에러:", error);
                 }
             }, 1000);
         }
@@ -124,13 +124,13 @@ export default function HomePage() {
     const handleTranslate = async () => {
         if (!file && !driveFile) return;
 
-        // 1. Upload & Start Processing
+        // 1. 업로드 및 처리 시작
         setStatus('uploading');
         setProgress(5);
         setErrorMessage('');
 
-        // Initial Estimated Time from Smart Hook
-        const initialDuration = estimation.estimatedSeconds || 30; // Fallback 30s
+        // 스마트 훅으로부터 초기 예상 시간 획득
+        const initialDuration = estimation.estimatedSeconds || 30; // 폴백 30초
         setEstimatedTime(initialDuration);
 
         let currentProgress = 5;
@@ -146,7 +146,7 @@ export default function HomePage() {
             if (currentProgress < 90) {
                 const step = 90 / (duration * 2);
                 currentProgress += Math.max(0.5, step);
-                // Only update progress if we are NOT using the Job ID based real progress
+                // 작업 ID 기반의 실제 진행률을 사용하지 않는 경우에만 수동 업데이트
                 if (!jobId) {
                     setProgress(Math.min(90, Math.round(currentProgress)));
                 }
@@ -157,7 +157,7 @@ export default function HomePage() {
             setStatus('processing');
 
             if (driveFile) {
-                // --- Google Drive Flow ---
+                // --- 구글 드라이브 워크플로우 ---
                 const res = await fetch('/api/translation/upload/drive', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -172,22 +172,22 @@ export default function HomePage() {
 
                 if (!res.ok) {
                     const errorIdx = await res.json();
-                    throw new Error(errorIdx.error || 'Drive upload failed');
+                    throw new Error(errorIdx.error || '드라이브 업로드 실패');
                 }
 
                 const data = await res.json();
                 setJobId(data.jobId);
 
-                // Trigger start translation for the job common endpoint
+                // 공통 작업 엔드포인트에 대한 번역 시작 트리거
                 await fetch(`/api/translation/${data.jobId}/start`, {
                     method: 'POST',
-                    body: JSON.stringify({ targetLang, outputFormat: 'docx' }) // Default to docx for now
+                    body: JSON.stringify({ targetLang, outputFormat: 'docx' }) // 현재는 기본적으로 docx 사용
                 });
 
-                // Polling useEffect will take over from here
+                // 이후 처리는 polling useEffect가 담당함
 
             } else if (file) {
-                // --- Local File FLow (Legacy /api/translate) ---
+                // --- 로컬 파일 워크플로우 (/api/translate) ---
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('targetLang', targetLang);
@@ -199,10 +199,10 @@ export default function HomePage() {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `Translation failed (${response.status})`);
+                    throw new Error(errorData.error || `번역 실패 (${response.status})`);
                 }
 
-                // 2. Handle Result (Blob)
+                // 2. 결과 처리 (Blob)
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const contentDisposition = response.headers.get('Content-Disposition');
@@ -228,8 +228,7 @@ export default function HomePage() {
         onDrop,
         accept: {
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx']
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
         },
         maxFiles: 1,
         disabled: status === 'uploading' || status === 'processing'
@@ -237,49 +236,6 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-300">
-            {/* Navbar */}
-            <header className="fixed top-0 w-full z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    {/* Logo Section */}
-                    <div className="flex items-center gap-2.5 group cursor-pointer">
-                        <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
-                            <Globe className="w-6 h-6 text-primary" />
-                        </div>
-                        <span className="font-black text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                            {t.nav.brandName}
-                        </span>
-                    </div>
-                    <nav className="flex items-center space-x-6 text-sm font-medium">
-                        <div className="hidden md:flex space-x-6">
-                            <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">{t.nav.community}</Link>
-                            <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">{t.nav.pricing}</Link>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            {/* Display Language Selector (Optional Debugging or Override) */}
-                            <Select value={uiLang} onValueChange={(v) => setUiLang(v as Locale)}>
-                                <SelectTrigger className="w-[80px] h-8 text-xs bg-transparent border-none p-0 focus:ring-0">
-                                    <Globe className="w-3 h-3 mr-1" />
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {LANGUAGES.map((lang) => (
-                                        <SelectItem key={lang.code} value={lang.code}>
-                                            {lang.short}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-
-                            <Link href="https://github.com/your-repo" target="_blank" className="text-muted-foreground hover:text-foreground">
-                                <Github className="w-5 h-5" />
-                            </Link>
-                            <ModeToggle />
-                            <UserMenu />
-                        </div>
-                    </nav>
-                </div>
-            </header>
-
             {/* Hero Section */}
             <main className="flex-grow flex flex-col items-center justify-center pt-32 pb-20 px-6 relative overflow-hidden">
                 {/* Background Effects */}
@@ -333,7 +289,7 @@ export default function HomePage() {
 
                 {/* Persistent Game Ad Area (Always Visible) */}
                 <div className="w-full max-w-4xl mt-12 z-20">
-                    <PersistentGameAd />
+                    <GameAd />
                 </div>
 
                 {/* Dropzone & Status Area */}
@@ -396,7 +352,7 @@ export default function HomePage() {
                                 <p className="text-xl font-semibold text-foreground">{t.dropzone.idle}</p>
                                 <p className="text-sm text-muted-foreground">{t.dropzone.sub}</p>
                                 <div className="flex items-center justify-center gap-2 pt-2">
-                                    {['DOCX', 'XLSX', 'PPTX'].map((ext) => (
+                                    {['DOCX', 'XLSX'].map((ext) => (
                                         <span key={ext} className="text-xs font-medium px-2 py-1 bg-secondary rounded text-secondary-foreground">
                                             {ext}
                                         </span>
@@ -476,6 +432,11 @@ export default function HomePage() {
                         </div>
                     )}
                 </motion.div>
+
+                {/* Google Ad Area (Between Translation Object and Features) */}
+                <div className="w-full max-w-4xl z-20 mt-8">
+                    <GoogleAd />
+                </div>
 
                 {/* Features Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-32 max-w-6xl w-full px-4">

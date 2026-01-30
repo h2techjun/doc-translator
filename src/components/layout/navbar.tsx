@@ -1,132 +1,92 @@
+'use client';
+
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { Button } from "@/components/ui/button";
-import { Languages, User, LayoutDashboard, MessageSquare, LogOut, LogIn, FileText } from "lucide-react";
-import { i18n, type Locale } from '@/lib/i18n/dictionaries';
+import { Globe, Github, Sun, Moon } from "lucide-react";
+import { useGeoSmart } from '@/hooks/use-geo-smart';
+import { UserMenu } from './UserMenu';
+import { useTheme } from 'next-themes';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LanguageSwitcher } from './language-switcher';
-// @The-Nerd: Redirect utility for logout
-import { redirect } from 'next/navigation';
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Locale } from '@/lib/i18n/dictionaries';
+import { LANGUAGES } from '@/lib/i18n/languages';
 
 /**
- * 🧭 네비게이션 바 (Navbar)
- * 
- * 모든 페이지 상단에 위치하며, 홈/대시보드/커뮤니티 이동 및 로그인/사용자 설정을 관리합니다.
+ * 🧭 Global Navbar
+ * Matches the requested screenshot style: DocTranslation Logo, Menus, Language, Social, Theme, and Profile.
  */
-export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const session = user ? { user } : null; // Compatibility layer for existing UI logic
-
-    const dictionary = i18n[locale as Locale] || i18n.ko;
-    const t = dictionary.nav;
+export function Navbar() {
+    const { t, uiLang, setUiLang } = useGeoSmart();
+    const { theme, setTheme } = useTheme();
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between px-4 md:px-8">
-                <div className="flex items-center gap-8">
-                    {/* 로고 */}
-                    <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105">
-                        <div className="bg-primary p-1.5 rounded-lg shadow-lg shadow-primary/20">
-                            <Languages className="h-6 w-6 text-primary-foreground" />
-                        </div>
-                        <span className="font-bold text-xl tracking-tight hidden sm:inline-block bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                            Translation AI
-                        </span>
-                    </Link>
-
-                    {/* 주요 메뉴 */}
-                    <div className="hidden md:flex gap-6 text-sm font-medium">
-                        <Link href="/" className="transition-colors hover:text-primary">
-                            홈
-                        </Link>
-                        <Link href="/community" className="transition-colors hover:text-primary flex items-center gap-1">
-                            <MessageSquare className="h-4 w-4" />
-                            {t.community}
-                        </Link>
-                        {session && (
-                            <>
-                                <Link href="/my-translations" className="transition-colors hover:text-primary flex items-center gap-1">
-                                    <FileText className="h-4 w-4" />
-                                    {t.myHistory}
-                                </Link>
-                                <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-1">
-                                    <LayoutDashboard className="h-4 w-4" />
-                                    {t.adminDashboard}
-                                </Link>
-                            </>
-                        )}
+        <nav className="sticky top-0 z-50 w-full border-b border-zinc-200/50 bg-white/80 backdrop-blur-md dark:border-zinc-800/50 dark:bg-black/80">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                {/* Logo Section */}
+                <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-90">
+                    <div className="rounded-xl bg-zinc-100 p-2 dark:bg-zinc-800">
+                        <Globe className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
                     </div>
-                </div>
+                    <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                        {t.nav.brandName}
+                    </span>
+                </Link>
 
-                <div className="flex items-center gap-4">
-                    {/* 언어 선택기 */}
-                    <LanguageSwitcher />
-
-                    {session ? (
-                        /* 로그인된 경우: 사용자 프로필 드롭다운 */
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={session.user?.user_metadata?.avatar_url || ""} alt={session.user?.email || ""} />
-                                        <AvatarFallback className="bg-primary/5">
-                                            <User className="h-5 w-5 text-primary" />
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-border/50" align="end" forceMount>
-                                <DropdownMenuLabel className="font-normal">
-                                    <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-bold leading-none">{session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0]}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">
-                                            {session.user?.email}
-                                        </p>
-                                    </div>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                                    <Link href="/admin" className="w-full">
-                                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                                        <span>내 대시보드</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <form action={async () => {
-                                    "use server";
-                                    const supabase = await createClient();
-                                    await supabase.auth.signOut();
-                                    redirect(`/${locale}/login`);
-                                }}>
-                                    <DropdownMenuItem className="rounded-lg cursor-pointer text-destructive focus:text-destructive p-0">
-                                        <button className="w-full flex items-center px-2 py-1.5 focus:outline-none" type="submit">
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            <span>로그아웃</span>
-                                        </button>
-                                    </DropdownMenuItem>
-                                </form>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        /* 로그인되지 않은 경우: 로그인 버튼 */
-                        <Link href={`/${locale}/login`}>
-                            <Button className="rounded-xl px-5 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-                                <LogIn className="mr-2 h-4 w-4" />
-                                {t.login}
-                            </Button>
+                {/* Right Side Items */}
+                <div className="flex items-center gap-1 sm:gap-4 font-medium text-sm">
+                    {/* Main Nav Links */}
+                    <div className="hidden md:flex items-center gap-6 mr-2">
+                        <Link href="/community" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors">
+                            {t.nav.community}
                         </Link>
-                    )}
+                        <Link href="/pricing" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors">
+                            {t.nav.pricing}
+                        </Link>
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div className="flex items-center gap-1 bg-zinc-50 dark:bg-zinc-900 p-1 rounded-full border border-zinc-100 dark:border-zinc-800">
+                        <Select value={uiLang} onValueChange={(v) => setUiLang(v as Locale)}>
+                            <SelectTrigger className="h-8 border-none bg-transparent shadow-none focus:ring-0 gap-2 px-3 min-w-[80px]">
+                                <Globe className="h-4 w-4 text-zinc-500" />
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent align="end" className="rounded-xl">
+                                {LANGUAGES.map((lang) => (
+                                    <SelectItem key={lang.code} value={lang.code} className="cursor-pointer">
+                                        {lang.short}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Github Link */}
+                    <a href="https://github.com" target="_blank" rel="noreferrer" className="hidden sm:inline-flex p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                        <Github className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+                    </a>
+
+                    {/* Theme Toggle */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full h-9 w-9"
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    >
+                        <Sun className="h-[1.1rem] w-[1.1rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute h-[1.1rem] w-[1.1rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <span className="sr-only">Toggle theme</span>
+                    </Button>
+
+                    {/* User Profile Hook */}
+                    <UserMenu />
                 </div>
-            </div >
-        </nav >
+            </div>
+        </nav>
     );
 }

@@ -73,6 +73,20 @@ export const i18n: Record<Locale, {
         backWithEmail: string;
         alreadyHaveAccount: string;
     };
+    admin: {
+        dashboard: string;
+        users: string;
+        jobs: string;
+        security: string;
+        shutdown: string;
+        userManagement: string;
+        totalUsers: string;
+        translationJobs: string;
+        recentActivity: string;
+        banSystem: string;
+        banDesc: string;
+        verifying: string;
+    };
 }> = {
     ko: {
         badge: "서식 보존율 100% 보장",
@@ -144,6 +158,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "가입 인증 링크가 발송되었습니다.",
             backWithEmail: "이메일 다시 입력하기",
             alreadyHaveAccount: "이미 계정이 있으신가요?"
+        },
+        admin: {
+            dashboard: "대시보드",
+            users: "사용자 관리",
+            jobs: "작업 관리",
+            security: "보안",
+            shutdown: "시스템 종료",
+            userManagement: "사용자 관리",
+            totalUsers: "총 사용자",
+            translationJobs: "번역 작업 현황",
+            recentActivity: "최근 활동 기록",
+            banSystem: "사용자 제재 및 관리",
+            banDesc: "마스터의 권한으로 침입자를 격리하거나 오해를 해소합니다.",
+            verifying: "마스터 권한 확인 중..."
         }
     },
     en: {
@@ -216,6 +244,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     ja: {
@@ -288,6 +330,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "認証リンクを送信しました。",
             backWithEmail: "メールアドレスを再入力",
             alreadyHaveAccount: "すでにアカウントをお持ちですか？"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     zh: {
@@ -360,6 +416,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "我们已向您发送了验证链接",
             backWithEmail: "重新输入邮箱",
             alreadyHaveAccount: "已有账户？"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     vi: {
@@ -432,6 +502,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "Chúng tôi đã gửi liên kết xác minh đến",
             backWithEmail: "Nhập lại email",
             alreadyHaveAccount: "Đã có tài khoản?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     es: {
@@ -504,6 +588,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     fr: {
@@ -576,6 +674,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     de: {
@@ -648,6 +760,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     ru: {
@@ -720,6 +846,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     pt: {
@@ -792,6 +932,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     it: {
@@ -864,6 +1018,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     id: {
@@ -936,6 +1104,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     th: {
@@ -1008,6 +1190,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     tr: {
@@ -1080,6 +1276,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     pl: {
@@ -1152,6 +1362,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     nl: {
@@ -1224,6 +1448,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     ar: {
@@ -1296,6 +1534,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     hi: {
@@ -1368,6 +1620,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     bn: {
@@ -1440,6 +1706,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     },
     ms: {
@@ -1512,6 +1792,20 @@ export const i18n: Record<Locale, {
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
             alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
         }
     }
 };

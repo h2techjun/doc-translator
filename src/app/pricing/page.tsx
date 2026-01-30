@@ -44,10 +44,10 @@ const tiers = [
 
 export default function PricingPage() {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white py-24 px-6 relative overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground py-24 px-6 relative overflow-hidden transition-colors duration-300">
             {/* Background Decor */}
-            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -z-10" />
-            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 dark:bg-blue-600/5 rounded-full blur-[120px] -z-10" />
+            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 dark:bg-purple-600/5 rounded-full blur-[120px] -z-10" />
 
             <div className="max-w-7xl mx-auto">
                 <div className="text-center space-y-4 mb-20">
@@ -58,7 +58,7 @@ export default function PricingPage() {
                     >
                         CHOOSE YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">POWER TIER</span>
                     </motion.h1>
-                    <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                    <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-medium">
                         Scale your global communication with our high-fidelity AI translation engine.
                     </p>
                 </div>
@@ -128,13 +128,6 @@ export default function PricingPage() {
                 </div>
             </div>
 
-            <div className="mt-20 text-center">
-                <Link href="/">
-                    <Button variant="link" className="text-slate-500 hover:text-white">
-                        ← Back to Translator
-                    </Button>
-                </Link>
-            </div>
         </div>
     );
 }
