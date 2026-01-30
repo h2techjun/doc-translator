@@ -156,8 +156,9 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2">
                             <FileText className="w-5 h-5 text-blue-500" />
                             <span className="text-2xl font-bold">{jobs.length} 건</span>
-                            <span className="text-xs text-muted-foreground ml-2">(최근 30일)</span>
+                            <span className="text-xs text-muted-foreground ml-2">(최근 10일)</span>
                         </div>
+                        <p className="text-[10px] text-muted-foreground mt-2 italic">* 모든 파일은 보안을 위해 10일 후 자동 파기됩니다.</p>
                     </CardContent>
                 </Card>
             </div>

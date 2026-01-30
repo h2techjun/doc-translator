@@ -7,7 +7,6 @@ import { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Footer } from '@/components/ui/Footer';
 import { GamifiedLoading } from '@/components/translation/GamifiedLoading';
-// import { PersistentGameAd } from '@/components/translation/PersistentGameAd';
 import { GameAd } from '@/components/ads/GameAd';
 import { GoogleAd } from '@/components/ads/GoogleAd';
 import {
