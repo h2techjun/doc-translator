@@ -274,15 +274,18 @@ export default function HomePage() {
 
                 {/* Language Selector (Always visible when idle/ready to prepare context) */}
                 {(status === 'idle' || status === 'ready') && (
-                    <div className="w-full max-w-[200px] mx-auto mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="w-full max-w-[240px] mx-auto py-10 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 z-20">
+                        <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider block text-center">
+                            {t.selectorLabel || "번역할 언어 선택"}
+                        </label>
                         <Select value={targetLang} onValueChange={setTargetLang}>
-                            <SelectTrigger className="w-full bg-background/50 backdrop-blur-sm border-border h-10 shadow-sm">
-                                <Globe className="w-4 h-4 mr-2 text-muted-foreground" />
+                            <SelectTrigger className="w-full bg-background/50 backdrop-blur-md border-border h-12 shadow-sm rounded-xl ring-offset-background transition-all hover:bg-background/80">
+                                <Globe className="w-4 h-4 mr-2 text-primary animate-pulse-subtle" />
                                 <SelectValue placeholder={t.selector} />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="rounded-xl">
                                 {LANGUAGES.map((lang) => (
-                                    <SelectItem key={lang.code} value={lang.code}>
+                                    <SelectItem key={lang.code} value={lang.code} className="rounded-lg">
                                         {lang.name}
                                     </SelectItem>
                                 ))}
