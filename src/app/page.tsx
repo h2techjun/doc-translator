@@ -266,6 +266,11 @@ export default function HomePage() {
                         {t.description}
                     </p>
 
+                    {/* Persistent Game Ad Area (Always Visible) */}
+                    <div className="w-full max-w-4xl mt-12 z-20">
+                        <GameAd />
+                    </div>
+
                     {/* Language Selector (Always visible when idle/ready to prepare context) */}
                     {(status === 'idle' || status === 'ready') && (
                         <div className="w-full max-w-[200px] mx-auto mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -284,24 +289,18 @@ export default function HomePage() {
                             </Select>
                         </div>
                     )}
-                </motion.div>
 
-                {/* Persistent Game Ad Area (Always Visible) */}
-                <div className="w-full max-w-4xl mt-12 z-20">
-                    <GameAd />
-                </div>
-
-                {/* Dropzone & Status Area */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
-                    className="w-full max-w-2xl z-20"
-                >
-                    {status === 'idle' ? (
-                        <div
-                            {...getRootProps()}
-                            className={`
+                    {/* Dropzone & Status Area */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="w-full max-w-2xl z-20"
+                    >
+                        {status === 'idle' ? (
+                            <div
+                                {...getRootProps()}
+                                className={`
                                 relative group cursor-pointer 
                                 rounded-3xl border-2 border-dashed 
                                 transition-all duration-300 ease-out
@@ -309,156 +308,156 @@ export default function HomePage() {
                                 backdrop-blur-sm bg-white/40 dark:bg-zinc-900/40
                                 shadow-lg hover:shadow-xl dark:shadow-none
                                 ${isDragActive
-                                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-[1.02]'
-                                    : 'border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-white/60 dark:hover:bg-zinc-900/60'}
+                                        ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-[1.02]'
+                                        : 'border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-white/60 dark:hover:bg-zinc-900/60'}
                             `}
-                        >
-                            <input {...getInputProps()} />
+                            >
+                                <input {...getInputProps()} />
 
-                            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8 w-full px-6">
-                                {/* Local Option */}
-                                <div className="group relative flex flex-col items-center">
-                                    <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-5 group-hover:opacity-10 transition-opacity" />
-                                    <div className="
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8 w-full px-6">
+                                    {/* Local Option */}
+                                    <div className="group relative flex flex-col items-center">
+                                        <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-5 group-hover:opacity-10 transition-opacity" />
+                                        <div className="
                                         relative w-56 h-16
                                         bg-background rounded-2xl flex items-center justify-center gap-3
                                         shadow-sm border border-border group-hover:border-primary/40 group-hover:scale-[1.02] transition-all duration-300
                                     ">
-                                        <Upload className="w-6 h-6 text-primary" />
-                                        <span className="font-bold text-sm tracking-tight text-foreground">{t.nav.local}</span>
+                                            <Upload className="w-6 h-6 text-primary" />
+                                            <span className="font-bold text-sm tracking-tight text-foreground">{t.nav.local}</span>
+                                        </div>
+                                        <span className="mt-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">{t.nav.local}</span>
                                     </div>
-                                    <span className="mt-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">{t.nav.local}</span>
+
+                                    <div className="hidden md:flex items-center gap-2 text-border/40 select-none">
+                                        <div className="w-8 h-[1px] bg-current" />
+                                        <span className="text-[10px] font-bold">VS</span>
+                                        <div className="w-8 h-[1px] bg-current" />
+                                    </div>
+
+                                    {/* Cloud Option */}
+                                    <div className="group relative flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+                                        <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-0 group-hover:opacity-10 transition-opacity" />
+                                        <GoogleDrivePicker
+                                            onSelect={handleDriveSelect}
+                                            onError={(err) => toast.error(`Drive Error: ${err}`)}
+                                        />
+                                        <span className="mt-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">{t.nav.cloud}</span>
+                                    </div>
                                 </div>
 
-                                <div className="hidden md:flex items-center gap-2 text-border/40 select-none">
-                                    <div className="w-8 h-[1px] bg-current" />
-                                    <span className="text-[10px] font-bold">VS</span>
-                                    <div className="w-8 h-[1px] bg-current" />
+                                <div className="text-center space-y-2">
+                                    <p className="text-xl font-semibold text-foreground">{t.dropzone.idle}</p>
+                                    <p className="text-sm text-muted-foreground">{t.dropzone.sub}</p>
+                                    <div className="flex items-center justify-center gap-2 pt-2">
+                                        {['DOCX', 'XLSX'].map((ext) => (
+                                            <span key={ext} className="text-xs font-medium px-2 py-1 bg-secondary rounded text-secondary-foreground">
+                                                {ext}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                {/* Cloud Option */}
-                                <div className="group relative flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-                                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-0 group-hover:opacity-10 transition-opacity" />
-                                    <GoogleDrivePicker
-                                        onSelect={handleDriveSelect}
-                                        onError={(err) => toast.error(`Drive Error: ${err}`)}
-                                    />
-                                    <span className="mt-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">{t.nav.cloud}</span>
-                                </div>
+                                {/* Floating Icons Decoration */}
+                                <FileText className="absolute top-10 left-10 w-8 h-8 text-blue-500/10 dark:text-blue-500/20 -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
+                                <FileSpreadsheet className="absolute bottom-10 right-10 w-8 h-8 text-green-500/10 dark:text-green-500/20 rotate-12 group-hover:rotate-45 transition-transform duration-500" />
                             </div>
-
-                            <div className="text-center space-y-2">
-                                <p className="text-xl font-semibold text-foreground">{t.dropzone.idle}</p>
-                                <p className="text-sm text-muted-foreground">{t.dropzone.sub}</p>
-                                <div className="flex items-center justify-center gap-2 pt-2">
-                                    {['DOCX', 'XLSX'].map((ext) => (
-                                        <span key={ext} className="text-xs font-medium px-2 py-1 bg-secondary rounded text-secondary-foreground">
-                                            {ext}
+                        ) : status === 'ready' ? (
+                            <div className="relative w-full rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-8 flex flex-col items-center animate-in zoom-in-95 duration-300">
+                                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
+                                    <FileText className="w-8 h-8" />
+                                </div>
+                                <h2 className="text-2xl font-bold mb-2">{file?.name || driveFile?.name}</h2>
+                                <p className="text-muted-foreground mb-8">
+                                    {((file?.size || driveFile?.sizeBytes || 0) / 1024 / 1024).toFixed(2)} MB
+                                    {estimation.estimatedSeconds > 0 && (
+                                        <span className="ml-2 text-blue-500 font-medium">
+                                            (Est. {estimation.estimatedSeconds}s)
                                         </span>
-                                    ))}
-                                </div>
-                            </div>
+                                    )}
+                                </p>
 
-                            {/* Floating Icons Decoration */}
-                            <FileText className="absolute top-10 left-10 w-8 h-8 text-blue-500/10 dark:text-blue-500/20 -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
-                            <FileSpreadsheet className="absolute bottom-10 right-10 w-8 h-8 text-green-500/10 dark:text-green-500/20 rotate-12 group-hover:rotate-45 transition-transform duration-500" />
-                        </div>
-                    ) : status === 'ready' ? (
-                        <div className="relative w-full rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-8 flex flex-col items-center animate-in zoom-in-95 duration-300">
-                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
-                                <FileText className="w-8 h-8" />
+                                <button
+                                    onClick={handleTranslate}
+                                    className="w-full max-w-sm py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center"
+                                >
+                                    <Zap className="w-5 h-5 mr-2 fill-current" />
+                                    {t.button.translate}
+                                </button>
+
+                                <button
+                                    onClick={() => { setFile(null); setDriveFile(null); setStatus('idle'); }}
+                                    className="mt-4 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+                                >
+                                    {t.nav.backToUpload}
+                                </button>
                             </div>
-                            <h2 className="text-2xl font-bold mb-2">{file?.name || driveFile?.name}</h2>
-                            <p className="text-muted-foreground mb-8">
-                                {((file?.size || driveFile?.sizeBytes || 0) / 1024 / 1024).toFixed(2)} MB
-                                {estimation.estimatedSeconds > 0 && (
-                                    <span className="ml-2 text-blue-500 font-medium">
-                                        (Est. {estimation.estimatedSeconds}s)
-                                    </span>
+                        ) : (
+                            <div className="relative w-full">
+                                <GamifiedLoading
+                                    t={t.loading}
+                                    status={status}
+                                    progress={progress}
+                                    errorMessage={errorMessage}
+                                    onDownload={() => {
+                                        if (downloadUrl) {
+                                            // Use Proxy API for reliable download with correct filename
+                                            const proxyUrl = `/api/download?url=${encodeURIComponent(downloadUrl)}&filename=${encodeURIComponent(resultFileName)}`;
+
+                                            const a = document.createElement('a');
+                                            a.href = proxyUrl;
+                                            // a.download attribute is not needed when using the proxy, as the server sends Content-Disposition
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+
+                                            // Reset state after download
+                                            setStatus('idle');
+                                            setProgress(0);
+                                            setFile(null);
+                                            setDriveFile(null); // Clear drive file too
+                                        }
+                                    }}
+                                />
+                                {/* Estimated Time Overlay */}
+                                {(status === 'uploading' || status === 'processing') && estimatedTime !== null && (
+                                    <div className="absolute -bottom-12 left-0 w-full text-center animate-in fade-in slide-in-from-top-2 duration-700">
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            {t.time.estimated}: <span className="text-foreground font-bold">{estimatedTime}</span> {t.time.seconds}
+                                        </p>
+                                    </div>
                                 )}
-                            </p>
-
-                            <button
-                                onClick={handleTranslate}
-                                className="w-full max-w-sm py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center"
-                            >
-                                <Zap className="w-5 h-5 mr-2 fill-current" />
-                                {t.button.translate}
-                            </button>
-
-                            <button
-                                onClick={() => { setFile(null); setDriveFile(null); setStatus('idle'); }}
-                                className="mt-4 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
-                            >
-                                {t.nav.backToUpload}
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="relative w-full">
-                            <GamifiedLoading
-                                t={t.loading}
-                                status={status}
-                                progress={progress}
-                                errorMessage={errorMessage}
-                                onDownload={() => {
-                                    if (downloadUrl) {
-                                        // Use Proxy API for reliable download with correct filename
-                                        const proxyUrl = `/api/download?url=${encodeURIComponent(downloadUrl)}&filename=${encodeURIComponent(resultFileName)}`;
-
-                                        const a = document.createElement('a');
-                                        a.href = proxyUrl;
-                                        // a.download attribute is not needed when using the proxy, as the server sends Content-Disposition
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        document.body.removeChild(a);
-
-                                        // Reset state after download
-                                        setStatus('idle');
-                                        setProgress(0);
-                                        setFile(null);
-                                        setDriveFile(null); // Clear drive file too
-                                    }
-                                }}
-                            />
-                            {/* Estimated Time Overlay */}
-                            {(status === 'uploading' || status === 'processing') && estimatedTime !== null && (
-                                <div className="absolute -bottom-12 left-0 w-full text-center animate-in fade-in slide-in-from-top-2 duration-700">
-                                    <p className="text-sm font-medium text-muted-foreground">
-                                        {t.time.estimated}: <span className="text-foreground font-bold">{estimatedTime}</span> {t.time.seconds}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* Google Ad Area (Between Translation Object and Features) */}
-                <div className="w-full max-w-4xl z-20 mt-8">
-                    <GoogleAd />
-                </div>
-
-                {/* Features Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-32 max-w-6xl w-full px-4">
-                    {[
-                        { icon: FileIcon, ...t.features.compatibility },
-                        { icon: ShieldCheck, ...t.features.format },
-                        { icon: Zap, ...t.features.speed }
-                    ].map((feature, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 + (idx * 0.1) }}
-                            className="group p-8 rounded-2xl bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-900/50 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
-                        >
-                            <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
-                                <feature.icon className="w-6 h-6 text-primary" />
                             </div>
-                            <h3 className="font-bold text-lg mb-3">{feature.title}</h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
-                        </motion.div>
-                    ))}
-                </div>
+                        )}
+                    </motion.div>
+
+                    {/* Google Ad Area (Between Translation Object and Features) */}
+                    <div className="w-full max-w-4xl z-20 mt-8">
+                        <GoogleAd />
+                    </div>
+
+                    {/* Features Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-32 max-w-6xl w-full px-4">
+                        {[
+                            { icon: FileIcon, ...t.features.compatibility },
+                            { icon: ShieldCheck, ...t.features.format },
+                            { icon: Zap, ...t.features.speed }
+                        ].map((feature, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 + (idx * 0.1) }}
+                                className="group p-8 rounded-2xl bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-900/50 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+                            >
+                                <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
+                                    <feature.icon className="w-6 h-6 text-primary" />
+                                </div>
+                                <h3 className="font-bold text-lg mb-3">{feature.title}</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
             </main>
 
             <Footer />
