@@ -1,4 +1,6 @@
-# 📄 문서 번역 서비스 (Document Translation Service)
+# 📄 DocTranslator (AI Document Translation)
+
+> **Deployment Status**: 🟢 Stable (Vercel)
 
 > **세계 최고 수준의 레이아웃 보존 문서 번역 시스템**
 
