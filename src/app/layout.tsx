@@ -10,8 +10,17 @@ import { Footer } from "@/components/layout/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DocTranslation - 서식 보존 번역",
-  description: "AI 기반 서식 보존 문서 번역 서비스",
+  metadataBase: new URL("https://doctranslation.co"),
+  title: "DocTranslation - 100% Formatting Preservation AI Translation",
+  description: "AI-powered document translation that preserves tables, charts, and styles perfectly.",
+  keywords: ["document translation", "AI translation", "preserve formatting", "DOCX translation", "PPTX translation"],
+  openGraph: {
+    title: "DocTranslation",
+    description: "Perfect AI Translation with 100% Layout Preservation",
+    url: "https://doctranslation.co",
+    siteName: "DocTranslation",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
