@@ -1,11 +1,9 @@
 "use client";
 
-import { useLanguage } from "@/context/geo-smart-context";
-import { i18n } from "@/lib/i18n/dictionaries";
+import { useGeoSmart } from "@/context/geo-smart-context";
 
 export default function PrivacyPage() {
-    const { lang } = useLanguage();
-    const t = i18n[lang];
+    const { t } = useGeoSmart();
 
     return (
         <div className="container mx-auto px-4 py-16 max-w-4xl">

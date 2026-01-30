@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useLanguage } from "@/context/geo-smart-context";
-import { i18n } from "@/lib/i18n/dictionaries";
+import { useGeoSmart } from "@/context/geo-smart-context";
 
 export const Footer = () => {
-    const { lang } = useLanguage();
-    const t = i18n[lang];
+    const { t } = useGeoSmart();
 
     return (
         <footer className="w-full border-t border-border bg-background/50 backdrop-blur-md py-8 mt-auto">
