@@ -34,7 +34,7 @@ export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
             <div className="container flex h-16 items-center justify-between px-4 md:px-8">
                 <div className="flex items-center gap-8">
                     {/* 로고 */}
-                    <Link href={`/ ${locale} `} className="flex items-center space-x-2 transition-transform hover:scale-105">
+                    <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105">
                         <div className="bg-primary p-1.5 rounded-lg shadow-lg shadow-primary/20">
                             <Languages className="h-6 w-6 text-primary-foreground" />
                         </div>
@@ -45,27 +45,27 @@ export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
 
                     {/* 주요 메뉴 */}
                     <div className="hidden md:flex gap-6 text-sm font-medium">
-                        <Link href={`/ ${locale} `} className="transition-colors hover:text-primary">
-                            {t('home')}
+                        <Link href="/" className="transition-colors hover:text-primary">
+                            홈
                         </Link>
-                        <Link href={`/ ${locale}/community`} className="transition-colors hover:text-primary flex items-center gap-1" >
+                        <Link href="/community" className="transition-colors hover:text-primary flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
-                            {t('community')}
-                        </Link >
+                            {t.community}
+                        </Link>
                         {session && (
                             <>
-                                <Link href={`/${locale}/my-translations`} className="transition-colors hover:text-primary flex items-center gap-1">
+                                <Link href="/my-translations" className="transition-colors hover:text-primary flex items-center gap-1">
                                     <FileText className="h-4 w-4" />
-                                    {t('dashboard')}
+                                    {t.myHistory}
                                 </Link>
-                                <Link href={`/${locale}/admin`} className="transition-colors hover:text-primary flex items-center gap-1">
+                                <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-1">
                                     <LayoutDashboard className="h-4 w-4" />
-                                    {t('admin')}
+                                    {t.adminDashboard}
                                 </Link>
                             </>
                         )}
-                    </div >
-                </div >
+                    </div>
+                </div>
 
                 <div className="flex items-center gap-4">
                     {/* 언어 선택기 */}
@@ -95,7 +95,7 @@ export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                                    <Link href={`/${locale}/admin`} className="w-full">
+                                    <Link href="/admin" className="w-full">
                                         <LayoutDashboard className="mr-2 h-4 w-4" />
                                         <span>내 대시보드</span>
                                     </Link>
