@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest, i18nResponse?: NextResponse) {
-    let response = i18nResponse || NextResponse.next({
+export async function updateSession(request: NextRequest) {
+    let response = NextResponse.next({
         request: {
             headers: request.headers,
         },
@@ -21,9 +21,9 @@ export async function updateSession(request: NextRequest, i18nResponse?: NextRes
                     cookiesToSet.forEach(({ name, value }) =>
                         request.cookies.set(name, value)
                     )
-                    // i18nResponse가 있는 경우 이를 기반으로 새 응답 생성
-                    response = i18nResponse ? i18nResponse : NextResponse.next({ request });
-
+                    response = NextResponse.next({
+                        request,
+                    })
                     cookiesToSet.forEach(({ name, value, options }) =>
                         response.cookies.set(name, value, options)
                     )
@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest, i18nResponse?: NextRes
     const pathname = request.nextUrl.pathname;
     const isAdminPath = pathname.startsWith('/admin') || /^\/[a-z]{2}\/admin/.test(pathname);
 
-    if (isAdminPath) {
+    if (request.nextUrl.pathname.startsWith('/admin')) {
         if (!user) {
             return NextResponse.redirect(new URL('/signin', request.url))
         }
