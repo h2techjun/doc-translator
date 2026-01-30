@@ -13,6 +13,7 @@ export const i18n: Record<Locale, {
         speed: { title: string; desc: string };
     };
     selector: string;
+    selectorLabel: string;
     button: { translate: string };
     time: { estimated: string; seconds: string };
     loading: {
@@ -99,6 +100,7 @@ export const i18n: Record<Locale, {
             speed: { title: "압도적인 속도", desc: "대용량 문서도 수초 내에 분석하고 번역을 완료합니다." }
         },
         selector: "도착 언어 선택",
+        selectorLabel: "번역할 언어 선택",
         button: { translate: "번역 시작하기" },
         time: { estimated: "예상 소요 시간", seconds: "초" },
         loading: {
@@ -185,6 +187,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Lightning Fast", desc: "Optimized engine processes huge files in seconds." }
         },
         selector: "Target Language",
+        selectorLabel: "Select Target Language",
         button: { translate: "Start Translation" },
         time: { estimated: "Estimated time", seconds: "sec" },
         loading: {
@@ -271,6 +274,7 @@ export const i18n: Record<Locale, {
             speed: { title: "圧倒的なスピード", desc: "大容量の文書も数秒で分析し、翻訳を完了します。" }
         },
         selector: "翻訳言語を選択",
+        selectorLabel: "翻訳言語を選択してください",
         button: { translate: "翻訳を開始" },
         time: { estimated: "Estimated time", seconds: "sec" },
         loading: {
@@ -357,6 +361,7 @@ export const i18n: Record<Locale, {
             speed: { title: "极速处理", desc: "优化引擎在几秒钟内处理大文件。" }
         },
         selector: "选择目标语言",
+        selectorLabel: "请选择目标语言",
         button: { translate: "开始翻译" },
         time: { estimated: "预计时间", seconds: "秒" },
         loading: {
@@ -443,6 +448,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Tốc độ cực nhanh", desc: "Công cụ tối ưu hóa xử lý các tệp lớn chỉ trong vài giây." }
         },
         selector: "Chọn ngôn ngữ đích",
+        selectorLabel: "Chọn ngôn ngữ mục tiêu",
         button: { translate: "Bắt đầu dịch" },
         time: { estimated: "Thời gian dự kiến", seconds: "giây" },
         loading: {
@@ -529,6 +535,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Ultrarrápido", desc: "Motor optimizado para procesar archivos grandes en segundos." }
         },
         selector: "Idioma de destino",
+        selectorLabel: "Seleccionar idioma de destino",
         button: { translate: "Traducir ahora" },
         time: { estimated: "Tiempo estimado", seconds: "seg" },
         loading: {
@@ -615,6 +622,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Éclair", desc: "Traitement des gros fichiers en quelques secondes." }
         },
         selector: "Langue cible",
+        selectorLabel: "Choisir la langue cible",
         button: { translate: "Traduire maintenant" },
         time: { estimated: "Temps estimé", seconds: "sec" },
         loading: {
@@ -701,6 +709,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Blitzschnell", desc: "Optimierte Engine verarbeitet große Dateien in Sekunden." }
         },
         selector: "Zielsprache",
+        selectorLabel: "Zielsprache auswählen",
         button: { translate: "Jetzt übersetzen" },
         time: { estimated: "Geschätzte Zeit", seconds: "Sek" },
         loading: {
@@ -787,6 +796,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Мгновенно", desc: "Обработка больших файлов за секунды." }
         },
         selector: "Целевой язык",
+        selectorLabel: "Выберите целевой язык",
         button: { translate: "Перевести" },
         time: { estimated: "Осталось", seconds: "сек" },
         loading: {
@@ -873,6 +883,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Relâmpago", desc: "Motor otimizado processa arquivos grandes em segundos." }
         },
         selector: "Idioma de destino",
+        selectorLabel: "Selecionar idioma de destino",
         button: { translate: "Traduzir agora" },
         time: { estimated: "Tempo estimado", seconds: "seg" },
         loading: {
@@ -959,6 +970,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Velocissimo", desc: "Motore ottimizzato per file di grandi dimensioni." }
         },
         selector: "Lingua di destinazione",
+        selectorLabel: "Seleziona lingua di destinazione",
         button: { translate: "Traduci ora" },
         time: { estimated: "Tempo stimato", seconds: "sec" },
         loading: {
@@ -1045,6 +1057,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Super Cepat", desc: "Mesin yang dioptimalkan memproses file besar dalam hitungan detik." }
         },
         selector: "Bahasa Target",
+        selectorLabel: "Pilih Bahasa Target",
         button: { translate: "Mulai Terjemahan" },
         time: { estimated: "Estimasi waktu", seconds: "detik" },
         loading: {
@@ -1131,6 +1144,7 @@ export const i18n: Record<Locale, {
             speed: { title: "รวดเร็วทันใจ", desc: "ประมวลผลไฟล์ขนาดใหญ่ได้ในไม่กี่วินาที" }
         },
         selector: "ภาษาปลายทาง",
+        selectorLabel: "เลือกภาษาปลายทาง",
         button: { translate: "เริ่มแปล" },
         time: { estimated: "เวลาโดยประมาณ", seconds: "วินาที" },
         loading: {
@@ -1217,6 +1231,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Yıldırım Hızı", desc: "Büyük dosyaları saniyeler içinde işler." }
         },
         selector: "Hedef Dil",
+        selectorLabel: "Hedef Dili Seçin",
         button: { translate: "Çeviriye Başla" },
         time: { estimated: "Tahmini süre", seconds: "sn" },
         loading: {
@@ -1303,6 +1318,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Błyskawicznie", desc: "Zoptymalizowany silnik przetwarza duże pliki w sekundy." }
         },
         selector: "Język docelowy",
+        selectorLabel: "Wybierz język docelowy",
         button: { translate: "Rozpocznij tłumaczenie" },
         time: { estimated: "Szacowany czas", seconds: "sek" },
         loading: {
@@ -1389,6 +1405,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Razendsnel", desc: "Geoptimaliseerde engine verwerkt grote bestanden in seconden." }
         },
         selector: "Doeltaal",
+        selectorLabel: "Selecteer doeltaal",
         button: { translate: "Vertaling starten" },
         time: { estimated: "Geschatte tijd", seconds: "sec" },
         loading: {
@@ -1475,6 +1492,7 @@ export const i18n: Record<Locale, {
             speed: { title: "سرعة البرق", desc: "محرك محسن يعالج الملفات الكبيرة في ثوانٍ." }
         },
         selector: "الغة الهدف",
+        selectorLabel: "اختر اللغة الهدف",
         button: { translate: "ابدأ الترجمة" },
         time: { estimated: "الوقت المقدر", seconds: "ثانية" },
         loading: {
@@ -1561,6 +1579,7 @@ export const i18n: Record<Locale, {
             speed: { title: "बिजली की गति", desc: "बड़े फाइलों को सेकंडों में प्रोसेस करता है।" }
         },
         selector: "लक्षित भाषा",
+        selectorLabel: "लक्षित भाषा चुनें",
         button: { translate: "अनुवाद शुरू करें" },
         time: { estimated: "अनुमानित समय", seconds: "सेकंड" },
         loading: {
@@ -1647,6 +1666,7 @@ export const i18n: Record<Locale, {
             speed: { title: "বিদ্যুত গতি", desc: "বড় ফাইল সেকেন্ডের মধ্যে প্রসেস করে।" }
         },
         selector: "টার্গেট ভাষা",
+        selectorLabel: "টার্গেট ভাষা নির্বাচন করুন",
         button: { translate: "অনুবাদ শুরু করুন" },
         time: { estimated: "আনুমানিক সময়", seconds: "সেকেন্ড" },
         loading: {
@@ -1733,6 +1753,7 @@ export const i18n: Record<Locale, {
             speed: { title: "Pantas Kilat", desc: "Enjin dioptimumkan memproses fail besar dalam saat." },
         },
         selector: "Bahasa Sasaran",
+        selectorLabel: "Pilih Bahasa Sasaran",
         button: { translate: "Mula Terjemah" },
         time: { estimated: "Anggaran masa", seconds: "saat" },
         loading: {
