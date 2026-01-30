@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest) {
-    let response = NextResponse.next({
+export async function updateSession(request: NextRequest, i18nResponse?: NextResponse) {
+    let response = i18nResponse || NextResponse.next({
         request: {
             headers: request.headers,
         },
@@ -21,9 +21,9 @@ export async function updateSession(request: NextRequest) {
                     cookiesToSet.forEach(({ name, value }) =>
                         request.cookies.set(name, value)
                     )
-                    response = NextResponse.next({
-                        request,
-                    })
+                    // i18nResponse가 있는 경우 이를 기반으로 새 응답 생성
+                    response = i18nResponse ? i18nResponse : NextResponse.next({ request });
+
                     cookiesToSet.forEach(({ name, value, options }) =>
                         response.cookies.set(name, value, options)
                     )
@@ -36,7 +36,11 @@ export async function updateSession(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     // Admin Route Protection
-    if (request.nextUrl.pathname.startsWith('/admin')) {
+    // i18n 경로가 포함된 경우를 고려하여 정규식 또는 인덱스 검사 (예: /ko/admin 또는 /admin)
+    const pathname = request.nextUrl.pathname;
+    const isAdminPath = pathname.startsWith('/admin') || /^\/[a-z]{2}\/admin/.test(pathname);
+
+    if (isAdminPath) {
         if (!user) {
             return NextResponse.redirect(new URL('/signin', request.url))
         }
@@ -49,14 +53,11 @@ export async function updateSession(request: NextRequest) {
             .single()
 
         if (profile?.role !== 'ADMIN') {
-            // If not admin, verify if it's a legacy superuser check (optional, but cleaner to stick to DB role)
-            // For now, strict check on role.
             return NextResponse.redirect(new URL('/', request.url))
         }
     }
 
-    // Google Drive Picker 팝업 통신 허용 (Fix for Cross-Origin-Opener-Policy warning)
-    // Supabase setAll에서 response가 재할당될 수 있으므로, 반환 직전에 헤더를 설정해야 함.
+    // Google Drive Picker 팝업 통신 허용
     response.headers.set('Cross-Origin-Opener-Policy', 'unsafe-none');
 
     return response
