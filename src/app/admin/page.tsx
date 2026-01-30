@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-sm">{job.original_filename}</p>
-                                                    <p className="text-xs text-slate-500">{job.target_language} • {new Date(job.created_at).toLocaleString()}</p>
+                                                    <p className="text-xs text-slate-500">{job.target_lang} • {new Date(job.created_at).toLocaleString()}</p>
                                                 </div>
                                             </div>
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' :

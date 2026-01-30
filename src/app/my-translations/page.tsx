@@ -26,7 +26,7 @@ type Job = {
     progress: number;
     translated_file_url: string | null;
     error_message: string | null;
-    target_language: string;
+    target_lang: string;
 };
 
 export default function MyTranslationsPage() {
@@ -196,7 +196,7 @@ export default function MyTranslationsPage() {
                                                             {job.original_filename}
                                                         </span>
                                                         <span className="text-xs text-muted-foreground">
-                                                            To: {job.target_language || 'EN'}
+                                                            To: {job.target_lang || 'EN'}
                                                         </span>
                                                     </div>
                                                 </div>

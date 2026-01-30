@@ -22,7 +22,7 @@ type Job = {
     original_filename: string;
     status: 'WAITING' | 'UPLOADING' | 'PROCESSING' | 'TRANSLATING' | 'COMPLETED' | 'FAILED';
     progress: number;
-    target_language: string;
+    target_lang: string;
 };
 
 type Profile = {
