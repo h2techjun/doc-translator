@@ -121,7 +121,7 @@ export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
                         <Link href={`/${locale}/login`}>
                             <Button className="rounded-xl px-5 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
                                 <LogIn className="mr-2 h-4 w-4" />
-                                {t('login') || 'SignIn'}
+                                {t.login}
                             </Button>
                         </Link>
                     )}
