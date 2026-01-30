@@ -16,23 +16,25 @@ export async function POST(req: NextRequest) {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json({ error: '로그인이 필요한 서비스입니다.' }, { status: 401 });
-        }
+        // 🌟 [GUEST MODE SUPPORT]
+        // If logged in, deduct points. If guest, allow free translation (monetized via ads on the frontend).
+        if (user) {
+            const { PointManager } = await import('@/lib/payment/point-manager');
+            const success = await PointManager.usePoints(
+                user.id,
+                5,
+                `${file.name} 번역 (${targetLang})`
+            );
 
-        // 포인트 차감 시도
-        const { PointManager } = await import('@/lib/payment/point-manager');
-        const success = await PointManager.usePoints(
-            user.id,
-            5,
-            `${file.name} 번역 (${targetLang})`
-        );
-
-        if (!success) {
-            return NextResponse.json({
-                error: '포인트가 부족합니다. 광고 시청이나 충전을 통해 포인트를 획득하세요.',
-                isPointError: true
-            }, { status: 403 });
+            if (!success) {
+                return NextResponse.json({
+                    error: '포인트가 부족합니다. 광고 시청이나 충전을 통해 포인트를 획득하세요.',
+                    isPointError: true
+                }, { status: 403 });
+            }
+        } else {
+            // Guest mode: Logging or rate limiting can be added here if needed.
+            console.log(`Guest translation request for file: ${file.name}`);
         }
 
         // 2. Buffer Conversion
