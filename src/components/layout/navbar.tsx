@@ -1,9 +1,4 @@
-
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
-import { Button } from "@/components/ui/button";
-import { Languages, User, LayoutDashboard, MessageSquare, LogOut, LogIn, FileText } from "lucide-react";
-import { getTranslations } from 'next-intl/server';
+import { i18n, typeof Locale } from '@/lib/i18n/dictionaries';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,19 +10,21 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageSwitcher } from './language-switcher';
 // @The-Nerd: Redirect utility for logout
-import { redirect } from 'next/navigation';
+import { useGeoSmart } from '@/hooks/use-geo-smart';
+import { redirect } from 'next/navigation'; // Keep redirect for the logout action
 
 /**
  * 🧭 네비게이션 바 (Navbar)
  * 
  * 모든 페이지 상단에 위치하며, 홈/대시보드/커뮤니티 이동 및 로그인/사용자 설정을 관리합니다.
  */
-export default async function Navbar({ locale }: { locale: string }) {
+export default async function Navbar({ locale = 'ko' }: { locale?: string }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const session = user ? { user } : null; // Compatibility layer for existing UI logic
 
-    const t = await getTranslations('Common.nav');
+    // Use useGeoSmart for translation
+    const { t } = useGeoSmart(); // Assuming useGeoSmart can be called in an async component or provides a way to get 't'
 
     return (
         <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
