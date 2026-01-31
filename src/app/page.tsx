@@ -228,7 +228,8 @@ export default function HomePage() {
         onDrop,
         accept: {
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx']
         },
         maxFiles: 1,
         disabled: status === 'uploading' || status === 'processing'
@@ -329,7 +330,7 @@ export default function HomePage() {
                                 relative group cursor-pointer 
                                 rounded-3xl border-2 border-dashed 
                                 transition-all duration-300 ease-out
-                                h-72 flex flex-col items-center justify-center
+                                min-h-[22rem] md:h-72 flex flex-col items-center justify-center py-10 md:py-0
                                 backdrop-blur-sm bg-white/40 dark:bg-zinc-900/40
                                 shadow-lg hover:shadow-xl dark:shadow-none
                                 ${isDragActive
@@ -339,7 +340,7 @@ export default function HomePage() {
                         >
                             <input {...getInputProps()} />
 
-                            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8 w-full px-6">
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-8 w-full px-6">
                                 {/* Local Option */}
                                 <div className="group relative flex flex-col items-center">
                                     <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-5 group-hover:opacity-10 transition-opacity" />
@@ -371,12 +372,12 @@ export default function HomePage() {
                                 </div>
                             </div>
 
-                            <div className="text-center space-y-2">
-                                <p className="text-xl font-semibold text-foreground">{t.dropzone.idle}</p>
+                            <div className="text-center space-y-2 px-4">
+                                <p className="text-xl font-semibold text-foreground leading-tight">{t.dropzone.idle}</p>
                                 <p className="text-sm text-muted-foreground">{t.dropzone.sub}</p>
-                                <div className="flex items-center justify-center gap-2 pt-2">
-                                    {['DOCX', 'XLSX'].map((ext) => (
-                                        <span key={ext} className="text-xs font-medium px-2 py-1 bg-secondary rounded text-secondary-foreground">
+                                <div className="flex items-center justify-center gap-2 pt-2 flex-wrap">
+                                    {['DOCX', 'XLSX', 'PPTX'].map((ext) => (
+                                        <span key={ext} className="text-[10px] md:text-xs font-bold px-2.5 py-1 bg-secondary rounded-full text-secondary-foreground border border-border/50">
                                             {ext}
                                         </span>
                                     ))}
@@ -393,7 +394,7 @@ export default function HomePage() {
                                 <FileText className="w-8 h-8" />
                             </div>
                             <h2 className="text-xl sm:text-2xl font-bold mb-2 break-all px-4 text-center">{file?.name || driveFile?.name}</h2>
-                            <p className="text-muted-foreground mb-8">
+                            <p className="text-muted-foreground mb-8 text-sm">
                                 {((file?.size || driveFile?.sizeBytes || 0) / 1024 / 1024).toFixed(2)} MB
                                 {estimation.estimatedSeconds > 0 && (
                                     <span className="ml-2 text-blue-500 font-medium italic">
@@ -406,7 +407,7 @@ export default function HomePage() {
                             {file && (
                                 <div className="mb-6 px-4 py-2 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg flex items-center gap-2">
                                     <Zap className="w-4 h-4 text-blue-600 fill-current" />
-                                    <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                    <span className="text-[11px] sm:text-xs font-bold text-blue-700 dark:text-blue-300">
                                         Point Requirement: <span className="underline underline-offset-4 decoration-blue-500/30">Dynamic (Based on Page Count)</span>
                                     </span>
                                 </div>
@@ -418,6 +419,7 @@ export default function HomePage() {
                             >
                                 <Zap className="w-5 h-5 mr-2 fill-current" />
                                 {t.button.translate}
+                                <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">5P~</span>
                             </button>
 
                             <button
@@ -436,17 +438,14 @@ export default function HomePage() {
                                 errorMessage={errorMessage}
                                 onDownload={() => {
                                     if (downloadUrl) {
-                                        // 🛑 BLOB URL vs REMOTE URL 처리 분기
-                                        // blob URL(로컬 업로드 결과)은 브라우저 메모리에 있으므로 서버 프록시가 접근할 수 없음.
                                         if (downloadUrl.startsWith('blob:')) {
                                             const a = document.createElement('a');
                                             a.href = downloadUrl;
-                                            a.download = resultFileName; // 직접 다운로드 시 파일명 지정
+                                            a.download = resultFileName;
                                             document.body.appendChild(a);
                                             a.click();
                                             document.body.removeChild(a);
                                         } else {
-                                            // 원격 URL(드라이브 번역 등)은 프록시 사용하여 파일명 강제 및 CORS 우회
                                             const proxyUrl = `/api/download?url=${encodeURIComponent(downloadUrl)}&filename=${encodeURIComponent(resultFileName)}`;
                                             const a = document.createElement('a');
                                             a.href = proxyUrl;
@@ -454,16 +453,15 @@ export default function HomePage() {
                                             a.click();
                                             document.body.removeChild(a);
                                         }
-
-                                        // Reset state after download
                                         setStatus('idle');
                                         setProgress(0);
                                         setFile(null);
                                         setDriveFile(null);
+                                        // 🔄 Refresh page to update points after translation
+                                        window.location.reload();
                                     }
                                 }}
                             />
-                            {/* Estimated Time Overlay */}
                             {(status === 'uploading' || status === 'processing') && estimatedTime !== null && (
                                 <div className="absolute -bottom-12 left-0 w-full text-center animate-in fade-in slide-in-from-top-2 duration-700">
                                     <p className="text-sm font-medium text-muted-foreground">

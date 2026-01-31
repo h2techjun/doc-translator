@@ -32,13 +32,13 @@ export function Navbar() {
                     <div className="rounded-xl bg-zinc-100 p-1.5 sm:p-2 dark:bg-zinc-800">
                         <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-900 dark:text-zinc-100" />
                     </div>
-                    <span className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 hidden xs:block">
+                    <span className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 hidden md:block">
                         {t.nav.brandName}
                     </span>
                 </Link>
 
                 {/* Right Side Items */}
-                <div className="flex items-center gap-0.5 sm:gap-4 font-medium text-sm">
+                <div className="flex items-center gap-1 sm:gap-4 font-medium text-sm">
                     {/* Main Nav Links */}
                     <div className="hidden md:flex items-center gap-6 mr-2">
                         <Link href="/community" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors">

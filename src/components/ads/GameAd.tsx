@@ -51,7 +51,7 @@ export const GameAd = () => {
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 1.02 }}
-                            className="p-6"
+                            className="p-6 flex flex-col items-center"
                         >
                             <ins className="adsbygoogle"
                                 style={{ display: "block" }}
@@ -59,6 +59,31 @@ export const GameAd = () => {
                                 data-ad-slot="4477457432"
                                 data-ad-format="auto"
                                 data-full-width-responsive="true"></ins>
+
+                            {/* ✨ Reward Button */}
+                            <div className="mt-8 pt-6 border-t border-white/10 w-full flex flex-col items-center gap-4">
+                                <p className="text-sm text-zinc-400 font-medium">광고를 보셨나요? 리워드를 받으세요!</p>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const res = await fetch('/api/user/reward', {
+                                                method: 'POST',
+                                                body: JSON.stringify({ amount: 5, type: 'AD_WATCH' })
+                                            });
+                                            if (res.ok) {
+                                                const data = await res.json();
+                                                alert(`축하합니다! ${data.pointsClaimed}P가 충전되었습니다.`);
+                                                window.location.reload();
+                                            }
+                                        } catch (err) {
+                                            console.error(err);
+                                        }
+                                    }}
+                                    className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                                >
+                                    5 포인트 받기 (+5P)
+                                </button>
+                            </div>
                         </motion.div>
                     ) : (
                         <motion.div
