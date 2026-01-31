@@ -114,7 +114,7 @@ export default function PricingPage() {
                                     <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30"><Crown className="w-6 h-6 text-amber-500" /></div>
                                     <CardTitle className="text-xl font-bold tracking-widest text-amber-500">STARTER</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">₩5,000</span></div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">₩3,000</span></div>
                                 <CardDescription className="text-amber-200/60 mt-2">Instant 50 Points.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">

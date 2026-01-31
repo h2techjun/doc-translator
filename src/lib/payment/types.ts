@@ -26,9 +26,9 @@ export const POINT_COSTS = {
 export const POINT_PACKAGES = [
     {
         id: 'starter_pack',
-        price: 5000,
+        price: 3000,
         currency: 'KRW',
-        points: 50, // 5000원 = 50P (100원/1P)
+        points: 50, // 3000원 = 50P (60원/1P)
         name: 'Starter Point Pack',
         desc: '가볍게 시작하는 50포인트'
     }

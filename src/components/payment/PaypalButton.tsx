@@ -44,7 +44,7 @@ export const PaypalButton = ({ packageId, onSuccess }: PaypalPaymentProps) => {
                                     amount: {
                                         // value: amount, // KRW
                                         // currency_code: "KRW"
-                                        value: "4.99", // $4.99 ~ 5000 KRW
+                                        value: "2.50", // $2.50 ~ 3000 KRW
                                         currency_code: "USD"
                                     },
                                 },
