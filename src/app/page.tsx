@@ -290,7 +290,7 @@ export default function HomePage() {
                                 <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium whitespace-pre-wrap">
                                     {t.pricingRule.base
                                         .replace('{base}', POINT_COSTS.BASE_COST.toString())
-                                        .replace('{pages}', POINT_COSTS.BASE_PAGES.toString())}
+                                        .replace('{basePages}', POINT_COSTS.BASE_PAGES.toString())}
                                     {' + '}
                                     {t.pricingRule.extra
                                         .replace('{nextPage}', (POINT_COSTS.BASE_PAGES + 1).toString())

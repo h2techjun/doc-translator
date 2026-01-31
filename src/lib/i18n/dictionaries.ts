@@ -144,14 +144,14 @@ export const i18n: Record<Locale, {
             hero: { title: "요금제", highlight: "선택하기", subtitle: "AI 번역 엔진으로 글로벌 커뮤니케이션을 확장하세요." },
             tiers: {
                 guest: { name: "게스트", price: "무료", desc: "로그인 없이 사용", limit: "제한: 2페이지", button: "게스트 모드 체험", features: ["Word/Excel/PPT 번역", "최대 2페이지"] },
-                bronze: { name: "브론즈", price: "무료", desc: "기본 멤버십", bonus: "가입 보너스: 50P", button: "무료 가입", features: ["광고 포함", "커뮤니티 지원"] },
-                silver: { name: "실버", priceKRW: "3,000원", priceUSD: "$5.00", desc: "50P 받고 업그레이드", bonus: "즉시 50P 지급", button: "50P 충전", features: ["인증 배지", "빠른 처리", "광고 표시"] },
+                bronze: { name: "브론즈", price: "무료", desc: "기본 멤버십", bonus: "가입 보너스: 50P", button: "무료 가입", features: ["커뮤니티 지원"] },
+                silver: { name: "실버", priceKRW: "3,000원", priceUSD: "$5.00", desc: "50P 받고 업그레이드", bonus: "즉시 50P 지급", button: "50P 충전", features: ["인증 배지", "빠른 처리"] },
                 gold: { name: "골드", price: "100,000", unit: "원", desc: "누적 결제", vip: "VIP 회원", button: "자동 업그레이드", features: ["최우선 처리", "전담 지원"] }
             },
             policy: {
                 title: "포인트 및 운영 정책",
                 pointTitle: "1. 포인트 정책",
-                pointItems: ["가입 보상: 가입 즉시 50P 지급.", "기본 비용: 문서당 {base}P (최대 {basePages}페이지).", "추가 비용: {nextPage}페이지부터 페이지당 {extra}P 추가.", "게스트 모드: 게스트는 최대 2페이지만 번역 가능."],
+                pointItems: ["가입 보상: 가입 즉시 50P 지급.", "기본 비용: 문서당 {base}포인트 ({basePages}page).", "추가 비용: {nextPage}page부터 page당 {extra}P 추가.", "게스트 모드: 게스트는 2page 무료."],
                 adTitle: "2. 광고 및 충전 정책",
                 adItems: ["무료 충전: 포인트가 부족할 경우 광고 시청으로 포인트 획득 가능.", "보상: 광고 시청 시 5P 지급.", "무제한: 베타 기간 동안 광고 보상은 무제한입니다.", "서비스: 광고 수익은 서버 및 AI 엔진 비용으로 사용됩니다."],
                 disclaimer: "* 베타 기간 동안 정책이 변경될 수 있습니다. 포인트는 환불되지 않습니다."
@@ -183,9 +183,9 @@ export const i18n: Record<Locale, {
         },
         pricingRule: {
             title: "합리적인 포인트 정책",
-            base: "기본 5P (최대 2페이지)",
-            extra: "3페이지부터 페이지당 2P 추가",
-            guestBadge: "GUEST: 2페이지 무료"
+            base: "{base}포인트 ({basePages}page)",
+            extra: "{nextPage}page부터 page당 {extra}P 추가",
+            guestBadge: "GUEST: 2page 무료"
         },
         selector: "도착 언어 선택",
         selectorLabel: "번역할 언어 선택",
@@ -205,7 +205,7 @@ export const i18n: Record<Locale, {
             login: "로그인",
             signup: "무료 시작하기",
             pointsHold: "보유 포인트",
-            adminDashboard: "관리자 대시보드",
+            adminDashboard: "마스터 대시보드",
             myHistory: "나의 번역 기록",
             betaBenefits: "베타 혜택",
             boostTitle: "포인트 충전하기",
@@ -318,9 +318,9 @@ export const i18n: Record<Locale, {
         },
         pricingRule: {
             title: "Pricing Policy",
-            base: "Base 5P (up to 2p)",
-            extra: "+2P/page from p.3",
-            guestBadge: "GUEST: 2P FREE"
+            base: "Base {base}P ({basePages}pages)",
+            extra: "{extra}P/page from page {nextPage}",
+            guestBadge: "GUEST: 2page FREE"
         },
         selector: "Target Language",
         selectorLabel: "Select Target Language",
@@ -340,7 +340,7 @@ export const i18n: Record<Locale, {
             login: "Login",
             signup: "Start for Free",
             pointsHold: "Points",
-            adminDashboard: "Admin Dashboard",
+            adminDashboard: "Master Dashboard",
             myHistory: "My Translations",
             betaBenefits: "Beta Benefits",
             boostTitle: "Boost Your Points",
@@ -413,8 +413,8 @@ export const i18n: Record<Locale, {
             hero: { title: "あなたの", highlight: "パワーレベルを選択", subtitle: "高精度AI翻訳エンジンで、グローバルなコミュニケーションを拡大しましょう。" },
             tiers: {
                 guest: { name: "ゲスト", price: "無料", desc: "ログイン不要", limit: "制限: 2ページ", button: "ゲストモードを試す", features: ["Word/Excel/PPT翻訳", "1ドキュメント最大2ページ"] },
-                bronze: { name: "ブロンズ", price: "無料", desc: "基本メンバーシップ", bonus: "登録ボーナス: 50P", button: "無料で登録", features: ["広告あり", "コミュニティサポート"] },
-                silver: { name: "シルバー", priceKRW: "ユーザー", priceUSD: "$5.00", desc: "50Pチャージでアップグレード", bonus: "即時 50P 付与", button: "50Pチャージ", features: ["認証バッジ", "優先処理", "広告表示あり"] },
+                bronze: { name: "ブロンズ", price: "無料", desc: "基本メンバーシップ", bonus: "登録ボーナス: 50P", button: "無料で登録", features: ["コミュニティサポート"] },
+                silver: { name: "シルバー", priceKRW: "ユーザー", priceUSD: "$5.00", desc: "50Pチャージでアップグレード", bonus: "即時 50P 付与", button: "50Pチャージ", features: ["認証バッジ", "優先処理"] },
                 gold: { name: "ゴールド", price: "10万〜", unit: "ウォン", desc: "累計決済額", vip: "VIPステータス", button: "自動アップグレード", features: ["最優先処理", "専用サポート"] }
             },
             policy: {
@@ -452,9 +452,9 @@ export const i18n: Record<Locale, {
         },
         pricingRule: {
             title: "ポイント規定",
-            base: "基本 5P (2ページまで)",
-            extra: "3ページから+2P/ページ",
-            guestBadge: "ゲスト: 2ページ無料"
+            base: "基本 {base}P ({basePages}page)",
+            extra: "{nextPage}pageから{extra}P/page追加",
+            guestBadge: "ゲスト: 2page無料"
         },
         selector: "翻訳言語を選択",
         selectorLabel: "翻訳言語を選択してください",
@@ -474,7 +474,7 @@ export const i18n: Record<Locale, {
             login: "ログイン",
             signup: "無料で始める",
             pointsHold: "保有ポイント",
-            adminDashboard: "管理ダッシュボード",
+            adminDashboard: "マスターダッシュボード",
             myHistory: "翻訳履歴",
             betaBenefits: "ベータ特典",
             boostTitle: "ポイントをチャージ",
@@ -547,14 +547,14 @@ export const i18n: Record<Locale, {
             hero: { title: "选择您的", highlight: "强力套餐", subtitle: "使用我们的高保真AI翻译引擎扩展您的全球沟通。" },
             tiers: {
                 guest: { name: "访客", price: "免费", desc: "无需登录", limit: "限制：2页", button: "试用访客模式", features: ["Word/Excel/PPT翻译", "每个文档最多2页"] },
-                bronze: { name: "青铜", price: "免费", desc: "基础会员", bonus: "注册奖励：50P", button: "免费注册", features: ["显示广告", "社区支持"] },
-                silver: { name: "白银", priceKRW: "用户", priceUSD: "$5.00", desc: "获得50P并升级", bonus: "立即赠送 50P", button: "充值 50P", features: ["认证徽章", "更快的处理速度", "广告依然可见"] },
+                bronze: { name: "青铜", price: "免费", desc: "基础会员", bonus: "注册奖励：50P", button: "免费注册", features: ["社区支持"] },
+                silver: { name: "白银", priceKRW: "用户", priceUSD: "$5.00", desc: "获得50P并升级", bonus: "立即赠送 50P", button: "充值 50P", features: ["认证徽章", "更快的处理速度"] },
                 gold: { name: "黄金", price: "100k+", unit: "KRW", desc: "累计支付", vip: "VIP 状态", button: "自动升级", features: ["最高优先级", "直接支持渠道"] }
             },
             policy: {
                 title: "积分及运营政策",
                 pointTitle: "1. 积分政策",
-                pointItems: ["注册奖励：注册后立即赠送50P。", "基础费用：每个文档 {base}P（最多 {basePages} 页）。", "额外费用：从第 {nextPage} 页起，每页增加 {extra}P。", "访客模式：访客翻译限制为2页。"],
+                pointItems: ["注册奖励：注册后立即赠送50P。", "基础费用：每个文档 {base}P ({basePages}page)。", "额外费用：从第 {nextPage}page起，每page增加 {extra}P。", "访客模式：访客翻译限制为2page。"],
                 adTitle: "2. 广告及充值政策",
                 adItems: ["免费充值：积分不足时可通过观看广告获得积分。", "奖励：点击广告上的 [获取5积分] 即可获得 5P。", "无限制：测试期间，广告奖励无限制。", "服务：广告收入用于支持服务器和 AI 引擎成本。"],
                 disclaimer: "* 测试期间政策可能会有变动。积分不可退还。"
@@ -586,9 +586,9 @@ export const i18n: Record<Locale, {
         },
         pricingRule: {
             title: "积分政策",
-            base: "基础 5P (最多 2页)",
-            extra: "从第 3页起 每页增加 2P",
-            guestBadge: "访客：2页免费"
+            base: "基础 {base}P ({basePages}page)",
+            extra: "从第 {nextPage}page起 每page增加 {extra}P",
+            guestBadge: "访客：2page免费"
         },
         selector: "选择目标语言",
         selectorLabel: "请选择目标语言",
@@ -608,7 +608,7 @@ export const i18n: Record<Locale, {
             login: "登录",
             signup: "免费开始",
             pointsHold: "持有积分",
-            adminDashboard: "管理后台",
+            adminDashboard: "大师控制台",
             myHistory: "我的翻译",
             betaBenefits: "测试版福利",
             boostTitle: "获取积分",
@@ -681,14 +681,14 @@ export const i18n: Record<Locale, {
             hero: { title: "ELIGE TU", highlight: "NIVEL DE PODER", subtitle: "Escala tu comunicación global con nuestro motor de traducción AI de alta fidelidad." },
             tiers: {
                 guest: { name: "INVITADO", price: "Gratis", desc: "Sin registro", limit: "Límite: 2 páginas", button: "Probar modo invitado", features: ["Traducción Word/Excel/PPT", "Máx. 2 páginas por doc"] },
-                bronze: { name: "BRONCE", price: "Gratis", desc: "Membresía básica", bonus: "BONO DE REGISTRO: 50P", button: "Registrarse gratis", features: ["Anuncios habilitados", "Soporte comunitario"] },
-                silver: { name: "PLATA", priceKRW: "Usuario", priceUSD: "$5.00", desc: "Obtén 50P y mejora", bonus: "50P INSTANTÁNEOS", button: "Cargar 50P", features: ["Insignia verificada", "Procesamiento más rápido", "Anuncios aún visibles"] },
+                bronze: { name: "BRONCE", price: "Gratis", desc: "Membresía básica", bonus: "BONO DE REGISTRO: 50P", button: "Registrarse gratis", features: ["Soporte comunitario"] },
+                silver: { name: "PLATA", priceKRW: "Usuario", priceUSD: "$5.00", desc: "Obtén 50P y mejora", bonus: "50P INSTANTÁNEOS", button: "Cargar 50P", features: ["Insignia verificada", "Procesamiento más rápido"] },
                 gold: { name: "ORO", price: "100k+", unit: "KRW", desc: "Pago acumulativo", vip: "ESTADO VIP", button: "Mejora automática", features: ["Máxima prioridad", "Línea de soporte directo"] }
             },
             policy: {
                 title: "Política de puntos y operación",
                 pointTitle: "1. Política de puntos",
-                pointItems: ["Recompensa de registro: Se otorgan 50P inmediatamente al registrarse.", "Costo base: {base}P por documento (hasta {basePages} páginas).", "Costo adicional: {extra}P por página a partir de la página {nextPage}.", "Modo invitado: Traducción limitada a 2 páginas para invitados."],
+                pointItems: ["Recompensa de registro: Se otorgan 50P inmediatamente al registrarse.", "Costo base: {base}P por documento ({basePages}pages).", "Costo adicional: {extra}P por página a partir de la página {nextPage}.", "Modo invitado: Traducción limitada a 2page para invitados."],
                 adTitle: "2. Política de anuncios y recarga",
                 adItems: ["Recarga gratuita: Puedes ganar puntos viendo anuncios si te quedas sin ellos.", "Recompensa: Obtén 5P haciendo clic en [Obtener 5 puntos] en los anuncios.", "Ilimitado: Durante la beta, las recompensas de anuncios son ilimitadas.", "Servicio: Los ingresos por anuncios respaldan los costos del servidor y el motor AI."],
                 disclaimer: "* Esta política puede cambiar durante el período beta. Los puntos no son reembolsables."
@@ -720,9 +720,9 @@ export const i18n: Record<Locale, {
         },
         pricingRule: {
             title: "Política de puntos",
-            base: "Base 5P (hasta 2 pág.)",
-            extra: "+2P por cada pág. adicional",
-            guestBadge: "INVITADO: 2 PÁG. GRATIS"
+            base: "Base {base}P ({basePages}pages)",
+            extra: "{extra}P/page a partir de la página {nextPage}",
+            guestBadge: "INVITADO: 2page GRATIS"
         },
         selector: "Idioma de destino",
         selectorLabel: "Seleccionar idioma de destino",
@@ -742,7 +742,7 @@ export const i18n: Record<Locale, {
             login: "Iniciar sesión",
             signup: "Empieza gratis",
             pointsHold: "Puntos",
-            adminDashboard: "Panel de control",
+            adminDashboard: "Panel de Maestro",
             myHistory: "Mis traducciones",
             betaBenefits: "Beneficios Beta",
             boostTitle: "Carga tus puntos",
@@ -808,22 +808,22 @@ export const i18n: Record<Locale, {
         dropzone: { idle: "Déposez votre fichier ici", sub: "ou cliquez pour parcourir", support: "Supporte DOCX, XLSX, PPTX, HWP" },
         pricingRule: {
             title: "Politique de points",
-            base: "Base 5P (jusqu'à 2 p.)",
-            extra: "+2P par p. supplémentaire",
-            guestBadge: "INVITÉ : 2 P. GRATUITES"
+            base: "Base {base}P ({basePages}pages)",
+            extra: "{extra}P/page dès la page {nextPage}",
+            guestBadge: "INVITÉ : 2page GRATUITES"
         },
         pricingPage: {
             hero: { title: "CHOISISSEZ VOTRE", highlight: "NIVEAU DE PUISSANCE", subtitle: "Développez votre communication mondiale avec notre moteur de traduction IA haute fidélité." },
             tiers: {
                 guest: { name: "INVITÉ", price: "Gratuit", desc: "Sans inscription", limit: "Limite : 2 pages", button: "Essayer le mode invité", features: ["Traduction Word/Excel/PPT", "Max 2 pages par doc"] },
-                bronze: { name: "BRONZE", price: "Gratuit", desc: "Adhésion de base", bonus: "BONUS D'INSCRIPTION : 50P", button: "S'inscrire gratuitement", features: ["Publicités activées", "Support communautaire"] },
-                silver: { name: "ARGENT", priceKRW: "Utilisateur", priceUSD: "$5.00", desc: "Obtenez 50P et améliorez", bonus: "50P INSTANTANÉS", button: "Charger 50P", features: ["Badge vérifié", "Traitement plus rapide", "Publicités toujours visibles"] },
+                bronze: { name: "BRONZE", price: "Gratuit", desc: "Adhésion de base", bonus: "BONUS D'INSCRIPTION : 50P", button: "S'inscrire gratuitement", features: ["Support communautaire"] },
+                silver: { name: "ARGENT", priceKRW: "Utilisateur", priceUSD: "$5.00", desc: "Obtenez 50P et améliorez", bonus: "50P INSTANTANÉS", button: "Charger 50P", features: ["Badge vérifié", "Traitement plus rapide"] },
                 gold: { name: "OR", price: "100k+", unit: "KRW", desc: "Paiement cumulatif", vip: "STATUT VIP", button: "Mise à niveau automatique", features: ["Priorité maximale", "Ligne de support direct"] }
             },
             policy: {
                 title: "Politique de points et d'exploitation",
                 pointTitle: "1. Politique de points",
-                pointItems: ["Récompense d'inscription : 50P sont accordés immédiatement lors de l'inscription.", "Coût de base : {base}P par document (jusqu'à {basePages} pages).", "Coût supplémentaire : {extra}P par page à partir de la page {nextPage}.", "Mode invité : Traduction limitée à 2 pages pour les invités."],
+                pointItems: ["Récompense d'inscription : 50P sont accordés immédiatement lors de l'inscription.", "Coût de base : {base}P par document ({basePages}pages).", "Coût supplémentaire : {extra}P par page à partir de la page {nextPage}.", "Mode invité : Traduction limitée à 2page pour les invités."],
                 adTitle: "2. Politique de publicité et de recharge",
                 adItems: ["Recharge gratuite : Vous pouvez gagner des points en regardant des publicités si vous en manquez.", "Récompense : Obtenez 5P en cliquant sur [Obtenir 5 points] sur les publicités.", "Illimité : Pendant la béta, les récompenses publicitaires sont illimitées.", "Service : Les revenus publicitaires soutiennent les coûts du serveur et du moteur IA."],
                 disclaimer: "* Cette politique peut changer pendant la période béta. Les points ne sont pas remboursables."
@@ -876,7 +876,7 @@ export const i18n: Record<Locale, {
             login: "Connexion",
             signup: "Essai gratuit",
             pointsHold: "Points",
-            adminDashboard: "Tableau de bord",
+            adminDashboard: "Tableau de bord Maître",
             myHistory: "Mes traductions",
             betaBenefits: "Avantages Beta",
             boostTitle: "Recharge de points",
