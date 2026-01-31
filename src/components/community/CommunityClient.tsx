@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
+import { ReportModal } from '@/components/common/ReportModal';
 
 interface Post {
     id: string;
@@ -101,6 +102,9 @@ export const CommunityClient = ({ posts, tab }: CommunityClientProps) => {
                                 <span>{t.community.postedBy} {post.users?.full_name || 'Anonymous'}</span>
                                 <span className="mx-2">•</span>
                                 <span>{t.community.views} {post.view_count}</span>
+                                <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+                                    <ReportModal targetType="POST" targetId={post.id} />
+                                </div>
                             </div>
                         </div>
                     ))
