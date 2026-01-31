@@ -12,9 +12,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { FileText, AlertCircle, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { FileText, AlertCircle, ChevronLeft, ChevronRight, Download, Trash2, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 type Job = {
     id: string;
@@ -155,11 +156,37 @@ export default function AdminJobsPage() {
                                                 {formatDistanceToNow(new Date(job.created_at), { addSuffix: true, locale: ko })}
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                {job.translated_file_url && (
-                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600" onClick={() => window.open(job.translated_file_url!, '_blank')}>
-                                                        <Download className="w-4 h-4" />
+                                                <div className="flex justify-end gap-1">
+                                                    {job.translated_file_url && (
+                                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20" onClick={() => window.open(job.translated_file_url!, '_blank')}>
+                                                            <Download className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
+                                                    {job.status === 'FAILED' && (
+                                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-indigo-500 hover:bg-indigo-50" onClick={() => toast.info('Retry logic coming soon')}>
+                                                            <RefreshCw className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        onClick={async () => {
+                                                            if (!confirm('Purge this job record?')) return;
+                                                            try {
+                                                                const res = await fetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
+                                                                if (res.ok) {
+                                                                    toast.success('Job purged from matrix');
+                                                                    fetchJobs(page);
+                                                                }
+                                                            } catch (e) {
+                                                                toast.error('Deletion failed');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
                                                     </Button>
-                                                )}
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, FileText, CheckCircle, Activity, DollarSign, AlertTriangle } from 'lucide-react';
+import { Users, FileText, CheckCircle, Activity, DollarSign, AlertTriangle, MessageSquare, Settings } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import Link from 'next/link';
 
@@ -113,6 +113,31 @@ export default function AdminDashboard() {
                             ${stats?.estimatedRevenue?.toFixed(2)}
                         </div>
                         <p className="text-xs text-muted-foreground">Based on usage projection</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+                <Link href="/admin/posts">
+                    <Card className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-all cursor-pointer bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-black italic tracking-tighter uppercase text-indigo-600">Community Control</CardTitle>
+                            <MessageSquare className="h-5 w-5 text-indigo-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-xl font-bold">Board & Notices</div>
+                            <p className="text-[10px] font-bold opacity-60 uppercase mt-1 italic">Moderate user content & posts</p>
+                        </CardContent>
+                    </Card>
+                </Link>
+                <Card className="opacity-60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm border-border/30">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-bold uppercase tracking-tight">System Settings</CardTitle>
+                        <Settings className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-lg font-bold italic">Configuration</div>
+                        <p className="text-[10px] font-bold opacity-40 uppercase mt-1">Global parameters (Coming Soon)</p>
                     </CardContent>
                 </Card>
             </div>
