@@ -10,6 +10,7 @@ interface CostEstimationModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
+    onCharge: () => void;
     file: File | null;
     driveFile: any | null; // using any for simplicity, can be DriveFile type
 }
@@ -18,6 +19,7 @@ export function CostEstimationModal({
     isOpen,
     onClose,
     onConfirm,
+    onCharge,
     file,
     driveFile
 }: CostEstimationModalProps) {
@@ -131,9 +133,9 @@ export function CostEstimationModal({
                         취소
                     </Button>
                     <Button
-                        onClick={onConfirm}
-                        disabled={!isSufficient || isLoading}
-                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold"
+                        onClick={isSufficient ? onConfirm : onCharge}
+                        disabled={isLoading}
+                        className={`w-full sm:w-auto font-bold text-white ${isSufficient ? 'bg-blue-600 hover:bg-blue-500' : 'bg-amber-600 hover:bg-amber-500'}`}
                     >
                         {isSufficient ? "동의하고 번역 시작" : "포인트 충전하러 가기"}
                     </Button>

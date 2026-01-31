@@ -6,46 +6,37 @@ import { POINT_PACKAGES } from "@/lib/payment/types";
 
 interface PaypalPaymentProps {
     packageId: string;
+    amount?: number;
+    currency?: string;
     onSuccess: () => void;
 }
 
-export const PaypalButton = ({ packageId, onSuccess }: PaypalPaymentProps) => {
+export const PaypalButton = ({ packageId, amount, currency = "USD", onSuccess }: PaypalPaymentProps) => {
     const selectedPackage = POINT_PACKAGES.find(p => p.id === packageId);
 
     if (!selectedPackage) return null;
 
-    // 환율 대략 계산 (1 KRW = 0.00075 USD 가정, PayPal은 USD 결제가 일반적이나 KRW도 지원함)
-    // 여기서는 KRW 그대로 시도하되, PayPal 설정에 따라 다를 수 있음.
-    // 안전하게 USD로 변환해서 요청하거나 KRW를 지원하는지 확인 필요.
-    // 일단 KRW로 요청.
-    const amount = selectedPackage.price.toString();
+    // 전달받은 금액이 없으면 기본값 (Fallback) - 현재는 무조건 props로 전달됨을 가정
+    const finalAmount = amount ? amount.toString() : selectedPackage.priceUSD.toString();
+    const finalCurrency = currency;
 
     return (
         <div className="w-full z-10 relative">
             <PayPalScriptProvider options={{
                 clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test",
-                currency: "USD", // KRW는 PayPal 기본 지원 통화가 아닐 수 있어 USD로 설정 권장
+                currency: finalCurrency,
                 intent: "capture"
             }}>
                 <PayPalButtons
                     style={{ layout: "horizontal", height: 45, tagline: false }}
                     createOrder={(data: any, actions: any) => {
-                        // 5000 KRW -> approx 3.8 USD (고정 환율 또는 실시간 환율 적용 필요)
-                        // 여기서는 데모를 위해 5000원을 $4.99로 가정하거나 
-                        // 실제로는 서버에서 Order를 생성해서 반환하는 것이 가장 안전함.
-                        // *** 중요: 클라이언트에서 금액 조작 가능성 있으므로, 
-                        // 실제 구현 시에는 /api/payments/create-order 호출을 권장.
-                        // 여기서는 간단한 데모를 위해 클라이언트에서 처리.
-
                         return actions.order.create({
                             purchase_units: [
                                 {
                                     description: selectedPackage.name,
                                     amount: {
-                                        // value: amount, // KRW
-                                        // currency_code: "KRW"
-                                        value: "2.50", // $2.50 ~ 3000 KRW
-                                        currency_code: "USD"
+                                        value: finalAmount,
+                                        currency_code: finalCurrency
                                     },
                                 },
                             ],

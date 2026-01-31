@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, FileSpreadsheet, FileIcon, ShieldCheck, Zap, Globe } from 'lucide-react';
 import { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Footer } from '@/components/ui/Footer';
 import { GamifiedLoading } from '@/components/translation/GamifiedLoading';
 import { GameAd } from '@/components/ads/GameAd';
@@ -27,6 +28,7 @@ import { toast } from 'sonner';
 import { CostEstimationModal } from '@/components/translation/CostEstimationModal';
 
 export default function HomePage() {
+    const router = useRouter();
     // 파일 및 처리 상태 관리를 위한 상태값
     const [file, setFile] = useState<File | null>(null);
     const [driveFile, setDriveFile] = useState<DriveFile | null>(null);
@@ -422,6 +424,10 @@ export default function HomePage() {
                                 onConfirm={() => {
                                     setIsEstimationOpen(false);
                                     handleTranslate();
+                                }}
+                                onCharge={() => {
+                                    setIsEstimationOpen(false);
+                                    router.push('/pricing');
                                 }}
                                 file={file}
                                 driveFile={driveFile}

@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
                 provider: 'paypal',
                 orderId,
                 packageId,
-                price: selectedPackage.price,
-                currency: selectedPackage.currency
+                priceKRW: selectedPackage.priceKRW,
+                priceUSD: selectedPackage.priceUSD
             }
         });
 
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         const currentPoints = profile?.points || 0;
         const currentTier = profile?.tier || 'BRONZE';
         const currentTotal = profile?.total_payment_amount || 0;
-        const paymentAmount = selectedPackage.price; // KRW
+        const paymentAmount = selectedPackage.priceKRW; // Internal tracking in KRW
         const newTotal = currentTotal + paymentAmount;
 
         // 등급 계산 로직 (MASTER는 유지)

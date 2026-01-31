@@ -1,9 +1,8 @@
-'use client';
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { PaypalButton } from "./PaypalButton";
 import { POINT_PACKAGES } from "@/lib/payment/types";
 import { Zap } from "lucide-react";
+import { useGeoSmart } from "@/hooks/use-geo-smart";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -12,9 +11,20 @@ interface PaymentModalProps {
 }
 
 export const PaymentModal = ({ isOpen, onClose, packageId }: PaymentModalProps) => {
+    const { currency } = useGeoSmart();
     const pkg = POINT_PACKAGES.find(p => p.id === packageId);
 
     if (!pkg) return null;
+
+    const isKRW = currency === 'KRW';
+    // KRW -> 3000, Other -> 5.00
+    const finalPrice = isKRW ? pkg.priceKRW : pkg.priceUSD;
+    const finalCurrency = isKRW ? 'KRW' : 'USD';
+
+    // UI Display String
+    const displayPriceStr = isKRW
+        ? `₩${finalPrice.toLocaleString()}`
+        : `$${finalPrice.toFixed(2)}`;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -36,7 +46,7 @@ export const PaymentModal = ({ isOpen, onClose, packageId }: PaymentModalProps) 
                     </div>
                     <div className="flex justify-between items-center p-4 bg-zinc-800/50 rounded-lg">
                         <span className="text-zinc-300">결제 금액</span>
-                        <span className="text-xl font-bold text-white">₩{pkg.price.toLocaleString()}</span>
+                        <span className="text-xl font-bold text-white">{displayPriceStr}</span>
                     </div>
                 </div>
 
@@ -53,13 +63,17 @@ export const PaymentModal = ({ isOpen, onClose, packageId }: PaymentModalProps) 
                         </div>
                     </div>
 
-                    {/* <PaypalButton 
-                        packageId={pkg.id} 
+                    {/* 
+                    <PaypalButton
+                        packageId={pkg.id}
+                        amount={finalPrice}
+                        currency={finalCurrency}
                         onSuccess={() => {
                             onClose();
-                            window.location.reload(); 
-                        }} 
-                    /> */}
+                            window.location.reload();
+                        }}
+                    /> 
+                    */}
 
                     <button
                         onClick={onClose}
@@ -70,7 +84,7 @@ export const PaymentModal = ({ isOpen, onClose, packageId }: PaymentModalProps) 
                 </div>
 
                 <p className="text-[10px] text-zinc-500 text-center mt-2">
-                    * PayPal을 통해 안전하게 결제됩니다. (USD로 환산되어 결제될 수 있습니다)
+                    * PayPal을 통해 안전하게 결제됩니다.
                 </p>
             </DialogContent>
         </Dialog>

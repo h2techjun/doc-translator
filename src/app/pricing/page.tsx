@@ -8,10 +8,16 @@ import Link from 'next/link';
 
 import { useState } from 'react';
 import { PaymentModal } from '@/components/payment/PaymentModal';
+import { useGeoSmart } from '@/hooks/use-geo-smart';
 
 export default function PricingPage() {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedPackageId, setSelectedPackageId] = useState<string>('');
+    const { currency } = useGeoSmart();
+
+    const isKRW = currency === 'KRW';
+    // KRW일 때는 3000, 그 외(USD 등)는 5.00
+    const displayPrice = isKRW ? '₩3,000' : '$5.00';
 
     const handlePurchase = (packageId: string) => {
         setSelectedPackageId(packageId);
@@ -115,7 +121,7 @@ export default function PricingPage() {
                                     <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30"><Crown className="w-6 h-6 text-amber-500" /></div>
                                     <CardTitle className="text-xl font-bold tracking-widest text-amber-500">SILVER</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">₩3,000</span></div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">{displayPrice}</span></div>
                                 <CardDescription className="text-amber-200/60 mt-2">Get 50P & Upgrade</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
