@@ -46,6 +46,32 @@ export class PointManager {
     }
 
     /**
+     * 번역 비용 계산 (사전 견적)
+     * - 기본(1~2페이지): 5P
+     * - 추가(3페이지부터): 페이지당 +2P
+     */
+    static calculateTranslationCost(pageCount: number): { cost: number, message: string } {
+        const BASE_COST = 5;
+        const EXTRA_COST_PER_PAGE = 2;
+        const BASE_PAGE_LIMIT = 2;
+
+        if (pageCount <= BASE_PAGE_LIMIT) {
+            return {
+                cost: BASE_COST,
+                message: `기본 요금 (${pageCount}페이지)`
+            };
+        }
+
+        const extraPages = pageCount - BASE_PAGE_LIMIT;
+        const totalCost = BASE_COST + (extraPages * EXTRA_COST_PER_PAGE);
+
+        return {
+            cost: totalCost,
+            message: `기본 5P + 추가 ${extraPages}장(${extraPages * EXTRA_COST_PER_PAGE}P)`
+        };
+    }
+
+    /**
      * 포인트 차감 (번역 사용 등)
      */
     static async usePoints(

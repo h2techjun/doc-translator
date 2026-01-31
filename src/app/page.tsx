@@ -24,6 +24,7 @@ import { useUrlSync } from '@/hooks/use-url-sync';
 
 import { GoogleDrivePicker, DriveFile } from '@/components/drive/GoogleDrivePicker';
 import { toast } from 'sonner';
+import { CostEstimationModal } from '@/components/translation/CostEstimationModal';
 
 export default function HomePage() {
     // 파일 및 처리 상태 관리를 위한 상태값
@@ -36,6 +37,7 @@ export default function HomePage() {
     const [resultFileName, setResultFileName] = useState<string>('');
     const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [isEstimationOpen, setIsEstimationOpen] = useState(false);
 
     // 🌏 글로벌 Geo-Smart 컨텍스트 훅 (중앙 상태 관리)
     // 이 훅은 지역, 통화, PPP, UI 언어 및 대상 언어를 중앙에서 관리합니다.
@@ -413,13 +415,25 @@ export default function HomePage() {
                                 </div>
                             )}
 
+                            {/* Cost Estimation Modal */}
+                            <CostEstimationModal
+                                isOpen={isEstimationOpen}
+                                onClose={() => setIsEstimationOpen(false)}
+                                onConfirm={() => {
+                                    setIsEstimationOpen(false);
+                                    handleTranslate();
+                                }}
+                                file={file}
+                                driveFile={driveFile}
+                            />
+
                             <button
-                                onClick={handleTranslate}
+                                onClick={() => setIsEstimationOpen(true)}
                                 className="w-full max-w-sm py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center"
                             >
                                 <Zap className="w-5 h-5 mr-2 fill-current" />
                                 {t.button.translate}
-                                <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">5P~</span>
+                                <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">Check Cost</span>
                             </button>
 
                             <button
