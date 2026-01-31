@@ -39,7 +39,8 @@ export default function NotificationBell() {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
+        // 🛡️ Pre-emptive Expiration Check to avoid 401
+        if (!session || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
             setNotifications([]);
             setUnreadCount(0);
             return;
