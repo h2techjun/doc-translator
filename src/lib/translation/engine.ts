@@ -1,8 +1,7 @@
-import { TranslationResult, BaseFileTranslator } from './engine_base';
+import { TranslationResult } from './engine_base';
 import { DocxTranslationStrategy } from './strategies/docx-strategy';
 import { XlsxTranslationStrategy } from './strategies/xlsx-strategy';
 import { PptxTranslationStrategy } from './strategies/pptx-strategy';
-import { HwpxTranslationStrategy } from './strategies/hwp-strategy';
 import PizZip from 'pizzip';
 import { DOMParser } from '@xmldom/xmldom';
 
@@ -60,11 +59,6 @@ export class OfficeTranslationEngine {
             case 'pptx':
                 const pptx = new PptxTranslationStrategy();
                 translatedBuffer = await pptx.translate(fileBuffer, targetLang);
-                break;
-            case 'hwpx':
-            case 'hwp': // Fallback for HWPX renamed to HWP
-                const hwp = new HwpxTranslationStrategy();
-                translatedBuffer = await hwp.translate(fileBuffer, targetLang);
                 break;
             default:
                 throw new Error(`Unsupported or unimplemented file type: ${extension}`);

@@ -208,17 +208,3 @@ function FeatureBox({ icon, title, desc }: { icon: any, title: string, desc: str
         </div>
     );
 }
-
-function FeatureBox({ icon, title, desc }: { icon: any, title: string, desc: string }) {
-    return (
-        <div className="flex items-center gap-4 p-6 bg-white/5 border border-white/5 rounded-2xl">
-            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
-                {icon}
-            </div>
-            <div>
-                <h4 className="font-bold">{title}</h4>
-                <p className="text-xs text-slate-500 mt-1">{desc}</p>
-            </div>
-        </div>
-    );
-}
