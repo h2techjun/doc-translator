@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
 
         const { data: oldJobs, error: fetchError } = await supabase
             .from("translation_jobs")
-            .select("id, original_file_path")
+            .select("id, original_file_path, translated_file_path")
             .lt("created_at", tenDaysAgo);
 
         if (fetchError) throw fetchError;
@@ -38,26 +38,28 @@ Deno.serve(async (req) => {
 
         // 3. 루프를 돌며 스토리지 파일 및 DB 레코드 정리
         for (const job of oldJobs) {
-            const cleanupTarget = { jobId: job.id, fileDeleted: false, dbDeleted: false, error: null };
+            const cleanupTarget = { jobId: job.id, filesDeleted: [], dbDeleted: false, error: null };
+            const pathsToTrash = [];
+
+            if (job.original_file_path) pathsToTrash.push(job.original_file_path);
+            if (job.translated_file_path) pathsToTrash.push(job.translated_file_path);
 
             try {
-                // A. 스토리지 파일 삭제
-                if (job.original_file_path) {
-                    const { error: storageError } = await supabase.storage
+                // A. 스토리지 파일 통합 삭제
+                if (pathsToTrash.length > 0) {
+                    const { data: deletedFiles, error: storageError } = await supabase.storage
                         .from("documents")
-                        .remove([job.original_file_path]);
+                        .remove(pathsToTrash);
 
                     if (!storageError) {
-                        cleanupTarget.fileDeleted = true;
+                        cleanupTarget.filesDeleted = deletedFiles?.map(f => f.name) || [];
                     } else {
-                        console.error(`Failed to delete file for job ${job.id}:`, storageError);
+                        console.error(`Failed to delete files for job ${job.id}:`, storageError);
                         cleanupTarget.error = storageError.message;
                     }
                 }
 
-                // B. DB 레코드 삭제 (Cascade 설정이 안 되어 있을 경우를 대비해 명시적 삭제 권장)
-                // 여기서는 status를 EXPIRED로 업데이트하거나 실제 삭제를 선택할 수 있습니다.
-                // 마스터님의 요청에 인위적으로 "파기"라고 명시되었으므로 실제 삭제를 진행합니다.
+                // B. DB 레코드 삭제
                 const { error: dbDeleteError } = await supabase
                     .from("translation_jobs")
                     .delete()
