@@ -9,15 +9,76 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
+import { POINT_COSTS } from "@/lib/payment/types";
+
+// Fallback English Data (for languages missing pricingPage)
+const FALLBACK_PRICING = {
+    hero: { title: "CHOOSE YOUR", highlight: "POWER TIER", subtitle: "Scale your global communication with our high-fidelity AI translation engine." },
+    tiers: {
+        guest: { name: "GUEST", price: "Free", desc: "No login required", limit: "Limit: 2 Pages", button: "Try Guest Mode", features: ["Word/Excel/PPT Translation", "Max 2 pages per doc"] },
+        bronze: { name: "BRONZE", price: "Free", desc: "Basic Membership", bonus: "SIGNUP BONUS: 50P", button: "Sign Up Free", features: ["Ads Enabled", "Community Support"] },
+        silver: { name: "SILVER", priceKRW: "User", priceUSD: "$5.00", desc: "Get 50P & Upgrade", bonus: "INSTANT 50P", button: "Charge 50P", features: ["Verified Badge", "Faster Processing", "Ads Still Visible"] },
+        gold: { name: "GOLD", price: "100k+", unit: "KRW", desc: "Cumulative Payment", vip: "VIP STATUS", button: "Automatic Upgrade", features: ["Highest Priority", "Direct Support Line", "Ads Support Us"] }
+    },
+    policy: {
+        title: "Points & Operation Policy",
+        pointTitle: "1. Point Policy",
+        pointItems: [
+            "Signup Reward: 50P is granted immediately upon sign up.",
+            "Base Cost: {base}P per document (up to {basePages} pages).",
+            "Extra Cost: {extra}P per page starting from page {nextPage}.",
+            "Guest Mode: Translation limited to 2 pages for guests."
+        ],
+        adTitle: "2. Ad & Charge Policy",
+        adItems: [
+            "Free Charge: You can earn points by watching ads if you run out.",
+            "Reward: Get 5P by clicking [Get 5 Points] on ads.",
+            "Unlimited: During beta, ad rewards are unlimited.",
+            "Service: Ad revenue supports server & AI engine costs."
+        ],
+        disclaimer: "* This policy may change during the beta period. Points are non-refundable."
+    },
+    features: {
+        support: { title: "Global Support", desc: "Support for 20+ languages with culture-aware AI." },
+        security: { title: "Enterprise Security", desc: "Bank-grade encryption for all your documents." },
+        fidelity: { title: "High Fidelity", desc: "Preserves all formatting, charts, and diagrams." }
+    }
+};
 
 export default function PricingPage() {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedPackageId, setSelectedPackageId] = useState<string>('');
-    const { currency } = useGeoSmart();
+    const { currency, t } = useGeoSmart();
 
     const isKRW = currency === 'KRW';
-    // KRW일 때는 3000, 그 외(USD 등)는 5.00
-    const displayPrice = isKRW ? '₩3,000' : '$5.00';
+    // Fallback to English if translation is missing
+    const pricing = (t as any).pricingPage || FALLBACK_PRICING;
+
+    // Helper: Replace dynamic variables
+    const replaceVars = (text: string) => {
+        if (!text) return "";
+        return text
+            .replace('{base}', POINT_COSTS.BASE_COST.toString())
+            .replace('{basePages}', POINT_COSTS.BASE_PAGES.toString())
+            .replace('{nextPage}', (POINT_COSTS.BASE_PAGES + 1).toString())
+            .replace('{extra}', POINT_COSTS.ADDITIONAL_PAGE_COST.toString());
+    };
+
+    // Helper: Simple bold formatter for "Key: Value" strings
+    const renderPolicyItem = (text: string) => {
+        const processedText = replaceVars(text);
+        const parts = processedText.split(':');
+
+        if (parts.length > 1 && !processedText.startsWith('•')) {
+            // Case: Title: Desc -> Bold Title
+            return (
+                <span>
+                    <b>{parts[0]}</b>:{parts.slice(1).join(':')}
+                </span>
+            );
+        }
+        return <span>{processedText}</span>;
+    };
 
     const handlePurchase = (packageId: string) => {
         setSelectedPackageId(packageId);
@@ -43,13 +104,12 @@ export default function PricingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-4xl md:text-6xl font-black tracking-tighter"
                     >
-                        CHOOSE YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">POWER TIER</span>
+                        {pricing.hero.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">{pricing.hero.highlight}</span>
                     </motion.h1>
                     <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-medium">
-                        Scale your global communication with our high-fidelity AI translation engine.
+                        {pricing.hero.subtitle}
                     </p>
                 </div>
-
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
                     {/* GUEST */}
@@ -62,20 +122,21 @@ export default function PricingPage() {
                             <CardHeader>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Globe className="w-6 h-6 text-zinc-400" /></div>
-                                    <CardTitle className="text-xl font-bold tracking-widest">GUEST</CardTitle>
+                                    <CardTitle className="text-xl font-bold tracking-widest">{pricing.tiers.guest.name}</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">Free</span></div>
-                                <CardDescription className="text-slate-400 mt-2">No login required.</CardDescription>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">{pricing.tiers.guest.price}</span></div>
+                                <CardDescription className="text-slate-400 mt-2">{pricing.tiers.guest.desc}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="py-2 px-3 bg-zinc-800 rounded-lg"><p className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Limit: 2 Pages</p></div>
+                                <div className="py-2 px-3 bg-zinc-800 rounded-lg"><p className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />{pricing.tiers.guest.limit}</p></div>
                                 <ul className="space-y-3">
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Word/Excel/PPT Translation</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Max 2 pages per doc</li>
+                                    {pricing.tiers.guest.features.map((feature: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />{feature}</li>
+                                    ))}
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white text-black hover:bg-slate-200"><Link href="/">Try Guest Mode</Link></Button>
+                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white text-black hover:bg-slate-200"><Link href="/">{pricing.tiers.guest.button}</Link></Button>
                             </CardFooter>
                         </Card>
                     </motion.div>
@@ -90,20 +151,21 @@ export default function PricingPage() {
                             <CardHeader>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Zap className="w-6 h-6 text-emerald-400" /></div>
-                                    <CardTitle className="text-xl font-bold tracking-widest">BRONZE</CardTitle>
+                                    <CardTitle className="text-xl font-bold tracking-widest">{pricing.tiers.bronze.name}</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">Free</span></div>
-                                <CardDescription className="text-slate-400 mt-2">Basic Membership</CardDescription>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">{pricing.tiers.bronze.price}</span></div>
+                                <CardDescription className="text-slate-400 mt-2">{pricing.tiers.bronze.desc}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="py-2 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg"><p className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Signup Bonus: 50P</p></div>
+                                <div className="py-2 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg"><p className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />{pricing.tiers.bronze.bonus}</p></div>
                                 <ul className="space-y-3">
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Ads Enabled</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Community Support</li>
+                                    {pricing.tiers.bronze.features.map((feature: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />{feature}</li>
+                                    ))}
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white"><Link href="/signin">Sign Up Free</Link></Button>
+                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white"><Link href="/signin">{pricing.tiers.bronze.button}</Link></Button>
                             </CardFooter>
                         </Card>
                     </motion.div>
@@ -119,17 +181,17 @@ export default function PricingPage() {
                             <CardHeader>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30"><Crown className="w-6 h-6 text-amber-500" /></div>
-                                    <CardTitle className="text-xl font-bold tracking-widest text-amber-500">SILVER</CardTitle>
+                                    <CardTitle className="text-xl font-bold tracking-widest text-amber-500">{pricing.tiers.silver.name}</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">{displayPrice}</span></div>
-                                <CardDescription className="text-amber-200/60 mt-2">Get 50P & Upgrade</CardDescription>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">{isKRW ? pricing.tiers.silver.priceKRW : pricing.tiers.silver.priceUSD}</span></div>
+                                <CardDescription className="text-amber-200/60 mt-2">{pricing.tiers.silver.desc}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="py-2 px-3 bg-amber-500/10 border border-amber-500/20 rounded-lg"><p className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Instant 50P</p></div>
+                                <div className="py-2 px-3 bg-amber-500/10 border border-amber-500/20 rounded-lg"><p className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />{pricing.tiers.silver.bonus}</p></div>
                                 <ul className="space-y-3">
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />Verified Badge</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />Faster Processing</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300 text-zinc-500"><Check className="w-4 h-4 text-zinc-600 shrink-0 mt-0.5" />Ads Still Visible</li>
+                                    {pricing.tiers.silver.features.map((feature: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />{feature}</li>
+                                    ))}
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
@@ -137,7 +199,7 @@ export default function PricingPage() {
                                     onClick={() => handlePurchase('starter_pack')}
                                     className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"
                                 >
-                                    Charge 50P
+                                    {pricing.tiers.silver.button}
                                 </Button>
                             </CardFooter>
                         </Card>
@@ -153,27 +215,27 @@ export default function PricingPage() {
                             <CardHeader>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Shield className="w-6 h-6 text-blue-400" /></div>
-                                    <CardTitle className="text-xl font-bold tracking-widest">GOLD</CardTitle>
+                                    <CardTitle className="text-xl font-bold tracking-widest">{pricing.tiers.gold.name}</CardTitle>
                                 </div>
-                                <div className="flex items-end gap-1 mt-4"><span className="text-2xl font-black">100k+</span><span className="text-xs text-slate-500 mb-1 ml-1">KRW</span></div>
-                                <CardDescription className="text-slate-400 mt-2">Cumulative Payment</CardDescription>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-2xl font-black">{pricing.tiers.gold.price}</span><span className="text-xs text-slate-500 mb-1 ml-1">{pricing.tiers.gold.unit}</span></div>
+                                <CardDescription className="text-slate-400 mt-2">{pricing.tiers.gold.desc}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="py-2 px-3 bg-blue-500/10 border border-blue-500/20 rounded-lg"><p className="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><Rocket className="w-3 h-3 fill-current" />VIP Status</p></div>
+                                <div className="py-2 px-3 bg-blue-500/10 border border-blue-500/20 rounded-lg"><p className="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><Rocket className="w-3 h-3 fill-current" />{pricing.tiers.gold.vip}</p></div>
                                 <ul className="space-y-3">
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Highest Priority</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Direct Support Line</li>
-                                    <li className="flex items-start gap-3 text-sm text-slate-300 text-zinc-500"><Check className="w-4 h-4 text-zinc-600 shrink-0 mt-0.5" />Ads Support Us</li>
+                                    {pricing.tiers.gold.features.map((feature: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />{feature}</li>
+                                    ))}
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white/10 text-slate-400 hover:bg-white/20 cursor-default">Automatic Upgrade</Button>
+                                <Button className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white/10 text-slate-400 hover:bg-white/20 cursor-default">{pricing.tiers.gold.button}</Button>
                             </CardFooter>
                         </Card>
                     </motion.div>
                 </div>
 
-                {/* 📢 Policy Notice Section (Korean Content) */}
+                {/* 📢 Policy Notice Section */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
@@ -181,48 +243,46 @@ export default function PricingPage() {
                 >
                     <div className="flex items-center gap-3 mb-8">
                         <Shield className="w-8 h-8 text-blue-500" />
-                        <h2 className="text-3xl font-black tracking-tight">[공지] 포인트 및 운영 정책 안내</h2>
+                        <h2 className="text-3xl font-black tracking-tight">{pricing.policy.title}</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-zinc-300">
                         <div className="space-y-4">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Zap className="w-5 h-5 text-amber-500 fill-current" />
-                                1. 포인트 정책 (Point Policy)
+                                {pricing.policy.pointTitle}
                             </h3>
                             <ul className="space-y-2 text-sm leading-relaxed">
-                                <li>• <b>신규 가입 리워드</b>: 최초 회원가입 시 <b>50P</b>가 즉시 지급됩니다.</li>
-                                <li>• <b>기본 번역 비용</b>: 문서당 <b>5P</b>가 기본으로 소모됩니다 (2페이지 이내).</li>
-                                <li>• <b>추가 과금</b>: 3페이지부터는 페이지당 <b>2P</b>씩 추가 포인트가 필요합니다.</li>
-                                <li>• <b>게스트 모드</b>: 비회원은 2페이지까지만 무료 번역이 가능합니다.</li>
+                                {pricing.policy.pointItems.map((item: string, i: number) => (
+                                    <li key={i}>• {renderPolicyItem(item)}</li>
+                                ))}
                             </ul>
                         </div>
 
                         <div className="space-y-4">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Rocket className="w-5 h-5 text-emerald-500" />
-                                2. 광고 및 충전 정책 (Ad Policy)
+                                {pricing.policy.adTitle}
                             </h3>
                             <ul className="space-y-2 text-sm leading-relaxed">
-                                <li>• <b>무료 충전</b>: 포인트가 부족한 경우 광고 시청을 통해 충전이 가능합니다.</li>
-                                <li>• <b>리워드 지급</b>: 광고 영역의 [5 포인트 받기] 클릭 시 <b>5P</b>가 지급됩니다.</li>
-                                <li>• <b>충전 횟수</b>: 베타 기간 동안 광고 시청 리워드는 횟수 제한 없이 제공됩니다.</li>
-                                <li>• <b>서비스 유지</b>: 광고 수익은 서버 유지 및 AI 엔진 이용료로 사용됩니다.</li>
+                                {pricing.policy.adItems.map((item: string, i: number) => (
+                                    <li key={i}>• {renderPolicyItem(item)}</li>
+                                ))}
                             </ul>
                         </div>
                     </div>
 
                     <div className="mt-12 pt-8 border-t border-zinc-800 text-center">
                         <p className="text-zinc-500 text-xs italic">
-                            * 본 정책은 베타 서비스 기간 동안 수시로 변경될 수 있으며, 포인트의 현금 환불은 불가능합니다.
+                            {pricing.policy.disclaimer}
                         </p>
                     </div>
                 </motion.div>
 
                 <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <FeatureBox icon={<Globe />} title="Global Support" desc="Support for 20+ languages with culture-aware AI." />
-                    <FeatureBox icon={<Shield />} title="Enterprise Security" desc="Bank-grade encryption for all your documents." />
-                    <FeatureBox icon={<Rocket />} title="High Fidelity" desc="Preserves all formatting, charts, and diagrams." />
+                    <FeatureBox icon={<Globe />} title={pricing.features.support.title} desc={pricing.features.support.desc} />
+                    <FeatureBox icon={<Shield />} title={pricing.features.security.title} desc={pricing.features.security.desc} />
+                    <FeatureBox icon={<Rocket />} title={pricing.features.fidelity.title} desc={pricing.features.fidelity.desc} />
                 </div>
             </div>
 

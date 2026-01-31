@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, AlertTriangle, FileText, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { POINT_COSTS } from "@/lib/payment/types";
 
 interface CostEstimationModalProps {
     isOpen: boolean;
@@ -30,8 +31,9 @@ export function CostEstimationModal({
     const fileName = file?.name || driveFile?.name || "Unknown File";
 
     // 예상 비용 (기본값)
-    const baseCost = 5;
-    const extraCostPerPage = 2;
+    const baseCost = POINT_COSTS.BASE_COST;
+    const extraCostPerPage = POINT_COSTS.ADDITIONAL_PAGE_COST;
+    const basePages = POINT_COSTS.BASE_PAGES;
 
     useEffect(() => {
         if (isOpen) {
@@ -87,11 +89,11 @@ export function CostEstimationModal({
                     {/* Cost Breakdown */}
                     <div className="space-y-2 border border-blue-500/20 bg-blue-500/5 p-4 rounded-xl">
                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-zinc-300">기본 요금 (2페이지 이내)</span>
+                            <span className="text-zinc-300">기본 요금 ({basePages}페이지 이내)</span>
                             <span className="font-bold text-white">{baseCost} P</span>
                         </div>
                         <div className="flex justify-between items-center text-xs text-zinc-500">
-                            <span>초과 페이지당 (<span className="text-amber-500">3p~</span>)</span>
+                            <span>초과 페이지당 (<span className="text-amber-500">{basePages + 1}p~</span>)</span>
                             <span>+{extraCostPerPage} P / page</span>
                         </div>
                         <div className="h-px bg-blue-500/20 my-2" />
@@ -124,7 +126,7 @@ export function CostEstimationModal({
                     )}
 
                     <p className="text-[10px] text-zinc-500 text-center">
-                        * 실제 페이지 수가 2페이지를 초과할 경우, 완료 시점에 추가 포인트가 차감될 수 있습니다.
+                        * 실제 페이지 수가 {basePages}페이지를 초과할 경우, 완료 시점에 추가 포인트가 차감될 수 있습니다.
                     </p>
                 </div>
 

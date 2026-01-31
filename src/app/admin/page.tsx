@@ -83,11 +83,16 @@ export default function AdminDashboard() {
     useEffect(() => {
         const checkAdmin = async () => {
             try {
+                console.log('[Admin] 🔐 Starting admin verification...');
                 const { data: { user } } = await supabase.auth.getUser();
+
                 if (!user) {
+                    console.log('[Admin] ❌ No user found, redirecting to signin');
                     window.location.href = '/signin';
                     return;
                 }
+
+                console.log('[Admin] ✅ User found:', user.email, 'ID:', user.id);
 
                 const { data: profile, error } = await supabase
                     .from('profiles')
@@ -95,16 +100,37 @@ export default function AdminDashboard() {
                     .eq('id', user.id)
                     .single();
 
-                if (error || profile?.role !== 'ADMIN') {
-                    console.error('Unauthorized access attempt:', error);
+                console.log('[Admin] 📊 Profile query result:', { profile, error });
+
+                if (error) {
+                    console.error('[Admin] ❌ Profile fetch error:', error);
+                    alert(`프로필 조회 실패: ${error.message}`);
                     window.location.href = '/';
                     return;
                 }
 
+                if (!profile) {
+                    console.error('[Admin] ❌ No profile found for user');
+                    alert('프로필이 존재하지 않습니다.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                console.log('[Admin] 👤 User role:', profile.role);
+
+                if (profile.role !== 'ADMIN') {
+                    console.error('[Admin] ❌ Unauthorized: User role is', profile.role);
+                    alert(`관리자 권한이 없습니다. 현재 역할: ${profile.role || 'USER'}`);
+                    window.location.href = '/';
+                    return;
+                }
+
+                console.log('[Admin] ✅ Admin access granted!');
                 setIsAdmin(true);
                 fetchBanned();
             } catch (err) {
-                console.error('Admin check error:', err);
+                console.error('[Admin] 💥 Unexpected error:', err);
+                alert(`관리자 인증 중 오류 발생: ${err}`);
                 window.location.href = '/';
             } finally {
                 setIsLoading(false);

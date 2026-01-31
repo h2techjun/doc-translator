@@ -74,6 +74,7 @@ export const i18n: Record<Locale, {
         checkEmailDesc: string;
         backWithEmail: string;
         alreadyHaveAccount: string;
+        rememberMe?: string;
     };
     admin: {
         dashboard: string;
@@ -165,7 +166,8 @@ export const i18n: Record<Locale, {
             checkEmailTitle: "이메일을 확인해주세요!",
             checkEmailDesc: "가입 인증 링크가 발송되었습니다.",
             backWithEmail: "이메일 다시 입력하기",
-            alreadyHaveAccount: "이미 계정이 있으신가요?"
+            alreadyHaveAccount: "이미 계정이 있으신가요?",
+            rememberMe: "로그인 상태 유지"
         },
         admin: {
             dashboard: "대시보드",

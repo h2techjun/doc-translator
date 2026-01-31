@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Github, Mail, Lock, Languages, Chrome, ArrowRight, Shield, Apple } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/config';
 import { toast } from 'sonner';
@@ -22,6 +24,7 @@ export default function SignInPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [isUnconfirmed, setIsUnconfirmed] = useState(false);
     const [cooldown, setCooldown] = useState(0);
     const supabase = createClient();
@@ -294,6 +297,19 @@ export default function SignInPage() {
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 required
                                             />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="remember-me"
+                                                checked={rememberMe}
+                                                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                                                className="border-white/20 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                                            />
+                                            <Label htmlFor="remember-me" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-400">
+                                                {t.auth?.rememberMe || "로그인 상태 유지"}
+                                            </Label>
                                         </div>
                                     </div>
                                     <div className="flex justify-end">

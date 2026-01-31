@@ -23,9 +23,10 @@ import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { useSmartEstimation } from '@/hooks/use-smart-estimation';
 import { useUrlSync } from '@/hooks/use-url-sync';
 
-import { GoogleDrivePicker, DriveFile } from '@/components/drive/GoogleDrivePicker';
+import { type DriveFile, GoogleDrivePicker } from '@/components/drive/GoogleDrivePicker';
 import { toast } from 'sonner';
 import { CostEstimationModal } from '@/components/translation/CostEstimationModal';
+import { POINT_COSTS } from "@/lib/payment/types";
 
 export default function HomePage() {
     const router = useRouter();
@@ -286,8 +287,14 @@ export default function HomePage() {
                             </div>
                             <div className="text-left">
                                 <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{t.pricingRule.title}</h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                                    {t.pricingRule.base} + {t.pricingRule.extra}
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium whitespace-pre-wrap">
+                                    {t.pricingRule.base
+                                        .replace('{base}', POINT_COSTS.BASE_COST.toString())
+                                        .replace('{pages}', POINT_COSTS.BASE_PAGES.toString())}
+                                    {' + '}
+                                    {t.pricingRule.extra
+                                        .replace('{nextPage}', (POINT_COSTS.BASE_PAGES + 1).toString())
+                                        .replace('{extra}', POINT_COSTS.ADDITIONAL_PAGE_COST.toString())}
                                 </p>
                             </div>
                         </div>
