@@ -42,6 +42,14 @@ export default function NotificationBell() {
         // Don't fetch on public auth pages
         if (pathname === '/signin' || pathname === '/signup') return;
 
+        // Extra check: Ensure the actual auth cookie exists
+        // Supabase cookies usually start with 'sb-'
+        if (typeof document !== 'undefined' && !document.cookie.includes('sb-')) {
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+        }
+
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
