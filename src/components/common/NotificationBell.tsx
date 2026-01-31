@@ -62,6 +62,7 @@ export default function NotificationBell() {
         try {
             const res = await fetch('/api/notifications', {
                 signal,
+                credentials: 'same-origin', // Ensure cookies are sent
                 headers: {
                     'Cache-Control': 'no-cache',
                 }
@@ -104,7 +105,7 @@ export default function NotificationBell() {
             setNotifications([]);
             setUnreadCount(0);
         }
-    }, [user, pathname]);
+    }, [user, pathname, isOpen]); // Re-fetch on open for freshness
 
     const markAsRead = async (id?: string) => {
         try {
