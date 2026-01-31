@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
     LayoutDashboard, Users, FileText, ShieldAlert,
     Settings, LogOut, Zap, MessageSquare, DollarSign,
-    Menu, ChevronRight
+    Menu, ChevronRight, Flag
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/config';
 import { motion } from 'framer-motion';
@@ -26,6 +26,7 @@ export default function AdminSidebar() {
         { href: '/admin/jobs', label: 'Jobs Inspector', icon: FileText },
         { href: '/admin/posts', label: 'Community', icon: MessageSquare },
         { href: '/admin/finance', label: 'Treasury', icon: DollarSign },
+        { href: '/admin/reports', label: 'Moderation', icon: Flag },
         { href: '/admin/settings', label: 'SysConf', icon: Settings },
         { href: '/admin/security', label: 'Security', icon: ShieldAlert },
     ];
