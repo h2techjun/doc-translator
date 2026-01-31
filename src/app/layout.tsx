@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import Script from 'next/script';
+import AdSense from "@/components/ads/AdSense";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,23 +43,6 @@ export default function RootLayout({
     <html lang="ko" translate="no" className="notranslate" suppressHydrationWarning>
       <head>
         <meta name="google" content="notranslate" />
-        {/* Google AdSense - Pure HTML to avoid data-nscript attribute */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8134930906845147"
-          crossOrigin="anonymous"
-        />
-        {/* Ad Block Recovery - Funding Choices */}
-        <script
-          async
-          src="https://fundingchoicesmessages.google.com/i/pub-8134930906845147?ers=1"
-        />
-        <script
-          id="google-fc-present"
-          dangerouslySetInnerHTML={{
-            __html: `(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();`
-          }}
-        />
       </head>
       <body className={inter.className}>
         <ThemeProvider
@@ -79,6 +63,7 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ''} />
+        <AdSense />
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Bell, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,17 +30,21 @@ interface Notification {
 
 export default function NotificationBell() {
     const { user } = useGeoSmart();
+    const pathname = usePathname();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchNotifications = async () => {
+        // 🛡️ Pre-emptive checks to avoid 401
         if (!user) return;
+
+        // Don't fetch on public auth pages
+        if (pathname === '/signin' || pathname === '/signup') return;
 
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
-        // 🛡️ Pre-emptive Expiration Check to avoid 401
         if (!session || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
             setNotifications([]);
             setUnreadCount(0);
