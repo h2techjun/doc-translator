@@ -31,7 +31,7 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 transition-opacity hover:opacity-90">
                     <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                         <img
-                            src="/logo.png"
+                            src="/brand_logo.jpg"
                             alt="Logo"
                             className="w-full h-full object-contain rounded-lg"
                         />
