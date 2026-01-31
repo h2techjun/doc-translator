@@ -257,9 +257,9 @@ export default function HomePage() {
                         <span className="text-muted-foreground">{t.badge}</span>
                     </div>
 
-                    <h1 className="text-4xl xs:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.15] md:leading-[1.1]">
+                    <h1 className="text-[8.5vw] xs:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.15] md:leading-[1.1]">
                         {t.title.main}<br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 dark:from-indigo-400 dark:via-blue-400 dark:to-cyan-300 animate-gradient-x px-1">
+                        <span className="inline-block whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 dark:from-indigo-400 dark:via-blue-400 dark:to-cyan-300 animate-gradient-x px-1">
                             {t.title.highlight}
                         </span>
                     </h1>

@@ -8,12 +8,16 @@ export const GameAd = () => {
 
     useEffect(() => {
         if (view === 'ad') {
-            try {
-                // @ts-ignore
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (err) {
-                console.error("AdSense error:", err);
-            }
+            // ✨ Give it a bit of time for layout/animation to settle
+            const timer = setTimeout(() => {
+                try {
+                    // @ts-ignore
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (err) {
+                    console.error("AdSense error (GameAd):", err);
+                }
+            }, 500);
+            return () => clearTimeout(timer);
         }
     }, [view]);
 
@@ -54,7 +58,7 @@ export const GameAd = () => {
                             className="p-6 flex flex-col items-center"
                         >
                             <ins className="adsbygoogle"
-                                style={{ display: "block" }}
+                                style={{ display: "block", width: "100%", minHeight: "280px" }}
                                 data-ad-client="ca-pub-8134930906845147"
                                 data-ad-slot="4477457432"
                                 data-ad-format="auto"
