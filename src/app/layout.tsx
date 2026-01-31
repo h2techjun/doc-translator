@@ -6,6 +6,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { GeoSmartProvider } from "@/context/geo-smart-context";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/footer";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,6 +64,9 @@ export default function RootLayout({
             <Toaster richColors expand position="top-center" />
           </GeoSmartProvider>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ''} />
       </body>
     </html>
   );
