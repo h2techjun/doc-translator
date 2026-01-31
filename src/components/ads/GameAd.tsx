@@ -2,8 +2,10 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useGeoSmart } from "@/hooks/use-geo-smart";
 
 export const GameAd = () => {
+    const { t } = useGeoSmart();
     const [view, setView] = useState<'ad' | 'game'>('ad');
 
     useEffect(() => {
@@ -67,7 +69,7 @@ export const GameAd = () => {
 
                             {/* ✨ Reward Button */}
                             <div className="mt-8 pt-6 border-t border-white/10 w-full flex flex-col items-center gap-4">
-                                <p className="text-sm text-zinc-400 font-medium">광고를 보셨나요? 리워드를 받으세요!</p>
+                                <p className="text-sm text-zinc-400 font-medium">{t.adReward.title}</p>
                                 <button
                                     onClick={async () => {
                                         try {
@@ -77,7 +79,7 @@ export const GameAd = () => {
                                             });
                                             if (res.ok) {
                                                 const data = await res.json();
-                                                alert(`축하합니다! ${data.pointsClaimed}P가 충전되었습니다.`);
+                                                alert(t.adReward.success.replace('{points}', data.pointsClaimed.toString()));
                                                 window.location.reload();
                                             }
                                         } catch (err) {
@@ -86,7 +88,7 @@ export const GameAd = () => {
                                     }}
                                     className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                                 >
-                                    5 포인트 받기 (+5P)
+                                    {t.adReward.button}
                                 </button>
                             </div>
                         </motion.div>

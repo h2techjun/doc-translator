@@ -11,7 +11,7 @@ export const i18n: Record<Locale, {
         speed: { title: string; desc: string };
     };
     pricingRule: { title: string; base: string; extra: string };
-    pricingPage?: {
+    pricingPage: {
         hero: { title: string; highlight: string; subtitle: string; };
         tiers: {
             guest: { name: string; price: string; desc: string; limit: string; button: string; features: string[] };
@@ -67,6 +67,25 @@ export const i18n: Record<Locale, {
         tierSilver: string;
         tierGold: string;
         proAccount: string;
+    };
+    community: {
+        title: string;
+        write: string;
+        tabs: {
+            free: string;
+            inquiry: string;
+            notice: string;
+        };
+        noPosts: string;
+        noticeFixed: string;
+        postedBy: string;
+        views: string;
+    };
+    adReward: {
+        title: string;
+        button: string;
+        loading: string;
+        success: string;
     };
     auth: {
         signinTitle: string;
@@ -127,7 +146,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "게스트", price: "무료", desc: "로그인 없이 사용", limit: "제한: 2페이지", button: "게스트 모드 체험", features: ["Word/Excel/PPT 번역", "최대 2페이지"] },
                 bronze: { name: "브론즈", price: "무료", desc: "기본 멤버십", bonus: "가입 보너스: 50P", button: "무료 가입", features: ["광고 포함", "커뮤니티 지원"] },
                 silver: { name: "실버", priceKRW: "3,000원", priceUSD: "$5.00", desc: "50P 받고 업그레이드", bonus: "즉시 50P 지급", button: "50P 충전", features: ["인증 배지", "빠른 처리", "광고 표시"] },
-                gold: { name: "골드", price: "100,000", unit: "원", desc: "누적 결제", vip: "VIP 회원", button: "자동 업그레이드", features: ["최우선 처리", "전담 지원", "광고 없음"] }
+                gold: { name: "골드", price: "100,000", unit: "원", desc: "누적 결제", vip: "VIP 회원", button: "자동 업그레이드", features: ["최우선 처리", "전담 지원"] }
             },
             policy: {
                 title: "포인트 및 운영 정책",
@@ -142,6 +161,25 @@ export const i18n: Record<Locale, {
                 security: { title: "엔터프라이즈 보안", desc: "모든 문서에 은행 수준의 암호화 적용." },
                 fidelity: { title: "높은 충실도", desc: "모든 서식, 차트, 다이어그램을 보존합니다." }
             }
+        },
+        community: {
+            title: "커뮤니티",
+            write: "글쓰기",
+            tabs: {
+                free: "자유게시판",
+                inquiry: "문의게시판",
+                notice: "공지사항"
+            },
+            noPosts: "작성된 글이 없습니다. 첫 글을 남겨보세요!",
+            noticeFixed: "고정 공지",
+            postedBy: "작성자",
+            views: "조회수"
+        },
+        adReward: {
+            title: "광고를 보셨나요? 리워드를 받으세요!",
+            button: "5 포인트 받기 (+5P)",
+            loading: "처리 중...",
+            success: "축하합니다! {points}P가 충전되었습니다."
         },
         pricingRule: {
             title: "합리적인 포인트 정책",
@@ -242,7 +280,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "GUEST", price: "Free", desc: "No login required", limit: "Limit: 2 pages", button: "Try Guest Mode", features: ["Word/Excel/PPT Translation", "Max 2 pages per doc"] },
                 bronze: { name: "BRONZE", price: "Free", desc: "Basic membership", bonus: "SIGNUP BONUS: 50P", button: "Sign up Free", features: ["Ads enabled", "Community support"] },
                 silver: { name: "SILVER", priceKRW: "User", priceUSD: "$5.00", desc: "Get 50P and upgrade", bonus: "INSTANT 50P", button: "Charge 50P", features: ["Verified badge", "Faster processing", "Ads still visible"] },
-                gold: { name: "GOLD", price: "100k+", unit: "KRW", desc: "Cumulative payment", vip: "VIP STATUS", button: "Auto Upgrade", features: ["Top priority", "Direct support line", "Ads support us"] }
+                gold: { name: "GOLD", price: "100k+", unit: "KRW", desc: "Cumulative payment", vip: "VIP STATUS", button: "Auto Upgrade", features: ["Top priority", "Direct support line"] }
             },
             policy: {
                 title: "Points & Operation Policy",
@@ -257,6 +295,25 @@ export const i18n: Record<Locale, {
                 security: { title: "Enterprise Security", desc: "Bank-level encryption for all your documents." },
                 fidelity: { title: "High Fidelity", desc: "Preserves all formatting, charts, and diagrams." }
             }
+        },
+        community: {
+            title: "Community",
+            write: "Write",
+            tabs: {
+                free: "Free Board",
+                inquiry: "Inquiry Board",
+                notice: "Notice"
+            },
+            noPosts: "No posts found. Be the first to post!",
+            noticeFixed: "Fixed Notice",
+            postedBy: "By",
+            views: "Views"
+        },
+        adReward: {
+            title: "Did you watch the ad? Get your reward!",
+            button: "Get 5 Points (+5P)",
+            loading: "Processing...",
+            success: "Congratulations! {points}P has been charged."
         },
         pricingRule: {
             title: "Pricing Policy",
@@ -356,7 +413,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "ゲスト", price: "無料", desc: "ログイン不要", limit: "制限: 2ページ", button: "ゲストモードを試す", features: ["Word/Excel/PPT翻訳", "1ドキュメント最大2ページ"] },
                 bronze: { name: "ブロンズ", price: "無料", desc: "基本メンバーシップ", bonus: "登録ボーナス: 50P", button: "無料で登録", features: ["広告あり", "コミュニティサポート"] },
                 silver: { name: "シルバー", priceKRW: "ユーザー", priceUSD: "$5.00", desc: "50Pチャージでアップグレード", bonus: "即時 50P 付与", button: "50Pチャージ", features: ["認証バッジ", "優先処理", "広告表示あり"] },
-                gold: { name: "ゴールド", price: "10万〜", unit: "ウォン", desc: "累計決済額", vip: "VIPステータス", button: "自動アップグレード", features: ["最優先処理", "専用サポート", "広告なし（運営支援）"] }
+                gold: { name: "ゴールド", price: "10万〜", unit: "ウォン", desc: "累計決済額", vip: "VIPステータス", button: "自動アップグレード", features: ["最優先処理", "専用サポート"] }
             },
             policy: {
                 title: "ポイントおよび運用ポリシー",
@@ -368,9 +425,28 @@ export const i18n: Record<Locale, {
             },
             features: {
                 support: { title: "グローバルサポート", desc: "文化を理解するAIにより、20以上の言語に対応しています。" },
-                security: { title: "エンタープライ즈セキュリティ", desc: "すべてのドキュメントに銀行レベルの暗号化を適用。" },
+                security: { title: "エンタープライズセキュリティ", desc: "すべてのドキュメントに銀行レベルの暗号化を適用。" },
                 fidelity: { title: "高い再現性", desc: "すべての書式、グラフ、図をそのまま保持します。" }
             }
+        },
+        community: {
+            title: "コミュニティ",
+            write: "投稿",
+            tabs: {
+                free: "自由掲示板",
+                inquiry: "お問い合わせ",
+                notice: "お知らせ"
+            },
+            noPosts: "投稿がありません。最初の投稿をしてみましょう！",
+            noticeFixed: "固定お知らせ",
+            postedBy: "投稿者",
+            views: "閲覧数"
+        },
+        adReward: {
+            title: "広告を見ましたか？報酬を受け取りましょう！",
+            button: "5ポイントを獲得 (+5P)",
+            loading: "処理中...",
+            success: "おめでとうございます！ {points}P가 加算されました。"
         },
         pricingRule: {
             title: "ポイント規定",
@@ -470,7 +546,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "访客", price: "免费", desc: "无需登录", limit: "限制：2页", button: "试用访客模式", features: ["Word/Excel/PPT翻译", "每个文档最多2页"] },
                 bronze: { name: "青铜", price: "免费", desc: "基础会员", bonus: "注册奖励：50P", button: "免费注册", features: ["显示广告", "社区支持"] },
                 silver: { name: "白银", priceKRW: "用户", priceUSD: "$5.00", desc: "获得50P并升级", bonus: "立即赠送 50P", button: "充值 50P", features: ["认证徽章", "更快的处理速度", "广告依然可见"] },
-                gold: { name: "黄金", price: "100k+", unit: "KRW", desc: "累计支付", vip: "VIP 状态", button: "自动升级", features: ["最高优先级", "直接支持渠道", "广告支持我们"] }
+                gold: { name: "黄金", price: "100k+", unit: "KRW", desc: "累计支付", vip: "VIP 状态", button: "自动升级", features: ["最高优先级", "直接支持渠道"] }
             },
             policy: {
                 title: "积分及运营政策",
@@ -485,6 +561,25 @@ export const i18n: Record<Locale, {
                 security: { title: "企业级安全", desc: "为您的所有文档提供银行级加密。" },
                 fidelity: { title: "高保真", desc: "保留所有格式、图表和图表。" }
             }
+        },
+        community: {
+            title: "社区",
+            write: "发帖",
+            tabs: {
+                free: "自由板块",
+                inquiry: "咨询板块",
+                notice: "公告"
+            },
+            noPosts: "暂无帖子。成为第一个发帖的人吧！",
+            noticeFixed: "固定公告",
+            postedBy: "作者",
+            views: "浏览量"
+        },
+        adReward: {
+            title: "看了广告吗？领取奖励！",
+            button: "领取 5 积分 (+5P)",
+            loading: "处理中...",
+            success: "恭喜！已充值 {points}P。"
         },
         pricingRule: {
             title: "积分政策",
@@ -584,7 +679,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "INVITADO", price: "Gratis", desc: "Sin registro", limit: "Límite: 2 páginas", button: "Probar modo invitado", features: ["Traducción Word/Excel/PPT", "Máx. 2 páginas por doc"] },
                 bronze: { name: "BRONCE", price: "Gratis", desc: "Membresía básica", bonus: "BONO DE REGISTRO: 50P", button: "Registrarse gratis", features: ["Anuncios habilitados", "Soporte comunitario"] },
                 silver: { name: "PLATA", priceKRW: "Usuario", priceUSD: "$5.00", desc: "Obtén 50P y mejora", bonus: "50P INSTANTÁNEOS", button: "Cargar 50P", features: ["Insignia verificada", "Procesamiento más rápido", "Anuncios aún visibles"] },
-                gold: { name: "ORO", price: "100k+", unit: "KRW", desc: "Pago acumulativo", vip: "ESTADO VIP", button: "Mejora automática", features: ["Máxima prioridad", "Línea de soporte directo", "Los anuncios nos apoyan"] }
+                gold: { name: "ORO", price: "100k+", unit: "KRW", desc: "Pago acumulativo", vip: "ESTADO VIP", button: "Mejora automática", features: ["Máxima prioridad", "Línea de soporte directo"] }
             },
             policy: {
                 title: "Política de puntos y operación",
@@ -599,6 +694,25 @@ export const i18n: Record<Locale, {
                 security: { title: "Seguridad empresarial", desc: "Cifrado de nivel bancario para todos tus documentos." },
                 fidelity: { title: "Alta fidelidad", desc: "Conserva todo el formato, gráficos y diagramas." }
             }
+        },
+        community: {
+            title: "Comunidad",
+            write: "Escribir",
+            tabs: {
+                free: "Foro Libre",
+                inquiry: "Foro de Consultas",
+                notice: "Avisos"
+            },
+            noPosts: "No hay publicaciones. ¡Sé el primero en publicar!",
+            noticeFixed: "Aviso Fijo",
+            postedBy: "Por",
+            views: "Vistas"
+        },
+        adReward: {
+            title: "¿Has visto el anuncio? ¡Obtén tu recompensa!",
+            button: "Obtener 5 Puntos (+5P)",
+            loading: "Procesando...",
+            success: "¡Felicidades! Se han cargado {points}P."
         },
         pricingRule: {
             title: "Política de puntos",
@@ -698,7 +812,7 @@ export const i18n: Record<Locale, {
                 guest: { name: "INVITÉ", price: "Gratuit", desc: "Sans inscription", limit: "Limite : 2 pages", button: "Essayer le mode invité", features: ["Traduction Word/Excel/PPT", "Max 2 pages par doc"] },
                 bronze: { name: "BRONZE", price: "Gratuit", desc: "Adhésion de base", bonus: "BONUS D'INSCRIPTION : 50P", button: "S'inscrire gratuitement", features: ["Publicités activées", "Support communautaire"] },
                 silver: { name: "ARGENT", priceKRW: "Utilisateur", priceUSD: "$5.00", desc: "Obtenez 50P et améliorez", bonus: "50P INSTANTANÉS", button: "Charger 50P", features: ["Badge vérifié", "Traitement plus rapide", "Publicités toujours visibles"] },
-                gold: { name: "OR", price: "100k+", unit: "KRW", desc: "Paiement cumulatif", vip: "STATUT VIP", button: "Mise à niveau automatique", features: ["Priorité maximale", "Ligne de support direct", "Les publicités nous soutiennent"] }
+                gold: { name: "OR", price: "100k+", unit: "KRW", desc: "Paiement cumulatif", vip: "STATUT VIP", button: "Mise à niveau automatique", features: ["Priorité maximale", "Ligne de support direct"] }
             },
             policy: {
                 title: "Politique de points et d'exploitation",
@@ -713,6 +827,25 @@ export const i18n: Record<Locale, {
                 security: { title: "Sécurité d'entreprise", desc: "Chiffrement de niveau bancaire pour tous vos documents." },
                 fidelity: { title: "Haute fidélité", desc: "Préserve tout le formatage, les graphiques et les diagrammes." }
             }
+        },
+        community: {
+            title: "Communauté",
+            write: "Écrire",
+            tabs: {
+                free: "Forum Libre",
+                inquiry: "Forum de Questions",
+                notice: "Annonces"
+            },
+            noPosts: "Aucun message trouvé. Soyez le premier à poster !",
+            noticeFixed: "Annonce Fixe",
+            postedBy: "Par",
+            views: "Vues"
+        },
+        adReward: {
+            title: "Avez-vous regardé la publicité ? Obtenez votre récompense !",
+            button: "Obtenir 5 Points (+5P)",
+            loading: "Traitement en cours...",
+            success: "Félicitations ! {points}P ont été chargés."
         },
         features: {
             compatibility: { title: "Support Natif", desc: "Traitement direct des fichiers Office et HWP." },
