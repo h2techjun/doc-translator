@@ -40,6 +40,8 @@ export default function NotificationBell() {
                 // If backend says 401, the session is likely invalid even if client thinks user exists
                 setNotifications([]);
                 setUnreadCount(0);
+                // We might want to clear local user state here if we had a setter, 
+                // but for now just stop this specific component's polling
                 return;
             }
             if (res.ok) {
@@ -56,8 +58,13 @@ export default function NotificationBell() {
         if (user) {
             fetchNotifications();
             // Polling every 60 seconds (Simple realtime alternative)
-            const interval = setInterval(fetchNotifications, 60000);
+            const interval = setInterval(() => {
+                if (user) fetchNotifications();
+            }, 60000);
             return () => clearInterval(interval);
+        } else {
+            setNotifications([]);
+            setUnreadCount(0);
         }
     }, [user]);
 

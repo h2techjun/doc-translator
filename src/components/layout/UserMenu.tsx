@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import {
-    User, LogOut, ChevronDown, Coins, Star,
-    Settings, LayoutDashboard, LogIn, Zap, Shield
+    LogOut, ChevronDown, Coins, Star,
+    Settings, LayoutDashboard, Zap, Shield
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -12,43 +11,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { createClient } from '@/lib/supabase/config';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 
 export function UserMenu() {
-    const { t } = useGeoSmart();
-    const [user, setUser] = useState<any>(null);
-    const [profile, setProfile] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { t, user, profile, isLoading } = useGeoSmart();
     const supabase = createClient();
-
-    useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-
-            if (user) {
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-                setProfile(profile);
-            }
-            setIsLoading(false);
-        };
-
-        getUser();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                supabase.from('profiles').select('*').eq('id', session.user.id).single()
-                    .then(({ data }) => setProfile(data));
-            } else {
-                setProfile(null);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, [supabase]);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
