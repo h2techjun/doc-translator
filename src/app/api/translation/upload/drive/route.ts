@@ -15,38 +15,37 @@ import { Readable } from 'stream';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { fileId, accessToken, filename, mimeType, sizeBytes } = body;
+        const { fileId, accessToken, filename, mimeType, sizeBytes, targetLang } = body;
 
-        if (!fileId || !accessToken) {
-            return NextResponse.json({ error: 'Missing fileId or accessToken' }, { status: 400 });
+        if (!fileId || !accessToken || !targetLang) {
+            return NextResponse.json({ error: 'Missing required fields (fileId, accessToken, targetLang)' }, { status: 400 });
         }
 
         const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return NextResponse.json({ error: '인증되지 않은 사용자입니다. 구글 드라이브 업로드는 로그인이 필요합니다.' }, { status: 401 });
+        }
 
         // 1. Create Job Record
         const jobId = uuidv4();
-
-        // Sanitize object path for storage (Korean/Special characters cause 400 'Invalid key' error)
-        // We keep the original filename in the DB, but use a safe name for S3/Storage.
         const fileExt = filename.split('.').pop() || 'tmp';
         const safeStorageName = `source_file.${fileExt}`;
-        const objectPath = `${jobId}/${safeStorageName}`;
-
-        // Get user if logged in
-        const { data: { user } } = await supabase.auth.getUser();
+        const objectPath = `${user.id}/${jobId}/${safeStorageName}`; // 사용자 폴더 격리
 
         const { error: dbError } = await supabase
             .from('translation_jobs')
             .insert({
                 id: jobId,
-                original_filename: filename, // Keep original name here
+                user_id: user.id,
+                original_filename: filename,
                 file_type: mimeType,
                 file_size: sizeBytes || 0,
-                target_lang: 'en',
+                target_lang: targetLang,
                 status: 'UPLOADING',
                 original_file_path: objectPath,
-                progress: 0,
-                user_id: user?.id || null
+                progress: 0
             });
 
         if (dbError) {

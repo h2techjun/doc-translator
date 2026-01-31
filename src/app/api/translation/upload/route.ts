@@ -21,15 +21,21 @@ export async function POST(req: NextRequest) {
 
         const supabase = await createClient();
 
+        // 0. 사용자 인증 확인
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+            return NextResponse.json({ error: '인증되지 않은 사용자입니다.' }, { status: 401 });
+        }
+
         // 1. 작업 레코드 생성
         const jobId = uuidv4();
-        const objectPath = `${jobId}/${filename}`;
+        const objectPath = `${user.id}/${jobId}/${filename}`; // 경로에 user.id 추가하여 격리
 
-        // TODO: 사용자 인증 연동 시 user_id 추가 필요
         const { error: dbError } = await supabase
             .from('translation_jobs')
             .insert({
                 id: jobId,
+                user_id: user.id, // 인증된 user.id 사용
                 original_filename: filename,
                 file_type: fileType,
                 file_size: size,

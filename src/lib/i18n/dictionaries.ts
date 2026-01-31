@@ -516,21 +516,22 @@ export const i18n: Record<Locale, {
             checkEmailTitle: "メールを確認してください！",
             checkEmailDesc: "認証リンクを送信しました。",
             backWithEmail: "メールアドレスを再入力",
-            alreadyHaveAccount: "すでにアカウントをお持ちですか？"
+            alreadyHaveAccount: "すでにアカウントをお持ちですか？",
+            rememberMe: "ログイン状態を維持"
         },
         admin: {
-            dashboard: "Dashboard",
-            users: "Users",
-            jobs: "Jobs",
-            security: "Security",
-            shutdown: "System Shutdown",
-            userManagement: "User Management",
-            totalUsers: "Total Users",
-            translationJobs: "Translation Jobs",
-            recentActivity: "Recent Activity",
-            banSystem: "Ban Management System",
-            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
-            verifying: "Verifying Master Identity..."
+            dashboard: "ダッシュボード",
+            users: "ユーザー管理",
+            jobs: "ジョブ管理",
+            security: "セキュリティ",
+            shutdown: "システム終了",
+            userManagement: "ユーザー管理",
+            totalUsers: "総ユーザー数",
+            translationJobs: "翻訳ジョブ状況",
+            recentActivity: "最近の活動記録",
+            banSystem: "アクセス制限システム",
+            banDesc: "マスター権限で侵入者を隔離したり、誤解を解消したりします。",
+            verifying: "マスター権限を確認中..."
         }
     },
     zh: {
@@ -650,21 +651,22 @@ export const i18n: Record<Locale, {
             checkEmailTitle: "请检查您的电子邮件！",
             checkEmailDesc: "我们已向您发送了验证链接",
             backWithEmail: "重新输入邮箱",
-            alreadyHaveAccount: "已有账户？"
+            alreadyHaveAccount: "已有账户？",
+            rememberMe: "保持登录状态"
         },
         admin: {
-            dashboard: "Dashboard",
-            users: "Users",
-            jobs: "Jobs",
-            security: "Security",
-            shutdown: "System Shutdown",
-            userManagement: "User Management",
-            totalUsers: "Total Users",
-            translationJobs: "Translation Jobs",
-            recentActivity: "Recent Activity",
-            banSystem: "Ban Management System",
-            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
-            verifying: "Verifying Master Identity..."
+            dashboard: "仪表板",
+            users: "用户管理",
+            jobs: "任务管理",
+            security: "安全",
+            shutdown: "系统关闭",
+            userManagement: "用户管理",
+            totalUsers: "总用户数",
+            translationJobs: "翻译任务状态",
+            recentActivity: "最近活动记录",
+            banSystem: "访问限制系统",
+            banDesc: "以管理员权限隔离入侵者或解决误会。",
+            verifying: "正在验证管理员权限..."
         }
     },
     es: {
