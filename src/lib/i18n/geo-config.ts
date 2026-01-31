@@ -54,7 +54,7 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'VND',
         currencySymbol: '₫',
         pppFactor: 0.4, // 60% Discount
-        defaultUiLang: 'vi',
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
     // 🇮🇳 India (High PPP Discount)
@@ -63,7 +63,7 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'INR',
         currencySymbol: '₹',
         pppFactor: 0.3, // 70% Discount
-        defaultUiLang: 'hi', // or 'en'
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
     // 🇮🇩 Indonesia
@@ -72,7 +72,7 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'IDR',
         currencySymbol: 'Rp',
         pppFactor: 0.4,
-        defaultUiLang: 'id',
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
     // 🇹🇭 Thailand
@@ -81,14 +81,14 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'THB',
         currencySymbol: '฿',
         pppFactor: 0.5,
-        defaultUiLang: 'th',
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
     // 🇪🇺 Euro Zone (Simplified)
-    'DE': { country: 'Germany', currency: 'EUR', currencySymbol: '€', pppFactor: 1.0, defaultUiLang: 'de', defaultTargetLang: 'ko' },
+    'DE': { country: 'Germany', currency: 'EUR', currencySymbol: '€', pppFactor: 1.0, defaultUiLang: 'en', defaultTargetLang: 'ko' },
     'FR': { country: 'France', currency: 'EUR', currencySymbol: '€', pppFactor: 1.0, defaultUiLang: 'fr', defaultTargetLang: 'ko' },
     'ES': { country: 'Spain', currency: 'EUR', currencySymbol: '€', pppFactor: 0.9, defaultUiLang: 'es', defaultTargetLang: 'ko' },
-    'IT': { country: 'Italy', currency: 'EUR', currencySymbol: '€', pppFactor: 0.9, defaultUiLang: 'it', defaultTargetLang: 'ko' },
+    'IT': { country: 'Italy', currency: 'EUR', currencySymbol: '€', pppFactor: 0.9, defaultUiLang: 'en', defaultTargetLang: 'ko' },
 
     // 🇷🇺 Russia
     'RU': {
@@ -96,7 +96,7 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'RUB',
         currencySymbol: '₽',
         pppFactor: 0.5,
-        defaultUiLang: 'ru',
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
 

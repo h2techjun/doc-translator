@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Locale } from '@/lib/i18n/dictionaries';
-import { LANGUAGES } from '@/lib/i18n/languages';
+import { UI_LANGUAGES } from '@/lib/i18n/languages';
 
 /**
  * 🧭 Global Navbar
@@ -61,7 +61,7 @@ export function Navbar() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent align="end" className="rounded-xl">
-                                {LANGUAGES.map((lang) => (
+                                {UI_LANGUAGES.map((lang) => (
                                     <SelectItem key={lang.code} value={lang.code} className="cursor-pointer">
                                         {lang.short}
                                     </SelectItem>

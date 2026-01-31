@@ -32,9 +32,13 @@ export const translateText = async (text: string, targetLang: string): Promise<s
         'ko': 'Korean',
         'ja': 'Japanese',
         'zh': 'Chinese',
-        'th': 'Thai',
-        'vi': 'Vietnamese',
+        'es': 'Spanish',
+        'fr': 'French',
+        'de': 'German',
         'ru': 'Russian',
+        'pt': 'Portuguese',
+        'vi': 'Vietnamese',
+        'ar': 'Arabic',
         'hi': 'Hindi'
     };
 

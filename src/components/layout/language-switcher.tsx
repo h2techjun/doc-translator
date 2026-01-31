@@ -11,15 +11,7 @@ import {
 import { Globe } from "lucide-react";
 import { useTransition } from "react";
 
-const LOCALE_NAMES: Record<string, string> = {
-    en: "English",
-    ko: "한국어",
-    zh: "中文",
-    ja: "日本語",
-    hi: "हिन्दी",
-    th: "ไทย",
-    vi: "Tiếng Việt",
-};
+import { UI_LANGUAGES } from "@/lib/i18n/languages";
 
 export function LanguageSwitcher() {
     const router = useRouter();
@@ -58,9 +50,9 @@ export function LanguageSwitcher() {
                 <SelectValue placeholder="Language" />
             </SelectTrigger>
             <SelectContent align="end" className="rounded-xl min-w-[130px]">
-                {Object.entries(LOCALE_NAMES).map(([key, name]) => (
-                    <SelectItem key={key} value={key} className="cursor-pointer text-sm font-medium">
-                        {name}
+                {UI_LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-sm font-medium">
+                        {lang.name}
                     </SelectItem>
                 ))}
             </SelectContent>

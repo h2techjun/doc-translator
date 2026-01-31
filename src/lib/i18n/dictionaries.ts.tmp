@@ -1,0 +1,1154 @@
+﻿export type Locale = 'ko' | 'en' | 'ja' | 'zh' | 'es' | 'fr';
+
+export const i18n: Record<Locale, {
+    badge: string;
+    title: { main: string; highlight: string };
+    description: string;
+    dropzone: { idle: string; sub: string; support: string };
+    features: {
+        compatibility: { title: string; desc: string };
+        format: { title: string; desc: string };
+        speed: { title: string; desc: string };
+    };
+    pricingRule: { title: string; base: string; extra: string };
+    pricingPage?: {
+        hero: { title: string; highlight: string; subtitle: string; };
+        tiers: {
+            guest: { name: string; price: string; desc: string; limit: string; button: string; features: string[] };
+            bronze: { name: string; price: string; desc: string; bonus: string; button: string; features: string[] };
+            silver: { name: string; priceKRW: string; priceUSD: string; desc: string; bonus: string; button: string; features: string[] };
+            gold: { name: string; price: string; unit: string; desc: string; vip: string; button: string; features: string[] };
+        };
+        policy: {
+            title: string;
+            pointTitle: string;
+            pointItems: string[];
+            adTitle: string;
+            adItems: string[];
+            disclaimer: string;
+        };
+        features: {
+            support: { title: string; desc: string; };
+            security: { title: string; desc: string; };
+            fidelity: { title: string; desc: string; };
+        };
+    };
+    selector: string;
+    selectorLabel: string;
+    button: { translate: string };
+    time: { estimated: string; seconds: string };
+    loading: {
+        uploading: { title: string; desc: string };
+        processing: { title: string; desc: string };
+        completed: { title: string; desc: string };
+        failed: { title: string; desc: string };
+        success: { title: string; desc: string };
+        download: string;
+    };
+    nav: {
+        community: string;
+        pricing: string;
+        login: string;
+        signup: string;
+        pointsHold: string;
+        adminDashboard: string;
+        myHistory: string;
+        betaBenefits: string;
+        boostTitle: string;
+        boostDesc: string;
+        watchAd: string;
+        logout: string;
+        loggedOut: string;
+        backToUpload: string;
+        local: string;
+        cloud: string;
+        brandName: string;
+        tierBronze: string;
+        tierSilver: string;
+        tierGold: string;
+        proAccount: string;
+    };
+    auth: {
+        signinTitle: string;
+        signinDesc: string;
+        emailLabel: string;
+        passwordLabel: string;
+        emailPlaceholder: string;
+        passwordPlaceholder: string;
+        guestLogin: string;
+        forgotPassword: string;
+        submitLogin: string;
+        submitSignup: string;
+        toSignup: string;
+        toSignin: string;
+        social: string;
+        alertUnconfirmed: string;
+        alertUnconfirmedDesc: string;
+        btnResend: string;
+        btnSending: string;
+        btnLoginOther: string;
+        signupTitle: string;
+        signupDesc: string;
+        sentTo: string;
+        checkEmailTitle: string;
+        checkEmailDesc: string;
+        backWithEmail: string;
+        alreadyHaveAccount: string;
+        rememberMe?: string;
+    };
+    admin: {
+        dashboard: string;
+        users: string;
+        jobs: string;
+        security: string;
+        shutdown: string;
+        userManagement: string;
+        totalUsers: string;
+        translationJobs: string;
+        recentActivity: string;
+        banSystem: string;
+        banDesc: string;
+        verifying: string;
+    };
+}> = {
+    ko: {
+        badge: "靹滌嫕 氤挫〈鞙?100% 氤挫灔",
+        title: { main: "靹滌嫕鞚€ 攴鸽寑搿?", highlight: "鞏胳柎毵?鞕勲步頃橁矊." },
+        description: "氤奠灐頃?響? 彀姼, 鞚措歆€臧€ 韽暔霅?氍胳劀霃?瓯膘爼 毵堨劯鞖?\nAI臧€ 氍鸽Д鞚?韺岇晠頃橃棳 臧€鞛?鞛愳棸鞀る煬鞖?氩堨棴鞚?鞝滉车頃╇媹雼?",
+        dropzone: { idle: "鞐赴搿?韺岇澕鞚?霌滊灅攴疙晿靹胳殧", sub: "霕愲姅 韥措Ν頃橃棳 韺岇澕 靹犿儩", support: "DOCX, XLSX, PPTX 歆€鞗? },
+        features: {
+            compatibility: { title: "鞕勲步頃?順疙櫂靹?, desc: "Microsoft Office 氍胳劀(Word, Excel, PPT)毳?韽Х 氤€頇?鞐嗢澊 鞗愲掣 攴鸽寑搿?觳橂Μ頃╇媹雼?" },
+            format: { title: "靹滌嫕 100% 氤挫〈", desc: "響? 彀姼, 鞀ろ儉鞚检澊 旯歆€ 鞎婌姷雼堧嫟. 霐旍瀽鞚措剤臧€ 鞛戩梾頃?霌?旯旊仈頃╇媹雼?" },
+            speed: { title: "鞎曤弰鞝侅澑 靻嶋弰", desc: "雽€鞖╇焿 氍胳劀霃?靾橃磮 雮挫棎 攵勳劃頃橁碃 氩堨棴鞚?鞕勲頃╇媹雼?" }
+        },
+        pricingRule: {
+            title: "頃╇Μ鞝侅澑 韽澑韸?鞝曥眳",
+            base: "旮半掣 5P (斓滊寑 2韼橃澊歆€)",
+            extra: "3韼橃澊歆€攵€韯?韼橃澊歆€雼?2P 於旉皜"
+        },
+        pricingPage: {
+            hero: {
+                title: "雼轨嫚鞚?,
+                highlight: "韺岇泴 韹办柎毳?靹犿儩頃橃劯鞖?,
+                subtitle: "瓿犿拡歆?AI 氩堨棴 鞐旍鞙茧 旮€搿滊矊 旎る雼堨紑鞚挫厴鞚?頇曥灔頃橃劯鞖?"
+            },
+            tiers: {
+                guest: {
+                    name: "瓴岇姢韸?,
+                    price: "氍措",
+                    desc: "搿滉犯鞚?攵堩晞鞖?,
+                    limit: "鞝滍暅: 2韼橃澊歆€",
+                    button: "瓴岇姢韸?氇摐 觳错棙",
+                    features: ["Word/Excel/PPT 氩堨棴", "氍胳劀雼?斓滊寑 2韼橃澊歆€"]
+                },
+                bronze: {
+                    name: "敫岆歃?,
+                    price: "氍措",
+                    desc: "旮半掣 氅る矂鞁?,
+                    bonus: "臧€鞛?氤措剤鞀? 50P",
+                    button: "氍措 臧€鞛?,
+                    features: ["甏戧碃 響滌嫓", "旎る雼堩嫲 歆€鞗?]
+                },
+                silver: {
+                    name: "鞁る矂",
+                    priceKRW: "靷毄鞛?,
+                    priceUSD: "$5.00",
+                    desc: "50P 須嶋摑 & 鞐呹犯霠堨澊霌?,
+                    bonus: "歃夓嫓 50P",
+                    button: "50P 於╈爠",
+                    features: ["鞚胳 氚办", "牍犽ジ 觳橂Μ", "甏戧碃 瓿勳啀 響滌嫓"]
+                },
+                gold: {
+                    name: "瓿摐",
+                    price: "10毵?",
+                    unit: "鞗?,
+                    desc: "雸勳爜 瓴办牅",
+                    vip: "VIP 靸來儨",
+                    button: "鞛愲彊 鞐呹犯霠堨澊霌?,
+                    features: ["斓滉碃 鞖办劆靾滌渼", "歆侅爲 歆€鞗?霛检澑", "甏戧碃搿?靹滊箘鞀?歆€鞗?]
+                }
+            },
+            policy: {
+                title: "韽澑韸?& 鞖挫榿 鞝曥眳",
+                pointTitle: "1. 韽澑韸?鞝曥眳",
+                pointItems: [
+                    "臧€鞛?氤挫儊: 須岇洂臧€鞛?鞁?歃夓嫓 50P臧€ 歆€旮夒惄雼堧嫟.",
+                    "旮半掣 牍勳毄: 氍胳劀雼?{base}P (斓滊寑 {basePages}韼橃澊歆€).",
+                    "於旉皜 牍勳毄: {nextPage}韼橃澊歆€攵€韯?韼橃澊歆€雼?{extra}P 於旉皜.",
+                    "瓴岇姢韸?氇摐: 瓴岇姢韸鸽姅 2韼橃澊歆€旯岇毵?氩堨棴 臧€電ロ暕雼堧嫟."
+                ],
+                adTitle: "2. 甏戧碃 & 於╈爠 鞝曥眳",
+                adItems: [
+                    "氍措 於╈爠: 韽澑韸戈皜 攵€臁表晿氅?甏戧碃毳?鞁滌箔頃橃棳 韽澑韸鸽ゼ 鞏混潉 靾?鞛堨姷雼堧嫟.",
+                    "氤挫儊: 甏戧碃鞐愳劀 [5 韽澑韸?氚涥赴]毳?韥措Ν頃橃棳 5P毳?氚涭溂靹胳殧.",
+                    "氍挫牅頃? 氩犿儉 旮瓣皠 霃欖晥 甏戧碃 氤挫儊鞚€ 氍挫牅頃滌瀰雼堧嫟.",
+                    "靹滊箘鞀? 甏戧碃 靾橃澋鞚€ 靹滊矂 氚?AI 鞐旍 牍勳毄鞚?歆€鞗愴暕雼堧嫟."
+                ],
+                disclaimer: "* 鞚?鞝曥眳鞚€ 氩犿儉 旮瓣皠 霃欖晥 氤€瓴诫悹 靾?鞛堨姷雼堧嫟. 韽澑韸鸽姅 頇橂秷霅橃 鞎婌姷雼堧嫟."
+            },
+            features: {
+                support: { title: "旮€搿滊矊 歆€鞗?, desc: "氍疙檾毳?瓿犽牑頃?AI搿?20臧?鞚挫儊鞚?鞏胳柎毳?歆€鞗愴暕雼堧嫟." },
+                security: { title: "鞐旐劙頂勲澕鞚挫 氤挫晥", desc: "氇摖 氍胳劀鞐?雽€頃?鞚€頄夑笁 鞎旐樃頇旊ゼ 鞝滉车頃╇媹雼?" },
+                fidelity: { title: "瓿犿拡歆?於╈嫟霃?, desc: "氇摖 靹滌嫕, 彀姼 氚?雼れ澊鞏搓犯霝潉 氤挫〈頃╇媹雼?" }
+            }
+        },
+        selector: "霃勳癌 鞏胳柎 靹犿儩",
+        selectorLabel: "氩堨棴頃?鞏胳柎 靹犿儩",
+        button: { translate: "氩堨棴 鞁滌瀾頃橁赴" },
+        time: { estimated: "鞓堨儊 靻岇殧 鞁滉皠", seconds: "齑? },
+        loading: {
+            uploading: { title: "鞐呺霌?欷?..", desc: "氍胳劀毳?氤挫晥 靹滊矂搿?鞝勳啞頃橁碃 鞛堨姷雼堧嫟." },
+            processing: { title: "氩堨棴 欷?..", desc: "AI臧€ 氍胳劀毳?攵勳劃頃橁碃 鞛瀾靹?欷戩瀰雼堧嫟." },
+            completed: { title: "氩堨棴 鞕勲!", desc: "氩堨棴霅?氍胳劀毳?雼れ毚搿滊摐頃?靾?鞛堨姷雼堧嫟." },
+            failed: { title: "鞓る 氚滌儩", desc: "氍胳牅臧€ 氚滌儩頄堨姷雼堧嫟. 雼れ嫓 鞁滊弰頃?欤检劯鞖?" },
+            success: { title: "靹标车!", desc: "靹滌嫕 氤挫〈鞙?100%" },
+            download: "氩堨棴霅?韺岇澕 雼れ毚搿滊摐"
+        },
+        nav: {
+            community: "旎る雼堩嫲",
+            pricing: "鞖旉笀鞝?,
+            login: "搿滉犯鞚?,
+            signup: "氍措 鞁滌瀾頃橁赴",
+            pointsHold: "氤挫湢 韽澑韸?,
+            adminDashboard: "甏€毽瀽 雽€鞁滊炒霌?,
+            myHistory: "雮橃潣 氩堨棴 旮半",
+            betaBenefits: "氩犿儉 順滍儩",
+            boostTitle: "韽澑韸?於╈爠頃橁赴",
+            boostDesc: "韽澑韸戈皜 攵€臁表晿鞁犼皜鞖?\n甏戧碃 鞁滌箔頃橁碃 2P毳?歃夓嫓 氚涭溂靹胳殧!",
+            watchAd: "甏戧碃 鞁滌箔頃橁赴",
+            logout: "搿滉犯鞎勳泝",
+            loggedOut: "搿滉犯鞎勳泝 霅橃棃鞀惦媹雼?",
+            backToUpload: "鞐呺霌滊 霃岇晞臧€旮?,
+            local: "搿滌滑 鞐呺霌?,
+            cloud: "韥措澕鞖半摐 靹犿儩",
+            brandName: "DocTranslation",
+            tierBronze: "敫岆歃?,
+            tierSilver: "鞁る矂",
+            tierGold: "瓿摐",
+            proAccount: "頂勲韼橃厰雱?瓿勳爼",
+        },
+        auth: {
+            signinTitle: "搿滉犯鞚?,
+            signinDesc: "臧€鞛?牍犽ゴ瓿?鞀る韸疙暅 氍胳劀 氩堨棴鞚?鞁滌瀾.",
+            emailLabel: "鞚措鞚?,
+            passwordLabel: "牍勲皜氩堩樃",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "瓴岇姢韸?氇摐搿?氚旊 鞁滌瀾頃橁赴 (10P)",
+            forgotPassword: "牍勲皜氩堩樃毳?鞛婌溂靺倶鞖?",
+            submitLogin: "氩堨棴鞚?靹戈硠搿?鞛呾灔",
+            submitSignup: "瓿勳爼 靸濎劚頃橁赴",
+            toSignup: "瓿勳爼 毵岆摛旮?,
+            toSignin: "牍勲皜氩堩樃搿?搿滉犯鞚?,
+            social: "Enterprise-grade security",
+            alertUnconfirmed: "鞚措鞚?鞚胳鞚?頃勳殧頃╇媹雼?",
+            alertUnconfirmedDesc: "氅旍澕頃潉 頇曥澑頃挫＜靹胳殧.",
+            btnResend: "鞚胳 氅旍澕 雼れ嫓 氤措偞旮?,
+            btnSending: "鞝勳啞 欷?..",
+            btnLoginOther: "雼るジ 鞎勳澊霐旊 搿滉犯鞚?,
+            signupTitle: "瓿勳爼 靸濎劚",
+            signupDesc: "鞚措鞚茧 鞝勳啞霅?鞚胳 毵來伂毳?頇曥澑頃橃劯鞖?",
+            sentTo: "氚滌啞霅?欤检唽",
+            checkEmailTitle: "鞚措鞚检潉 頇曥澑頃挫＜靹胳殧!",
+            checkEmailDesc: "臧€鞛?鞚胳 毵來伂臧€ 氚滌啞霅橃棃鞀惦媹雼?",
+            backWithEmail: "鞚措鞚?雼れ嫓 鞛呺牓頃橁赴",
+            alreadyHaveAccount: "鞚措 瓿勳爼鞚?鞛堨溂鞁犼皜鞖?",
+            rememberMe: "搿滉犯鞚?靸來儨 鞙犾"
+        },
+        admin: {
+            dashboard: "雽€鞁滊炒霌?,
+            users: "靷毄鞛?甏€毽?,
+            jobs: "鞛戩梾 甏€毽?,
+            security: "氤挫晥",
+            shutdown: "鞁滌姢韰?膦呺",
+            userManagement: "靷毄鞛?甏€毽?,
+            totalUsers: "齑?靷毄鞛?,
+            translationJobs: "氩堨棴 鞛戩梾 順勴櫓",
+            recentActivity: "斓滉芳 頇滊彊 旮半",
+            banSystem: "靷毄鞛?鞝滌灛 氚?甏€毽?,
+            banDesc: "毵堨姢韯办潣 甓岉暅鞙茧 旃瀰鞛愲ゼ 瓴╇Μ頃橁卑雮?鞓ろ暣毳?頃挫唽頃╇媹雼?",
+            verifying: "毵堨姢韯?甓岉暅 頇曥澑 欷?.."
+        }
+    },
+    en: {
+        badge: "100% Formatting Preservation",
+        title: { main: "Translation,", highlight: "Unbroken." },
+        description: "Translate documents with complex tables, charts, and images.\nAI understands context for the most natural translation.",
+        dropzone: { idle: "Drop your file here", sub: "or click to browse", support: "Supports DOCX, XLSX, PPTX" },
+        features: {
+            compatibility: { title: "Native Support", desc: "We process Microsoft Office files natively without PDF conversion." },
+            format: { title: "Zero Layout Shift", desc: "Tables, charts, and styles stay perfectly aligned." },
+            speed: { title: "Lightning Fast", desc: "Optimized engine processes huge files in seconds." }
+        },
+        pricingRule: {
+            title: "Pricing Policy",
+            base: "Base 5P (up to 2p)",
+            extra: "+2P/page from p.3"
+        },
+        pricingPage: {
+            hero: {
+                title: "CHOOSE YOUR",
+                highlight: "POWER TIER",
+                subtitle: "Scale your global communication with our high-fidelity AI translation engine."
+            },
+            tiers: {
+                guest: {
+                    name: "GUEST",
+                    price: "Free",
+                    desc: "No login required",
+                    limit: "Limit: 2 Pages",
+                    button: "Try Guest Mode",
+                    features: ["Word/Excel/PPT Translation", "Max 2 pages per doc"]
+                },
+                bronze: {
+                    name: "BRONZE",
+                    price: "Free",
+                    desc: "Basic Membership",
+                    bonus: "SIGNUP BONUS: 50P",
+                    button: "Sign Up Free",
+                    features: ["Ads Enabled", "Community Support"]
+                },
+                silver: {
+                    name: "SILVER",
+                    priceKRW: "User",
+                    priceUSD: "$5.00",
+                    desc: "Get 50P & Upgrade",
+                    bonus: "INSTANT 50P",
+                    button: "Charge 50P",
+                    features: ["Verified Badge", "Faster Processing", "Ads Still Visible"]
+                },
+                gold: {
+                    name: "GOLD",
+                    price: "100k+",
+                    unit: "KRW",
+                    desc: "Cumulative Payment",
+                    vip: "VIP STATUS",
+                    button: "Automatic Upgrade",
+                    features: ["Highest Priority", "Direct Support Line", "Ads Support Us"]
+                }
+            },
+            policy: {
+                title: "Points & Operation Policy",
+                pointTitle: "1. Point Policy",
+                pointItems: [
+                    "Signup Reward: 50P is granted immediately upon sign up.",
+                    "Base Cost: {base}P per document (up to {basePages} pages).",
+                    "Extra Cost: {extra}P per page starting from page {nextPage}.",
+                    "Guest Mode: Translation limited to 2 pages for guests."
+                ],
+                adTitle: "2. Ad & Charge Policy",
+                adItems: [
+                    "Free Charge: You can earn points by watching ads if you run out.",
+                    "Reward: Get 5P by clicking [Get 5 Points] on ads.",
+                    "Unlimited: During beta, ad rewards are unlimited.",
+                    "Service: Ad revenue supports server & AI engine costs."
+                ],
+                disclaimer: "* This policy may change during the beta period. Points are non-refundable."
+            },
+            features: {
+                support: { title: "Global Support", desc: "Support for 20+ languages with culture-aware AI." },
+                security: { title: "Enterprise Security", desc: "Bank-grade encryption for all your documents." },
+                fidelity: { title: "High Fidelity", desc: "Preserves all formatting, charts, and diagrams." }
+            }
+        },
+        selector: "Target Language",
+        selectorLabel: "Select Target Language",
+        button: { translate: "Start Translation" },
+        time: { estimated: "Estimated time", seconds: "sec" },
+        loading: {
+            uploading: { title: "Uploading...", desc: "Sending your document to the secure server." },
+            processing: { title: "Translating...", desc: "AI is analyzing and rewriting your content." },
+            completed: { title: "All Done!", desc: "Your document is ready for download." },
+            failed: { title: "Error", desc: "Something went wrong. Please try again." },
+            success: { title: "Success!", desc: "Layout preserved 100%" },
+            download: "Download Translated File"
+        },
+        nav: {
+            community: "Community",
+            pricing: "Pricing",
+            login: "Login",
+            signup: "Start for Free",
+            pointsHold: "Points",
+            adminDashboard: "Admin Dashboard",
+            myHistory: "My Translations",
+            betaBenefits: "Beta Benefits",
+            boostTitle: "Boost Your Points",
+            boostDesc: "Need more points?\nWatch an ad and get 2P!",
+            watchAd: "Watch Ad",
+            logout: "Log Out",
+            loggedOut: "Logged out successfully.",
+            backToUpload: "Back to Upload",
+            local: "Local Upload",
+            cloud: "Cloud Selection",
+            brandName: "DocTranslation",
+            tierBronze: "BRONZE",
+            tierSilver: "SILVER",
+            tierGold: "GOLD",
+            proAccount: "PROFESSIONAL ACCOUNT",
+        },
+        auth: {
+            signinTitle: "Sign In",
+            signinDesc: "Start your fast and smart document translation.",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "Start as Guest (10P)",
+            forgotPassword: "Forgot password?",
+            submitLogin: "Sign In",
+            submitSignup: "Create Account",
+            toSignup: "Create Account",
+            toSignin: "Sign in with Password",
+            social: "Enterprise-grade security",
+            alertUnconfirmed: "Email not verified.",
+            alertUnconfirmedDesc: "Please check your inbox.",
+            btnResend: "Resend Verification Email",
+            btnSending: "Sending...",
+            btnLoginOther: "Log in with other ID",
+            signupTitle: "Create Account",
+            signupDesc: "Check the verification link sent to your email.",
+            sentTo: "Sent to",
+            checkEmailTitle: "Check your email!",
+            checkEmailDesc: "We sent a verification link to",
+            backWithEmail: "Re-enter email",
+            alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
+    ja: {
+        badge: "銉曘偐銉笺優銉冦儓淇濇寔鐜?00%淇濊",
+        title: { main: "鏇稿紡銇仢銇伨銇俱仹銆?, highlight: "瑷€钁夈仩銇戝畬鐠с伀銆? },
+        description: "瑜囬洃銇〃銆併偘銉┿儠銆佺敾鍍忋倰鍚個鏂囨浉銈傘亰浠汇仜銇忋仩銇曘亜銆俓nAI銇屾枃鑴堛倰鐞嗚В銇椼€佹渶銈傝嚜鐒躲仾缈昏ǔ銈掓彁渚涖仐銇俱仚銆?,
+        dropzone: { idle: "銉曘偂銈ゃ儷銈掋亾銇撱伀銉夈儹銉冦儣", sub: "銇俱仧銇偗銉儍銈仐銇﹂伕鎶?, support: "DOCX, XLSX, PPTX, HWP 瀵惧繙" },
+        features: {
+            compatibility: { title: "瀹屽叏銇簰鎻涙€?, desc: "Office鏂囨浉銇嬨倝HWP銇俱仹銆併儠銈┿兗銉炪儍銉堝鎻涖仾銇椼仹銇濄伄銇俱伨鍑︾悊銇椼伨銇欍€? },
+            format: { title: "銉偆銈偊銉堝穿銈屻仾銇?, desc: "琛ㄣ€併偘銉┿儠銆併偣銈裤偆銉亴宕┿倢銇俱仜銈撱€傘儑銈躲偆銉娿兗銇屼綔妤仐銇熴倛銇嗐伀缍洪簵銇с仚銆? },
+            speed: { title: "鍦у€掔殑銇偣銉斻兗銉?, desc: "澶у閲忋伄鏂囨浉銈傛暟绉掋仹鍒嗘瀽銇椼€佺炕瑷炽倰瀹屼簡銇椼伨銇欍€? }
+        },
+        pricingRule: {
+            title: "銉濄偆銉炽儓瑕忓畾",
+            base: "鍩烘湰 5P (2銉氥兗銈搞伨銇?",
+            extra: "3銉氥兗銈搞亱銈?2P/銉氥兗銈?
+        },
+        pricingPage: {
+            hero: {
+                title: "銇傘仾銇熴伄",
+                highlight: "銉戙儻銉笺儐銈ｃ偄銈掗伕鎶?,
+                subtitle: "楂樺搧璩狝I缈昏ǔ銈ㄣ兂銈搞兂銇с偘銉兗銉愩儷銈炽儫銉ャ儖銈便兗銈枫儳銉炽倰鎷″ぇ銇椼伨銇椼倗銇嗐€?
+            },
+            tiers: {
+                guest: {
+                    name: "銈层偣銉?,
+                    price: "鐒℃枡",
+                    desc: "銉偘銈ゃ兂涓嶈",
+                    limit: "鍒堕檺锛?銉氥兗銈?,
+                    button: "銈层偣銉堛儮銉笺儔銈掕│銇?,
+                    features: ["Word/Excel/PPT缈昏ǔ", "鏂囨浉銇傘仧銈婃渶澶?銉氥兗銈?]
+                },
+                bronze: {
+                    name: "銉栥儹銉炽偤",
+                    price: "鐒℃枡",
+                    desc: "鍩烘湰銉°兂銉愩兗銈枫儍銉?,
+                    bonus: "鐧婚尣銉溿兗銉娿偣锛?0P",
+                    button: "鐒℃枡鐧婚尣",
+                    features: ["搴冨憡琛ㄧず", "銈炽儫銉ャ儖銉嗐偅銈点儩銉笺儓"]
+                },
+                silver: {
+                    name: "銈枫儷銉愩兗",
+                    priceKRW: "銉︺兗銈躲兗",
+                    priceUSD: "$5.00",
+                    desc: "50P鐛插緱锛嗐偄銉冦儣銈般儸銉笺儔",
+                    bonus: "鍗冲骇銇?0P",
+                    button: "50P銉併儯銉笺偢",
+                    features: ["瑾嶈銉愩儍銈?, "楂橀€熷嚘鐞?, "搴冨憡缍欑稓琛ㄧず"]
+                },
+                gold: {
+                    name: "銈淬兗銉儔",
+                    price: "10涓?",
+                    unit: "鍐?,
+                    desc: "绱姹烘笀",
+                    vip: "VIP銈广儐銉笺偪銈?,
+                    button: "鑷嫊銈儍銉椼偘銉兗銉?,
+                    features: ["鏈€楂樺劒鍏堝害", "鐩存帴銈点儩銉笺儓銉┿偆銉?, "搴冨憡銇с偟銉笺儞銈规敮鎻?]
+                }
+            },
+            policy: {
+                title: "銉濄偆銉炽儓锛嗛亱鍠躲儩銉偡銉?,
+                pointTitle: "1. 銉濄偆銉炽儓銉濄儶銈枫兗",
+                pointItems: [
+                    "鐧婚尣鍫遍叕锛氫細鍝＄櫥閷叉檪銇嵆搴с伀50P銇屼粯涓庛仌銈屻伨銇欍€?,
+                    "鍩烘湰銈炽偣銉堬細鏂囨浉銇傘仧銈妠base}P锛堟渶澶basePages}銉氥兗銈革級銆?,
+                    "杩藉姞銈炽偣銉堬細{nextPage}銉氥兗銈搞亱銈夈儦銉笺偢銇傘仧銈妠extra}P杩藉姞銆?,
+                    "銈层偣銉堛儮銉笺儔锛氥偛銈广儓銇?銉氥兗銈搞伨銇х炕瑷冲彲鑳姐仹銇欍€?
+                ],
+                adTitle: "2. 搴冨憡锛嗐儊銉ｃ兗銈搞儩銉偡銉?,
+                adItems: [
+                    "鐒℃枡銉併儯銉笺偢锛氥儩銈ゃ兂銉堛亴涓嶈冻銇椼仧銈夊簝鍛娿倰瑕栬伌銇椼仸銉濄偆銉炽儓銈掔嵅寰椼仹銇嶃伨銇欍€?,
+                    "鍫遍叕锛氬簝鍛娿仹[5銉濄偆銉炽儓鐛插緱]銈掋偗銉儍銈仐銇?P銈掑彈銇戝彇銈娿伨銇欍€?,
+                    "鐒″埗闄愶細銉欍兗銈挎湡闁撲腑銆佸簝鍛婂牨閰伅鐒″埗闄愩仹銇欍€?,
+                    "銈点兗銉撱偣锛氬簝鍛婂弾鐩娿伅銈点兗銉愩兗銇ˋI銈ㄣ兂銈搞兂銇偝銈广儓銈掋偟銉濄兗銉堛仐銇俱仚銆?
+                ],
+                disclaimer: "* 銇撱伄銉濄儶銈枫兗銇儥銉笺偪鏈熼枔涓伀澶夋洿銇曘倢銈嬪彲鑳芥€с亴銇傘倞銇俱仚銆傘儩銈ゃ兂銉堛伅杩旈噾銇曘倢銇俱仜銈撱€?
+            },
+            features: {
+                support: { title: "銈般儹銉笺儛銉偟銉濄兗銉?, desc: "鏂囧寲銈掕€冩叜銇椼仧AI銇?0浠ヤ笂銇█瑾炪倰銈点儩銉笺儓銇椼伨銇欍€? },
+                security: { title: "銈ㄣ兂銈裤兗銉椼儵銈ゃ偤銈汇偔銉ャ儶銉嗐偅", desc: "銇欍伖銇︺伄鏂囨浉銇妧琛屻儸銉欍儷銇殫鍙峰寲銈掓彁渚涖仐銇俱仚銆? },
+                fidelity: { title: "楂樺搧璩繝瀹熷害", desc: "銇欍伖銇︺伄鏇稿紡銆併偘銉┿儠銆佸洺銈掍繚鎸併仐銇俱仚銆? }
+            }
+        },
+        selector: "缈昏ǔ瑷€瑾炪倰閬告姙",
+        selectorLabel: "缈昏ǔ瑷€瑾炪倰閬告姙銇椼仸銇忋仩銇曘亜",
+        button: { translate: "缈昏ǔ銈掗枊濮? },
+        time: { estimated: "Estimated time", seconds: "sec" },
+        loading: {
+            uploading: { title: "銈儍銉椼儹銉笺儔涓?..", desc: "銉夈偔銉ャ儭銉炽儓銈掑畨鍏ㄣ仾銈点兗銉愩兗銇€佷俊銇椼仸銇勩伨銇欍€? },
+            processing: { title: "缈昏ǔ涓?..", desc: "AI銇屻儔銈儱銉°兂銉堛倰鍒嗘瀽銇椼€佹浉銇嶆彌銇堛仸銇勩伨銇欍€? },
+            completed: { title: "缈昏ǔ瀹屼簡锛?, desc: "缈昏ǔ銇曘倢銇熴儔銈儱銉°兂銉堛倰銉€銈︺兂銉兗銉夈仹銇嶃伨銇欍€? },
+            failed: { title: "銈ㄣ儵銉肩櫤鐢?, desc: "浣曘亱鍟忛銇岀櫤鐢熴仐銇俱仐銇熴€傘倐銇嗕竴搴︺亰瑭︺仐銇忋仩銇曘亜銆? },
+            success: { title: "鎴愬姛锛?, desc: "銉偆銈偊銉堜繚鎸佺巼 100%" },
+            download: "缈昏ǔ銇曘倢銇熴儠銈°偆銉倰銉€銈︺兂銉兗銉?
+        },
+        nav: {
+            community: "銈炽儫銉ャ儖銉嗐偅",
+            pricing: "鏂欓噾銉椼儵銉?,
+            login: "銉偘銈ゃ兂",
+            signup: "鐒℃枡銇у銈併倠",
+            pointsHold: "淇濇湁銉濄偆銉炽儓",
+            adminDashboard: "绠＄悊銉€銉冦偡銉ャ儨銉笺儔",
+            myHistory: "缈昏ǔ灞ユ",
+            betaBenefits: "銉欍兗銈跨壒鍏?,
+            boostTitle: "銉濄偆銉炽儓銈掋儊銉ｃ兗銈?,
+            boostDesc: "銉濄偆銉炽儓銇岃冻銈娿伨銇涖倱銇嬶紵\n搴冨憡銈掕銇?P銈掋偛銉冦儓锛?,
+            watchAd: "搴冨憡銈掕銈?,
+            logout: "銉偘銈偊銉?,
+            loggedOut: "銉偘銈偊銉堛仐銇俱仐銇熴€?,
+            backToUpload: "銈儍銉椼儹銉笺儔銇埢銈?,
+            local: "銉兗銈儷銈儍銉椼儹銉笺儔",
+            cloud: "銈儵銈︺儔閬告姙",
+            brandName: "DocTranslation",
+            tierBronze: "銉栥儹銉炽偤",
+            tierSilver: "銈枫儷銉愩兗",
+            tierGold: "銈淬兗銉儔",
+            proAccount: "銉椼儹銉曘偋銉冦偡銉с儕銉偄銈偊銉炽儓",
+        },
+        auth: {
+            signinTitle: "銉偘銈ゃ兂",
+            signinDesc: "楂橀€熴仹銈广優銉笺儓銇枃鏇哥炕瑷炽倰濮嬨倎銇俱仐銈囥亞銆?,
+            emailLabel: "銉°兗銉偄銉夈儸銈?,
+            passwordLabel: "銉戙偣銉兗銉?,
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "銈层偣銉堛仺銇椼仸闁嬪 (10P)",
+            forgotPassword: "銉戙偣銉兗銉夈倰銇婂繕銈屻仹銇欍亱锛?,
+            submitLogin: "銉偘銈ゃ兂",
+            submitSignup: "銈偒銈︺兂銉堜綔鎴?,
+            toSignup: "銈偒銈︺兂銉堢櫥閷?,
+            toSignin: "銉戙偣銉兗銉夈仹銉偘銈ゃ兂",
+            social: "銈ㄣ兂銈裤兗銉椼儵銈ゃ偤绱氥伄銈汇偔銉ャ儶銉嗐偅",
+            alertUnconfirmed: "銉°兗銉偄銉夈儸銈广亴鏈⒑瑾嶃仹銇欍€?,
+            alertUnconfirmedDesc: "鍙椾俊绠便倰纰鸿獚銇椼仸銇忋仩銇曘亜銆?,
+            btnResend: "瑾嶈銉°兗銉倰鍐嶉€佷俊",
+            btnSending: "閫佷俊涓?..",
+            btnLoginOther: "鍒ャ伄銈偒銈︺兂銉堛仹銉偘銈ゃ兂",
+            signupTitle: "銈偒銈︺兂銉堜綔鎴?,
+            signupDesc: "銉°兗銉伀閫佷俊銇曘倢銇熻獚瑷笺儶銉炽偗銈掔⒑瑾嶃仐銇︺亸銇犮仌銇勩€?,
+            sentTo: "閫佷俊鍏?,
+            checkEmailTitle: "銉°兗銉倰纰鸿獚銇椼仸銇忋仩銇曘亜锛?,
+            checkEmailDesc: "瑾嶈銉兂銈倰閫佷俊銇椼伨銇椼仧銆?,
+            backWithEmail: "銉°兗銉偄銉夈儸銈广倰鍐嶅叆鍔?,
+            alreadyHaveAccount: "銇欍仹銇偄銈偊銉炽儓銈掋亰鎸併仭銇с仚銇嬶紵"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
+    zh: {
+        badge: "淇濊瘉 100% 鏍煎紡淇濈暀",
+        title: { main: "鏍煎紡涓嶅彉锛?, highlight: "璇█瀹岀編杞崲銆? },
+        description: "鏃犻渶鎷呭績鍖呭惈澶嶆潅琛ㄦ牸銆佸浘琛ㄥ拰鍥惧儚鐨勬枃妗ｃ€俓nAI 鐞嗚В涓婁笅鏂囷紝鎻愪緵鏈€鑷劧鐨勭炕璇戙€?,
+        dropzone: { idle: "灏嗘枃浠舵嫋鏀惧埌姝ゅ", sub: "鎴栫偣鍑婚€夋嫨鏂囦欢", support: "鏀寔 DOCX, XLSX, PPTX, HWP" },
+        features: {
+            compatibility: { title: "瀹岀編鍏煎", desc: "浠?Office 鏂囨。鍒?HWP锛岀洿鎺ュ鐞嗗師濮嬫枃浠讹紝鏃犻渶杞崲鏍煎紡銆? },
+            format: { title: "闆跺竷灞€鍋忕Щ", desc: "琛ㄦ牸銆佸浘琛ㄥ拰鏍峰紡淇濇寔瀹岀編瀵归綈銆傚氨鍍忚璁″笀鍒朵綔鐨勪竴鏍锋暣娲併€? },
+            speed: { title: "鏋侀€熷鐞?, desc: "浼樺寲寮曟搸鍦ㄥ嚑绉掗挓鍐呭鐞嗗ぇ鏂囦欢銆? }
+        },
+        pricingRule: {
+            title: "绉垎鏀跨瓥",
+            base: "鍩虹 5P (鏈€澶?2椤?",
+            extra: "浠庣 3椤佃捣 姣忛〉澧炲姞 2P"
+        },
+        pricingPage: {
+            hero: {
+                title: "閫夋嫨鎮ㄧ殑",
+                highlight: "寮哄姏濂楅",
+                subtitle: "浣跨敤鎴戜滑鐨勯珮淇濈湡AI缈昏瘧寮曟搸鎵╁睍鎮ㄧ殑鍏ㄧ悆娌熼€氥€?
+            },
+            tiers: {
+                guest: {
+                    name: "璁垮",
+                    price: "鍏嶈垂",
+                    desc: "鏃犻渶鐧诲綍",
+                    limit: "闄愬埗锛?椤?,
+                    button: "璇曠敤璁垮妯″紡",
+                    features: ["Word/Excel/PPT缈昏瘧", "姣忎釜鏂囨。鏈€澶?椤?]
+                },
+                bronze: {
+                    name: "闈掗摐",
+                    price: "鍏嶈垂",
+                    desc: "鍩虹浼氬憳",
+                    bonus: "娉ㄥ唽濂栧姳锛?0P",
+                    button: "鍏嶈垂娉ㄥ唽",
+                    features: ["鏄剧ず骞垮憡", "绀惧尯鏀寔"]
+                },
+                silver: {
+                    name: "鐧介摱",
+                    priceKRW: "鐢ㄦ埛",
+                    priceUSD: "$5.00",
+                    desc: "鑾峰緱50P骞跺崌绾?,
+                    bonus: "绔嬪嵆鑾峰緱50P",
+                    button: "鍏呭€?0P",
+                    features: ["璁よ瘉寰界珷", "鏇村揩澶勭悊", "浠嶆樉绀哄箍鍛?]
+                },
+                gold: {
+                    name: "榛勯噾",
+                    price: "10涓?",
+                    unit: "闊╁厓",
+                    desc: "绱鏀粯",
+                    vip: "VIP鐘舵€?,
+                    button: "鑷姩鍗囩骇",
+                    features: ["鏈€楂樹紭鍏堢骇", "鐩存帴鏀寔绾?, "骞垮憡鏀寔鎴戜滑"]
+                }
+            },
+            policy: {
+                title: "绉垎涓庤繍钀ユ斂绛?,
+                pointTitle: "1. 绉垎鏀跨瓥",
+                pointItems: [
+                    "娉ㄥ唽濂栧姳锛氭敞鍐屾椂绔嬪嵆鑾峰緱50P銆?,
+                    "鍩虹璐圭敤锛氭瘡涓枃妗base}P锛堟渶澶歿basePages}椤碉級銆?,
+                    "棰濆璐圭敤锛氫粠绗瑊nextPage}椤佃捣姣忛〉{extra}P銆?,
+                    "璁垮妯″紡锛氳瀹㈢炕璇戦檺鍒朵负2椤点€?
+                ],
+                adTitle: "2. 骞垮憡涓庡厖鍊兼斂绛?,
+                adItems: [
+                    "鍏嶈垂鍏呭€硷細绉垎涓嶈冻鏃跺彲浠ラ€氳繃瑙傜湅骞垮憡鑾峰緱绉垎銆?,
+                    "濂栧姳锛氱偣鍑诲箍鍛婁笂鐨刐鑾峰緱5绉垎]鑾峰緱5P銆?,
+                    "鏃犻檺鍒讹細娴嬭瘯鏈熼棿锛屽箍鍛婂鍔辨棤闄愬埗銆?,
+                    "鏈嶅姟锛氬箍鍛婃敹鍏ユ敮鎸佹湇鍔″櫒鍜孉I寮曟搸鎴愭湰銆?
+                ],
+                disclaimer: "* 姝ゆ斂绛栧彲鑳藉湪娴嬭瘯鏈熼棿鏇存敼銆傜Н鍒嗕笉鍙€€娆俱€?
+            },
+            features: {
+                support: { title: "鍏ㄧ悆鏀寔", desc: "鏀寔20澶氱璇█锛屽叿鏈夋枃鍖栨劅鐭I銆? },
+                security: { title: "浼佷笟绾у畨鍏?, desc: "涓烘墍鏈夋枃妗ｆ彁渚涢摱琛岀骇鍔犲瘑銆? },
+                fidelity: { title: "楂樹繚鐪熷害", desc: "淇濈暀鎵€鏈夋牸寮忋€佸浘琛ㄥ拰鍥惧舰銆? }
+            }
+        },
+        selector: "閫夋嫨鐩爣璇█",
+        selectorLabel: "璇烽€夋嫨鐩爣璇█",
+        button: { translate: "寮€濮嬬炕璇? },
+        time: { estimated: "棰勮鏃堕棿", seconds: "绉? },
+        loading: {
+            uploading: { title: "涓婁紶涓?..", desc: "姝ｅ湪灏嗘枃妗ｅ彂閫佸埌瀹夊叏鏈嶅姟鍣ㄣ€? },
+            processing: { title: "缈昏瘧涓?..", desc: "AI 姝ｅ湪鍒嗘瀽骞堕噸鍐欐偍鐨勫唴瀹广€? },
+            completed: { title: "瀹屾垚锛?, desc: "鎮ㄧ殑鏂囨。宸插噯澶囧ソ涓嬭浇銆? },
+            failed: { title: "閿欒", desc: "鍙戠敓浜嗕竴浜涢棶棰橈紝璇烽噸璇曘€? },
+            success: { title: "鎴愬姛锛?, desc: "鏍煎紡淇濈暀 100%" },
+            download: "涓嬭浇缈昏瘧鍚庣殑鏂囦欢"
+        },
+        nav: {
+            community: "绀惧尯",
+            pricing: "浠锋牸",
+            login: "鐧诲綍",
+            signup: "鍏嶈垂寮€濮?,
+            pointsHold: "鎸佹湁绉垎",
+            adminDashboard: "绠＄悊鍚庡彴",
+            myHistory: "鎴戠殑缈昏瘧",
+            betaBenefits: "娴嬭瘯鐗堢鍒?,
+            boostTitle: "鑾峰彇绉垎",
+            boostDesc: "绉垎涓嶈冻锛焅n瑙傜湅骞垮憡鍗冲彲鑾峰緱 2P锛?,
+            watchAd: "瑙傜湅骞垮憡",
+            logout: "鐧诲嚭",
+            loggedOut: "鐧诲嚭鎴愬姛銆?,
+            backToUpload: "杩斿洖涓婁紶",
+            local: "鏈湴涓婁紶",
+            cloud: "浜戠閫夋嫨",
+            brandName: "DocTranslation",
+            tierBronze: "闈掗摐",
+            tierSilver: "鐧介摱",
+            tierGold: "榛勯噾",
+            proAccount: "涓撲笟璐︽埛",
+        },
+        auth: {
+            signinTitle: "鐧诲綍",
+            signinDesc: "寮€濮嬪揩閫熸櫤鑳界殑鏂囨。缈昏瘧銆?,
+            emailLabel: "鐢靛瓙閭欢",
+            passwordLabel: "瀵嗙爜",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "浣滀负璁垮寮€濮?(10P)",
+            forgotPassword: "蹇樿瀵嗙爜锛?,
+            submitLogin: "鐧诲綍",
+            submitSignup: "鍒涘缓璐︽埛",
+            toSignup: "娉ㄥ唽鏂拌处鎴?,
+            toSignin: "浣跨敤瀵嗙爜鐧诲綍",
+            social: "浼佷笟绾у畨鍏?,
+            alertUnconfirmed: "閭鏈獙璇併€?,
+            alertUnconfirmedDesc: "璇锋鏌ユ偍鐨勬敹浠剁銆?,
+            btnResend: "閲嶆柊鍙戦€侀獙璇侀偖浠?,
+            btnSending: "鍙戦€佷腑...",
+            btnLoginOther: "浣跨敤鍏朵粬ID鐧诲綍",
+            signupTitle: "鍒涘缓璐︽埛",
+            signupDesc: "璇锋煡鐪嬪彂閫佸埌鎮ㄩ偖绠辩殑楠岃瘉閾炬帴銆?,
+            sentTo: "鍙戦€佽嚦",
+            checkEmailTitle: "璇锋鏌ユ偍鐨勭數瀛愰偖浠讹紒",
+            checkEmailDesc: "鎴戜滑宸插悜鎮ㄥ彂閫佷簡楠岃瘉閾炬帴",
+            backWithEmail: "閲嶆柊杈撳叆閭",
+            alreadyHaveAccount: "宸叉湁璐︽埛锛?
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
+    vi: {
+        badge: "膼岷 b岷 gi峄?nguy锚n 100% 膽峄媙h d岷g",
+        title: { main: "Gi峄?nguy锚n 膽峄媙h d岷g,", highlight: "Ch峄?chuy峄僴 膽峄昳 ng么n ng峄?" },
+        description: "D峄媍h t脿i li峄噓 v峄沬 c谩c b岷g, bi峄僽 膽峄?v脿 h矛nh 岷h ph峄ヽ t岷.\nAI hi峄僽 ng峄?c岷h 膽峄?cung c岷 b岷 d峄媍h t峄?nhi锚n nh岷.",
+        dropzone: { idle: "Th岷?t峄噋 c峄 b岷 v脿o 膽芒y", sub: "ho岷穋 nh岷 膽峄?ch峄峮", support: "H峄?tr峄?DOCX, XLSX, PPTX, HWP" },
+        features: {
+            compatibility: { title: "T瓢啤ng th铆ch ho脿n h岷", desc: "T峄?Office 膽岷縩 HWP, x峄?l媒 t峄噋 g峄慶 m脿 kh么ng c岷 chuy峄僴 膽峄昳." },
+            format: { title: "Kh么ng v峄?b峄?c峄", desc: "B岷g, bi峄僽 膽峄?v脿 ki峄僽 ch峄?膽瓢峄 gi峄?nguy锚n ho脿n h岷." },
+            speed: { title: "T峄慶 膽峄?c峄眂 nhanh", desc: "C么ng c峄?t峄慽 瓢u h贸a x峄?l媒 c谩c t峄噋 l峄沶 ch峄?trong v脿i gi芒y." }
+        },
+        pricingRule: {
+            title: "Ch铆nh s谩ch 膽i峄僲",
+            base: "C啤 b岷 5P (膽岷縩 2 trang)",
+            extra: "Th锚m 2P m峄梚 trang t峄?trang 3"
+        },
+        selector: "Ch峄峮 ng么n ng峄?膽铆ch",
+        selectorLabel: "Ch峄峮 ng么n ng峄?m峄 ti锚u",
+        button: { translate: "B岷痶 膽岷 d峄媍h" },
+        time: { estimated: "Th峄漣 gian d峄?ki岷縩", seconds: "gi芒y" },
+        loading: {
+            uploading: { title: "膼ang t岷 l锚n...", desc: "膼ang g峄璱 t脿i li峄噓 膽岷縩 m谩y ch峄?b岷 m岷璽." },
+            processing: { title: "膼ang d峄媍h...", desc: "AI 膽ang ph芒n t铆ch v脿 vi岷縯 l岷 n峄檌 dung." },
+            completed: { title: "Ho脿n t岷!", desc: "T脿i li峄噓 c峄 b岷 膽茫 s岷祅 s脿ng 膽峄?t岷 xu峄憂g." },
+            failed: { title: "L峄梚", desc: "膼茫 x岷 ra s峄?c峄? Vui l貌ng th峄?l岷." },
+            success: { title: "Th脿nh c么ng!", desc: "Gi峄?nguy锚n 膽峄媙h d岷g 100%" },
+            download: "T岷 xu峄憂g t峄噋 膽茫 d峄媍h"
+        },
+        nav: {
+            community: "C峄檔g 膽峄搉g",
+            pricing: "B岷g gi谩",
+            login: "膼膬ng nh岷璸",
+            signup: "B岷痶 膽岷 mi峄卬 ph铆",
+            pointsHold: "膼i峄僲 t铆ch l农y",
+            adminDashboard: "B岷g qu岷 tr峄?,
+            myHistory: "L峄媍h s峄?d峄媍h",
+            betaBenefits: "Quy峄乶 l峄 Beta",
+            boostTitle: "N岷 th锚m 膽i峄僲",
+            boostDesc: "Thi岷縰 膽i峄僲 d峄媍h?\nXem qu岷g c谩o 膽峄?nh岷璶 2P!",
+            watchAd: "Xem qu岷g c谩o",
+            logout: "膼膬ng xu岷",
+            loggedOut: "膼茫 膽膬ng xu岷 th脿nh c么ng.",
+            backToUpload: "Quay l岷 t岷 l锚n",
+            local: "T岷 l锚n c峄 b峄?,
+            cloud: "Ch峄峮 膽谩m m芒y",
+            brandName: "DocTranslation",
+            tierBronze: "膼峄扤G",
+            tierSilver: "B岷燙",
+            tierGold: "V脌NG",
+            proAccount: "T脌I KHO岷 CHUY脢N NGHI峄哖",
+        },
+        auth: {
+            signinTitle: "膼膬ng nh岷璸",
+            signinDesc: "B岷痶 膽岷 d峄媍h t脿i li峄噓 nhanh ch贸ng v脿 th么ng minh.",
+            emailLabel: "Email",
+            passwordLabel: "M岷璽 kh岷﹗",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "B岷痶 膽岷 v峄沬 t瓢 c谩ch kh谩ch (10P)",
+            forgotPassword: "Qu锚n m岷璽 kh岷﹗?",
+            submitLogin: "膼膬ng nh岷璸",
+            submitSignup: "T岷 t脿i kho岷",
+            toSignup: "膼膬ng k媒",
+            toSignin: "膼膬ng nh岷璸 b岷眓g m岷璽 kh岷﹗",
+            social: "B岷 m岷璽 c岷 doanh nghi峄噋",
+            alertUnconfirmed: "Email ch瓢a 膽瓢峄 x谩c minh.",
+            alertUnconfirmedDesc: "Vui l貌ng ki峄僲 tra h峄檖 th瓢 膽岷縩 c峄 b岷.",
+            btnResend: "G峄璱 l岷 email x谩c minh",
+            btnSending: "膼ang g峄璱...",
+            btnLoginOther: "膼膬ng nh岷璸 b岷眓g ID kh谩c",
+            signupTitle: "T岷 t脿i kho岷",
+            signupDesc: "Ki峄僲 tra li锚n k岷縯 x谩c minh 膽瓢峄 g峄璱 膽岷縩 email c峄 b岷.",
+            sentTo: "膼茫 g峄璱 膽岷縩",
+            checkEmailTitle: "Ki峄僲 tra email c峄 b岷!",
+            checkEmailDesc: "Ch煤ng t么i 膽茫 g峄璱 li锚n k岷縯 x谩c minh 膽岷縩",
+            backWithEmail: "Nh岷璸 l岷 email",
+            alreadyHaveAccount: "膼茫 c贸 t脿i kho岷?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
+    es: {
+        badge: "100% Conservaci贸n de Formato",
+        title: { main: "Formato intacto,", highlight: "Solo cambia el idioma." },
+        description: "Traduce documentos con tablas complejas sin perder el dise帽o.\nLa IA entiende el contexto para una traducci贸n natural.",
+        dropzone: { idle: "Arrastra tu archivo aqu铆", sub: "o haz clic para seleccionar", support: "Soporta DOCX, XLSX, PPTX, HWP" },
+        features: {
+            compatibility: { title: "Soporte Nativo", desc: "Procesamos archivos Office y HWP directamente sin convertirlos a PDF." },
+            format: { title: "Dise帽o Perfecto", desc: "Tablas y gr谩ficos mantienen su alineaci贸n exacta." },
+            speed: { title: "Ultrarr谩pido", desc: "Motor optimizado para procesar archivos grandes en segundos." }
+        },
+        pricingRule: {
+            title: "Pol铆tica de puntos",
+            base: "Base 5P (hasta 2 p谩g.)",
+            extra: "+2P por cada p谩g. adicional"
+        },
+        pricingPage: {
+            hero: {
+                title: "ELIGE TU",
+                highlight: "NIVEL DE PODER",
+                subtitle: "Escala tu comunicaci贸n global con nuestro motor de traducci贸n AI de alta fidelidad."
+            },
+            tiers: {
+                guest: {
+                    name: "INVITADO",
+                    price: "Gratis",
+                    desc: "Sin registro",
+                    limit: "L铆mite: 2 p谩ginas",
+                    button: "Probar modo invitado",
+                    features: ["Traducci贸n Word/Excel/PPT", "M谩x. 2 p谩ginas por doc"]
+                },
+                bronze: {
+                    name: "BRONCE",
+                    price: "Gratis",
+                    desc: "Membres铆a b谩sica",
+                    bonus: "BONO DE REGISTRO: 50P",
+                    button: "Registrarse gratis",
+                    features: ["Anuncios habilitados", "Soporte comunitario"]
+                },
+                silver: {
+                    name: "PLATA",
+                    priceKRW: "Usuario",
+                    priceUSD: "$5.00",
+                    desc: "Obt茅n 50P y mejora",
+                    bonus: "50P INSTANT脕NEOS",
+                    button: "Cargar 50P",
+                    features: ["Insignia verificada", "Procesamiento m谩s r谩pido", "Anuncios a煤n visibles"]
+                },
+                gold: {
+                    name: "ORO",
+                    price: "100k+",
+                    unit: "KRW",
+                    desc: "Pago acumulativo",
+                    vip: "ESTADO VIP",
+                    button: "Mejora autom谩tica",
+                    features: ["M谩xima prioridad", "L铆nea de soporte directo", "Los anuncios nos apoyan"]
+                }
+            },
+            policy: {
+                title: "Pol铆tica de puntos y operaci贸n",
+                pointTitle: "1. Pol铆tica de puntos",
+                pointItems: [
+                    "Recompensa de registro: Se otorgan 50P inmediatamente al registrarse.",
+                    "Costo base: {base}P por documento (hasta {basePages} p谩ginas).",
+                    "Costo adicional: {extra}P por p谩gina a partir de la p谩gina {nextPage}.",
+                    "Modo invitado: Traducci贸n limitada a 2 p谩ginas para invitados."
+                ],
+                adTitle: "2. Pol铆tica de anuncios y recarga",
+                adItems: [
+                    "Recarga gratuita: Puedes ganar puntos viendo anuncios si te quedas sin ellos.",
+                    "Recompensa: Obt茅n 5P haciendo clic en [Obtener 5 puntos] en los anuncios.",
+                    "Ilimitado: Durante la beta, las recompensas de anuncios son ilimitadas.",
+                    "Servicio: Los ingresos por anuncios respaldan los costos del servidor y el motor AI."
+                ],
+                disclaimer: "* Esta pol铆tica puede cambiar durante el per铆odo beta. Los puntos no son reembolsables."
+            },
+            features: {
+                support: { title: "Soporte global", desc: "Soporte para m谩s de 20 idiomas con IA consciente de la cultura." },
+                security: { title: "Seguridad empresarial", desc: "Cifrado de nivel bancario para todos tus documentos." },
+                fidelity: { title: "Alta fidelidad", desc: "Conserva todo el formato, gr谩ficos y diagramas." }
+            }
+        },
+        selector: "Idioma de destino",
+        selectorLabel: "Seleccionar idioma de destino",
+        button: { translate: "Traducir ahora" },
+        time: { estimated: "Tiempo estimado", seconds: "seg" },
+        loading: {
+            uploading: { title: "Subiendo...", desc: "Enviando documento al servidor seguro." },
+            processing: { title: "Traduciendo...", desc: "La IA est谩 analizando y reescribiendo." },
+            completed: { title: "隆Listo!", desc: "Su documento est谩 listo para descargar." },
+            failed: { title: "Error", desc: "Algo sali贸 mal. Por favor intente de nuevo." },
+            success: { title: "隆脡xito!", desc: "Formato conservado al 100%" },
+            download: "Descargar archivo traducido"
+        },
+        nav: {
+            community: "Comunidad",
+            pricing: "Precios",
+            login: "Iniciar sesi贸n",
+            signup: "Empieza gratis",
+            pointsHold: "Puntos",
+            adminDashboard: "Panel de control",
+            myHistory: "Mis traducciones",
+            betaBenefits: "Beneficios Beta",
+            boostTitle: "Carga tus puntos",
+            boostDesc: "驴Necesitas m谩s puntos?\n隆Mira un anuncio y obt茅n 2P!",
+            watchAd: "Ver anuncio",
+            logout: "Cerrar sesi贸n",
+            loggedOut: "Sesi贸n cerrada con 茅xito.",
+            backToUpload: "Volver a subir",
+            local: "Subida local",
+            cloud: "Nube",
+            brandName: "DocTranslation",
+            tierBronze: "BRONCE",
+            tierSilver: "PLATA",
+            tierGold: "ORO",
+            proAccount: "CUENTA PROFESIONAL",
+        },
+        auth: {
+            signinTitle: "Sign In",
+            signinDesc: "Start your fast and smart document translation.",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "Start as Guest (10P)",
+            forgotPassword: "Forgot password?",
+            submitLogin: "Sign In",
+            submitSignup: "Create Account",
+            toSignup: "Create Account",
+            toSignin: "Sign in with Password",
+            social: "Enterprise-grade security",
+            alertUnconfirmed: "Email not verified.",
+            alertUnconfirmedDesc: "Please check your inbox.",
+            btnResend: "Resend Verification Email",
+            btnSending: "Sending...",
+            btnLoginOther: "Log in with other ID",
+            signupTitle: "Create Account",
+            signupDesc: "Check the verification link sent to your email.",
+            sentTo: "Sent to",
+            checkEmailTitle: "Check your email!",
+            checkEmailDesc: "We sent a verification link to",
+            backWithEmail: "Re-enter email",
+            alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
+    fr: {
+        badge: "Pr茅servation du format 脿 100%",
+        title: { main: "Le format reste,", highlight: "La langue change." },
+        description: "Traduisez des documents complexes sans perdre la mise en page.\nL'IA comprend le contexte pour une traduction naturelle.",
+        dropzone: { idle: "D茅posez votre fichier ici", sub: "ou cliquez pour parcourir", support: "Supporte DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Politique de points",
+            base: "Base 5P (jusqu'脿 2 p.)",
+            extra: "+2P par p. suppl茅mentaire"
+        },
+        features: {
+            compatibility: { title: "Support Natif", desc: "Traitement direct des fichiers Office et HWP." },
+            format: { title: "Mise en page intacte", desc: "Tableaux et images restent parfaitement align茅s." },
+            speed: { title: "脡clair", desc: "Traitement des gros fichiers en quelques secondes." }
+        },
+        pricingPage: {
+            hero: {
+                title: "CHOISISSEZ VOTRE",
+                highlight: "NIVEAU DE PUISSANCE",
+                subtitle: "D茅veloppez votre communication mondiale avec notre moteur de traduction IA haute fid茅lit茅."
+            },
+            tiers: {
+                guest: {
+                    name: "INVIT脡",
+                    price: "Gratuit",
+                    desc: "Sans inscription",
+                    limit: "Limite : 2 pages",
+                    button: "Essayer le mode invit茅",
+                    features: ["Traduction Word/Excel/PPT", "Max 2 pages par doc"]
+                },
+                bronze: {
+                    name: "BRONZE",
+                    price: "Gratuit",
+                    desc: "Adh茅sion de base",
+                    bonus: "BONUS D'INSCRIPTION : 50P",
+                    button: "S'inscrire gratuitement",
+                    features: ["Publicit茅s activ茅es", "Support communautaire"]
+                },
+                silver: {
+                    name: "ARGENT",
+                    priceKRW: "Utilisateur",
+                    priceUSD: "$5.00",
+                    desc: "Obtenez 50P et am茅liorez",
+                    bonus: "50P INSTANTAN脡S",
+                    button: "Charger 50P",
+                    features: ["Badge v茅rifi茅", "Traitement plus rapide", "Publicit茅s toujours visibles"]
+                },
+                gold: {
+                    name: "OR",
+                    price: "100k+",
+                    unit: "KRW",
+                    desc: "Paiement cumulatif",
+                    vip: "STATUT VIP",
+                    button: "Mise 脿 niveau automatique",
+                    features: ["Priorit茅 maximale", "Ligne de support direct", "Les publicit茅s nous soutiennent"]
+                }
+            },
+            policy: {
+                title: "Politique de points et d'exploitation",
+                pointTitle: "1. Politique de points",
+                pointItems: [
+                    "R茅compense d'inscription : 50P sont accord茅s imm茅diatement lors de l'inscription.",
+                    "Co没t de base : {base}P par document (jusqu'脿 {basePages} pages).",
+                    "Co没t suppl茅mentaire : {extra}P par page 脿 partir de la page {nextPage}.",
+                    "Mode invit茅 : Traduction limit茅e 脿 2 pages pour les invit茅s."
+                ],
+                adTitle: "2. Politique de publicit茅 et de recharge",
+                adItems: [
+                    "Recharge gratuite : Vous pouvez gagner des points en regardant des publicit茅s si vous en manquez.",
+                    "R茅compense : Obtenez 5P en cliquant sur [Obtenir 5 points] sur les publicit茅s.",
+                    "Illimit茅 : Pendant la b锚ta, les r茅compenses publicitaires sont illimit茅es.",
+                    "Service : Les revenus publicitaires soutiennent les co没ts du serveur et du moteur IA."
+                ],
+                disclaimer: "* Cette politique peut changer pendant la p茅riode b锚ta. Les points ne sont pas remboursables."
+            },
+            features: {
+                support: { title: "Support mondial", desc: "Support pour plus de 20 langues avec IA consciente de la culture." },
+                security: { title: "S茅curit茅 d'entreprise", desc: "Chiffrement de niveau bancaire pour tous vos documents." },
+                fidelity: { title: "Haute fid茅lit茅", desc: "Pr茅serve tout le formatage, les graphiques et les diagrammes." }
+            }
+        },
+        selector: "Langue cible",
+        selectorLabel: "Choisir la langue cible",
+        button: { translate: "Traduire maintenant" },
+        time: { estimated: "Temps estim茅", seconds: "sec" },
+        loading: {
+            uploading: { title: "T茅l茅chargement en cours...", desc: "Envoi de votre document au serveur s茅curis茅." },
+            processing: { title: "Traduction en cours...", desc: "L'IA analyse et r茅茅crit votre contenu." },
+            completed: { title: "Termin茅 !", desc: "Votre document est pr锚t 脿 锚tre t茅l茅charg茅." },
+            failed: { title: "Erreur", desc: "Un probl猫me est survenu. Veuillez r茅essayer." },
+            success: { title: "Succ猫s !", desc: "Mise en page conserv茅e 脿 100%" },
+            download: "T茅l茅charger le fichier traduit"
+        },
+        nav: {
+            community: "Communaut茅",
+            pricing: "Tarifs",
+            login: "Connexion",
+            signup: "Essai gratuit",
+            pointsHold: "Points",
+            adminDashboard: "Tableau de bord",
+            myHistory: "Mes traductions",
+            betaBenefits: "Avantages Beta",
+            boostTitle: "Recharge de points",
+            boostDesc: "Besoin de points ?\nRegardez une pub et gagnez 2P !",
+            watchAd: "Regarder la pub",
+            logout: "D茅connexion",
+            loggedOut: "D茅connexion r茅ussie.",
+            backToUpload: "Retour",
+            local: "Local",
+            cloud: "Cloud",
+            brandName: "DocTranslation",
+            tierBronze: "BRONZE",
+            tierSilver: "ARGENT",
+            tierGold: "OR",
+            proAccount: "COMPTE PROFESSIONNEL",
+        },
+        auth: {
+            signinTitle: "Sign In",
+            signinDesc: "Start your fast and smart document translation.",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            emailPlaceholder: "name@example.com",
+            passwordPlaceholder: "鈥⑩€⑩€⑩€⑩€⑩€⑩€⑩€?,
+            guestLogin: "Start as Guest (10P)",
+            forgotPassword: "Forgot password?",
+            submitLogin: "Sign In",
+            submitSignup: "Create Account",
+            toSignup: "Create Account",
+            toSignin: "Sign in with Password",
+            social: "Enterprise-grade security",
+            alertUnconfirmed: "Email not verified.",
+            alertUnconfirmedDesc: "Please check your inbox.",
+            btnResend: "Resend Verification Email",
+            btnSending: "Sending...",
+            btnLoginOther: "Log in with other ID",
+            signupTitle: "Create Account",
+            signupDesc: "Check the verification link sent to your email.",
+            sentTo: "Sent to",
+            checkEmailTitle: "Check your email!",
+            checkEmailDesc: "We sent a verification link to",
+            backWithEmail: "Re-enter email",
+            alreadyHaveAccount: "Already have an account?"
+        },
+        admin: {
+            dashboard: "Dashboard",
+            users: "Users",
+            jobs: "Jobs",
+            security: "Security",
+            shutdown: "System Shutdown",
+            userManagement: "User Management",
+            totalUsers: "Total Users",
+            translationJobs: "Translation Jobs",
+            recentActivity: "Recent Activity",
+            banSystem: "Ban Management System",
+            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
+            verifying: "Verifying Master Identity..."
+        }
+    },
