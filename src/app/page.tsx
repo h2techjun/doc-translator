@@ -76,7 +76,7 @@ export default function HomePage() {
     }, [estimateTime]);
 
     const handleDriveSelect = useCallback((dFile: DriveFile) => {
-        toast.success(`드라이브에서 선택됨: ${dFile.name}`);
+        toast.success(t.nav.driveSelected.replace('{name}', dFile.name));
         setDriveFile(dFile);
         setFile(null); // 로컬 파일 초기화
         setStatus('ready');
@@ -110,12 +110,12 @@ export default function HomePage() {
                             setProgress(100);
                             setEstimatedTime(0);
                             clearInterval(timer);
-                            toast.success("번역이 완료되었습니다!");
+                            toast.success(t.loading.completed.title);
                         } else if (data.status === 'FAILED') {
                             setStatus('failed');
-                            setErrorMessage('서버에서 번역 처리에 실패했습니다.');
+                            setErrorMessage(t.loading.failed.desc);
                             clearInterval(timer);
-                            toast.error("번역 실패.");
+                            toast.error(t.nav.translateFailed);
                         }
                     }
                 } catch (error) {

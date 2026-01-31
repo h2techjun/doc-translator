@@ -67,6 +67,10 @@ export const i18n: Record<Locale, {
         tierSilver: string;
         tierGold: string;
         memberLogin: string;
+        driveSelected: string;
+        translateReady: string;
+        translating: string;
+        translateFailed: string;
     };
     community: {
         title: string;
@@ -129,6 +133,37 @@ export const i18n: Record<Locale, {
         banDesc: string;
         verifying: string;
     };
+    coupons: {
+        title: string;
+        desc: string;
+        placeholder: string;
+        button: string;
+        success: string;
+        successDesc: string;
+        failedTitle: string;
+        errorSystem: string;
+        errorSystemDesc: string;
+    };
+    inbox: {
+        title: string;
+        noMessages: string;
+        chatting: string;
+        placeholder: string;
+        emptySelect: string;
+        errorSend: string;
+        errorSystem: string;
+    };
+    reports: {
+        title: string;
+        description: string;
+        placeholder: string;
+        cancel: string;
+        submit: string;
+        success: string;
+        successDesc: string;
+        errorFailed: string;
+        errorSystem: string;
+    };
 }> = {
     ko: {
         badge: "서식 보존율 100% 보장",
@@ -139,6 +174,17 @@ export const i18n: Record<Locale, {
             compatibility: { title: "완벽한 호환성", desc: "Microsoft Office 문서(Word, Excel, PPT)를 포맷 변환 없이 원본 그대로 처리합니다." },
             format: { title: "서식 100% 보존", desc: "표, 차트, 스타일이 깨지지 않습니다. 디자이너가 작업한 듯 깔끔합니다." },
             speed: { title: "압도적인 속도", desc: "대용량 문서도 수초 내에 분석하고 번역을 완료합니다." }
+        },
+        reports: {
+            title: "콘텐츠 신고",
+            description: "이 {type}을(를) 신고하는 이유가 무엇인가요?",
+            placeholder: "사유를 상세히 입력해주세요...",
+            cancel: "취소",
+            submit: "신고하기",
+            success: "신고 완료",
+            successDesc: "커뮤니티를 안전하게 유지해주셔서 감사합니다.",
+            errorFailed: "신고 실패",
+            errorSystem: "시스템 오류"
         },
         pricingPage: {
             hero: { title: "요금제", highlight: "선택하기", subtitle: "AI 번역 엔진으로 글로벌 커뮤니케이션을 확장하세요." },
@@ -221,6 +267,14 @@ export const i18n: Record<Locale, {
             tierSilver: "실버",
             tierGold: "골드",
             memberLogin: "회원 로그인",
+        driveSelected: "Seleccionado desde Drive: {name}",
+        translateReady: "Listo para traducir",
+        translating: "Traduciendo...",
+        translateFailed: "Error en la traducción",
+        driveSelected: "드라이브에서 선택됨: {name}",
+        translateReady: "번역 준비 완료",
+        translating: "번역 중...",
+        translateFailed: "번역 실패",
         },
         auth: {
             signinTitle: "로그인",
@@ -257,12 +311,43 @@ export const i18n: Record<Locale, {
             security: "보안",
             shutdown: "시스템 종료",
             userManagement: "사용자 관리",
-            totalUsers: "총 사용자",
+            totalUsers: "총 사용자 수",
             translationJobs: "번역 작업 현황",
             recentActivity: "최근 활동 기록",
-            banSystem: "사용자 제재 및 관리",
-            banDesc: "마스터의 권한으로 침입자를 격리하거나 오해를 해소합니다.",
+            banSystem: "접근 제한 시스템",
+            banDesc: "마스터 권한으로 침입자를 격리하거나 오해를 해소합니다.",
             verifying: "마스터 권한 확인 중..."
+        },
+        coupons: {
+            title: "쿠폰 등록",
+            desc: "보유하신 프로모션 코드를 입력하고 포인트를 받으세요.",
+            placeholder: "코드를 입력하세요",
+            button: "등록하기",
+            success: "{points}P 적립 완료!",
+            successDesc: "쿠폰이 성공적으로 등록되었습니다.",
+            failedTitle: "등록 실패",
+            errorSystem: "시스템 오류",
+            errorSystemDesc: "잠시 후 다시 시도해주세요."
+        },
+        inbox: {
+            title: "메시지",
+            noMessages: "대화 내역이 없습니다.",
+            chatting: "채팅 중",
+            placeholder: "메시지를 입력하세요...",
+            emptySelect: "대화를 선택하거나 새로운 대화를 시작하세요.",
+            errorSend: "전송 실패",
+            errorSystem: "오류 발생"
+        },
+        reports: {
+            title: "콘텐츠 신고",
+            description: "이 {type}을(를) 신고하는 이유가 무엇인가요?",
+            placeholder: "사유를 상세히 입력해주세요...",
+            cancel: "취소",
+            submit: "신고하기",
+            success: "신고 완료",
+            successDesc: "커뮤니티를 안전하게 유지해주셔서 감사합니다.",
+            errorFailed: "신고 실패",
+            errorSystem: "시스템 오류"
         }
     },
     en: {
@@ -356,6 +441,10 @@ export const i18n: Record<Locale, {
             tierSilver: "SILVER",
             tierGold: "GOLD",
             memberLogin: "MEMBER LOGIN",
+        driveSelected: "Selected from Drive: {name}",
+        translateReady: "Ready to translate",
+        translating: "Translating...",
+        translateFailed: "Translation failed",
         },
         auth: {
             signinTitle: "Sign In",
@@ -382,7 +471,8 @@ export const i18n: Record<Locale, {
             checkEmailTitle: "Check your email!",
             checkEmailDesc: "We sent a verification link to",
             backWithEmail: "Re-enter email",
-            alreadyHaveAccount: "Already have an account?"
+            alreadyHaveAccount: "Already have an account?",
+            rememberMe: "Remember Me"
         },
         admin: {
             dashboard: "Dashboard",
@@ -397,6 +487,37 @@ export const i18n: Record<Locale, {
             banSystem: "Ban Management System",
             banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
             verifying: "Verifying Master Identity..."
+        },
+        coupons: {
+            title: "Redeem Coupon",
+            desc: "Enter your promotion code and get points.",
+            placeholder: "Enter code here",
+            button: "Claim",
+            success: "{points}P added!",
+            successDesc: "Coupon has been successfully redeemed.",
+            failedTitle: "Redemption Failed",
+            errorSystem: "System Error",
+            errorSystemDesc: "Please try again later."
+        },
+        inbox: {
+            title: "Messages",
+            noMessages: "No message history.",
+            chatting: "Chatting",
+            placeholder: "Enter message...",
+            emptySelect: "Select a conversation or start a new one.",
+            errorSend: "Failed to send",
+            errorSystem: "Error occurred"
+        },
+        reports: {
+            title: "Report Content",
+            description: "Why are you reporting this {type}?",
+            placeholder: "Please describe the issue...",
+            cancel: "Cancel",
+            submit: "Submit Report",
+            success: "Report Submitted",
+            successDesc: "Thank you for keeping our community safe.",
+            errorFailed: "Failed to report",
+            errorSystem: "System Error"
         }
     },
     ja: {
@@ -490,6 +611,10 @@ export const i18n: Record<Locale, {
             tierSilver: "シルバー",
             tierGold: "ゴールド",
             memberLogin: "会員ログイン",
+        driveSelected: "ドライブから選択されました: {name}",
+        translateReady: "翻訳準備完了",
+        translating: "翻訳中...",
+        translateFailed: "翻訳失敗",
         },
         auth: {
             signinTitle: "ログイン",
@@ -532,6 +657,37 @@ export const i18n: Record<Locale, {
             banSystem: "アクセス制限システム",
             banDesc: "マスター権限で侵入者を隔離したり、誤解を解消したりします。",
             verifying: "マスター権限を確認中..."
+        },
+        coupons: {
+            title: "クーポン登録",
+            desc: "プロモーションコードを入力してポイントを受け取ってください。",
+            placeholder: "코드 입력...",
+            button: "登録する",
+            success: "{points}P 追加完了！",
+            successDesc: "クーポン가正常に登録されました。",
+            failedTitle: "登録失敗",
+            errorSystem: "システムエラー",
+            errorSystemDesc: "後でもう一度お試しください。"
+        },
+        inbox: {
+            title: "メッセージ",
+            noMessages: "会話履歴がありません。",
+            chatting: "チャット中",
+            placeholder: "メッセージを入力してください...",
+            emptySelect: "会話を選択するか、新しく開始してください。",
+            errorSend: "送信失敗",
+            errorSystem: "エラーが発生しました"
+        },
+        reports: {
+            title: "コンテンツの通報",
+            description: "この{type}を通報する理由は何ですか？",
+            placeholder: "理由を詳しく入力してください...",
+            cancel: "キャンセル",
+            submit: "通報する",
+            success: "通報完了",
+            successDesc: "コミュニティの安全にご協力いただきありがとうございます。",
+            errorFailed: "通報에 실패했습니다",
+            errorSystem: "システムエラー"
         }
     },
     zh: {
@@ -625,6 +781,10 @@ export const i18n: Record<Locale, {
             tierSilver: "白银",
             tierGold: "黄金",
             memberLogin: "会员登录",
+        driveSelected: "已从云端硬盘选择: {name}",
+        translateReady: "准备翻译",
+        translating: "正在翻译...",
+        translateFailed: "翻译失败",
         },
         auth: {
             signinTitle: "登录",
@@ -667,6 +827,37 @@ export const i18n: Record<Locale, {
             banSystem: "访问限制系统",
             banDesc: "以管理员权限隔离入侵者或解决误会。",
             verifying: "正在验证管理员权限..."
+        },
+        coupons: {
+            title: "兑换优惠券",
+            desc: "输入您的促销代码以获取积分。",
+            placeholder: "在此输入代码",
+            button: "立即兑换",
+            success: "成功添加 {points}P！",
+            successDesc: "优惠券已成功兑换。",
+            failedTitle: "兑换失败",
+            errorSystem: "系统错误",
+            errorSystemDesc: "请稍后再试。"
+        },
+        inbox: {
+            title: "消息",
+            noMessages: "暂无对话记录。",
+            chatting: "正在聊天",
+            placeholder: "输入消息...",
+            emptySelect: "选择一个对话或开始新对话。",
+            errorSend: "发送失败",
+            errorSystem: "发生错误"
+        },
+        reports: {
+            title: "举报内容",
+            description: "您为什么要举报此{type}？",
+            placeholder: "请详细描述问题...",
+            cancel: "取消",
+            submit: "提交举报",
+            success: "举报已提交",
+            successDesc: "感谢您维护社区安全。",
+            errorFailed: "举报失败",
+            errorSystem: "系统错误"
         }
     },
     es: {
@@ -762,45 +953,77 @@ export const i18n: Record<Locale, {
             memberLogin: "ACCESSO MIEMBROS",
         },
         auth: {
-            signinTitle: "Sign In",
-            signinDesc: "Start your fast and smart document translation.",
-            emailLabel: "Email",
-            passwordLabel: "Password",
-            emailPlaceholder: "name@example.com",
+            signinTitle: "Iniciar sesión",
+            signinDesc: "Comienza tu traducción de documentos rápida e inteligente.",
+            emailLabel: "Correo electrónico",
+            passwordLabel: "Contraseña",
+            emailPlaceholder: "nombre@ejemplo.com",
             passwordPlaceholder: "••••••••",
-            guestLogin: "Start as Guest (10P)",
-            forgotPassword: "Forgot password?",
-            submitLogin: "Sign In",
-            submitSignup: "Create Account",
-            toSignup: "Create Account",
-            toSignin: "Sign in with Password",
-            social: "Enterprise-grade security",
-            alertUnconfirmed: "Email not verified.",
-            alertUnconfirmedDesc: "Please check your inbox.",
-            btnResend: "Resend Verification Email",
-            btnSending: "Sending...",
-            btnLoginOther: "Log in with other ID",
-            signupTitle: "Create Account",
-            signupDesc: "Check the verification link sent to your email.",
-            sentTo: "Sent to",
-            checkEmailTitle: "Check your email!",
-            checkEmailDesc: "We sent a verification link to",
-            backWithEmail: "Re-enter email",
-            alreadyHaveAccount: "Already have an account?"
+            guestLogin: "Iniciar como invitado (10P)",
+            forgotPassword: "¿Olvidaste tu contraseña?",
+            submitLogin: "Iniciar sesión",
+            submitSignup: "Crear cuenta",
+            toSignup: "Crear una cuenta",
+            toSignin: "Iniciar sesión con contraseña",
+            social: "Seguridad de nivel empresarial",
+            alertUnconfirmed: "Correo electrónico no verificado.",
+            alertUnconfirmedDesc: "Por favor, revisa tu bandeja de entrada.",
+            btnResend: "Reenviar correo de verificación",
+            btnSending: "Enviando...",
+            btnLoginOther: "Iniciar sesión con otro ID",
+            signupTitle: "Crear cuenta",
+            signupDesc: "Revisa el enlace de verificación enviado a tu correo.",
+            sentTo: "Enviado a",
+            checkEmailTitle: "¡Revisa tu correo!",
+            checkEmailDesc: "Hemos enviado un enlace de verificación a",
+            backWithEmail: "Volver a introducir el correo",
+            alreadyHaveAccount: "¿Ya tienes una cuenta?",
+            rememberMe: "Mantener sesión iniciada"
         },
         admin: {
-            dashboard: "Dashboard",
-            users: "Users",
-            jobs: "Jobs",
-            security: "Security",
-            shutdown: "System Shutdown",
-            userManagement: "User Management",
-            totalUsers: "Total Users",
-            translationJobs: "Translation Jobs",
-            recentActivity: "Recent Activity",
-            banSystem: "Ban Management System",
-            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
-            verifying: "Verifying Master Identity..."
+            dashboard: "Panel de control",
+            users: "Gestión de usuarios",
+            jobs: "Gestión de tareas",
+            security: "Seguridad",
+            shutdown: "Apagar sistema",
+            userManagement: "Gestión de usuarios",
+            totalUsers: "Usuarios totales",
+            translationJobs: "Estado de tareas de traducción",
+            recentActivity: "Registro de actividad reciente",
+            banSystem: "Sistema de restricción de acceso",
+            banDesc: "Aislar intrusos o resolver malentendidos con privilegios de Maestro.",
+            verifying: "Verificando identidad de Maestro..."
+        },
+        coupons: {
+            title: "Canjear cupón",
+            desc: "Introduce tu código de promoción y obtén puntos.",
+            placeholder: "Introduce el código aquí",
+            button: "Reclamar",
+            success: "¡{points}P añadidos!",
+            successDesc: "El cupón se ha canjeado correctamente.",
+            failedTitle: "Error al canjear",
+            errorSystem: "Error del sistema",
+            errorSystemDesc: "Por favor, inténtalo de nuevo más tarde."
+        },
+        inbox: {
+            title: "Mensajes",
+            noMessages: "No hay historial de mensajes.",
+            chatting: "Chateando",
+            placeholder: "Escribe un mensaje...",
+            emptySelect: "Selecciona una conversación o inicia una nueva.",
+            errorSend: "Error al enviar",
+            errorSystem: "Se ha producido un error"
+        },
+        reports: {
+            title: "Reportar contenido",
+            description: "¿Por qué estás reportando este {type}?",
+            placeholder: "Por favor, describe el problema...",
+            cancel: "Cancelar",
+            submit: "Enviar reporte",
+            success: "Reporte enviado",
+            successDesc: "Gracias por mantener segura nuestra comunidad.",
+            errorFailed: "Error al reportar",
+            errorSystem: "Error del sistema"
         }
     },
     fr: {
@@ -894,47 +1117,83 @@ export const i18n: Record<Locale, {
             tierSilver: "ARGENT",
             tierGold: "OR",
             memberLogin: "ACCÈS MEMBRE",
+        driveSelected: "Sélectionné depuis Drive: {name}",
+        translateReady: "Prêt pour la traduction",
+        translating: "Traduction en cours...",
+        translateFailed: "Échec de la traduction",
         },
         auth: {
-            signinTitle: "Sign In",
-            signinDesc: "Start your fast and smart document translation.",
+            signinTitle: "Se connecter",
+            signinDesc: "Commencez votre traduction de documents rapide et intelligente.",
             emailLabel: "Email",
-            passwordLabel: "Password",
-            emailPlaceholder: "name@example.com",
+            passwordLabel: "Mot de passe",
+            emailPlaceholder: "nom@exemple.com",
             passwordPlaceholder: "••••••••",
-            guestLogin: "Start as Guest (10P)",
-            forgotPassword: "Forgot password?",
-            submitLogin: "Sign In",
-            submitSignup: "Create Account",
-            toSignup: "Create Account",
-            toSignin: "Sign in with Password",
-            social: "Enterprise-grade security",
-            alertUnconfirmed: "Email not verified.",
-            alertUnconfirmedDesc: "Please check your inbox.",
-            btnResend: "Resend Verification Email",
-            btnSending: "Sending...",
-            btnLoginOther: "Log in with other ID",
-            signupTitle: "Create Account",
-            signupDesc: "Check the verification link sent to your email.",
-            sentTo: "Sent to",
-            checkEmailTitle: "Check your email!",
-            checkEmailDesc: "We sent a verification link to",
-            backWithEmail: "Re-enter email",
-            alreadyHaveAccount: "Already have an account?"
+            guestLogin: "Commencer en tant qu'invité (10P)",
+            forgotPassword: "Mot de passe oublié ?",
+            submitLogin: "Se connecter",
+            submitSignup: "Créer un compte",
+            toSignup: "Créer un compte",
+            toSignin: "Se connecter avec mot de passe",
+            social: "Sécurité de niveau entreprise",
+            alertUnconfirmed: "Email non vérifié.",
+            alertUnconfirmedDesc: "Veuillez vérifier votre boîte de réception.",
+            btnResend: "Renvoyer l'email de vérification",
+            btnSending: "Envoi en cours...",
+            btnLoginOther: "Se connecter avec un autre ID",
+            signupTitle: "Créer un compte",
+            signupDesc: "Vérifiez le lien de vérification envoyé à votre email.",
+            sentTo: "Envoyé à",
+            checkEmailTitle: "Vérifiez votre email !",
+            checkEmailDesc: "Nous avons envoyé un lien de vérification à",
+            backWithEmail: "Saisir à nouveau l'email",
+            alreadyHaveAccount: "Vous avez déjà un compte ?",
+            rememberMe: "Rester connecté"
         },
         admin: {
-            dashboard: "Dashboard",
-            users: "Users",
-            jobs: "Jobs",
-            security: "Security",
-            shutdown: "System Shutdown",
-            userManagement: "User Management",
-            totalUsers: "Total Users",
-            translationJobs: "Translation Jobs",
-            recentActivity: "Recent Activity",
-            banSystem: "Ban Management System",
-            banDesc: "Isolate intruders or resolve misunderstandings with Master privileges.",
-            verifying: "Verifying Master Identity..."
+            dashboard: "Tableau de bord",
+            users: "Gestion des utilisateurs",
+            jobs: "Gestion des tâches",
+            security: "Sécurité",
+            shutdown: "Arrêt du système",
+            userManagement: "Gestion des utilisateurs",
+            totalUsers: "Nombre total d'utilisateurs",
+            translationJobs: "État des tâches de traduction",
+            recentActivity: "Historique des activités récentes",
+            banSystem: "Système de restriction d'accès",
+            banDesc: "Isoler les intrus ou résoudre les malentendus avec les privilèges de Maître.",
+            verifying: "Vérification de l'identité du Maître..."
+        },
+        coupons: {
+            title: "Utiliser un coupon",
+            desc: "Entrez votre code de promotion et obtenez des points.",
+            placeholder: "Entrez le code ici",
+            button: "Réclamer",
+            success: "{points}P ajoutés !",
+            successDesc: "Le coupon a été utilisé avec succès.",
+            failedTitle: "Échec de l'utilisation",
+            errorSystem: "Erreur système",
+            errorSystemDesc: "Veuillez réessayer plus tard."
+        },
+        inbox: {
+            title: "Messages",
+            noMessages: "Aucun historique de messages.",
+            chatting: "En discussion",
+            placeholder: "Entrez un message...",
+            emptySelect: "Sélectionnez une conversation ou commencez-en une nouvelle.",
+            errorSend: "Échec de l'envoi",
+            errorSystem: "Une erreur est survenue"
+        },
+        reports: {
+            title: "Signaler le contenu",
+            description: "Pourquoi signalez-vous ce {type} ?",
+            placeholder: "Veuillez décrire le problème...",
+            cancel: "Annuler",
+            submit: "Envoyer le signalement",
+            success: "Signalement envoyé",
+            successDesc: "Merci de maintenir notre communauté en sécurité.",
+            errorFailed: "Échec du signalement",
+            errorSystem: "Erreur système"
         }
     },
 };

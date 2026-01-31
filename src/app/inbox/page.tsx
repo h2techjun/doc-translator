@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageSquare, Send, User, Search, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { ko, enUS, ja, zhCN, es, fr } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 interface Conversation {
@@ -29,13 +29,25 @@ interface Message {
 }
 
 export default function InboxPage() {
-    const { user } = useGeoSmart();
+    const { user, t, locale } = useGeoSmart();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
+
+    // date-fns locale mapping
+    const getDateLocale = () => {
+        switch (locale) {
+            case 'ko': return ko;
+            case 'ja': return ja;
+            case 'zh': return zhCN;
+            case 'es': return es;
+            case 'fr': return fr;
+            default: return enUS;
+        }
+    };
 
     // Auto-scroll ref
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -94,10 +106,10 @@ export default function InboxPage() {
                 setMessages([...messages, msg]);
                 setNewMessage('');
             } else {
-                toast.error('전송 실패');
+                toast.error(t.inbox.errorSend);
             }
         } catch (e) {
-            toast.error('오류 발생');
+            toast.error(t.inbox.errorSystem);
         } finally {
             setSending(false);
         }
@@ -113,13 +125,13 @@ export default function InboxPage() {
                 <Card className="md:col-span-1 border-input bg-background/50 backdrop-blur flex flex-col h-full overflow-hidden">
                     <div className="p-4 border-b">
                         <h2 className="font-bold flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4" /> Message
+                            <MessageSquare className="w-4 h-4" /> {t.inbox.title}
                         </h2>
                     </div>
                     <ScrollArea className="flex-1">
                         {conversations.length === 0 ? (
                             <div className="p-8 text-center text-sm text-muted-foreground">
-                                대화 내역이 없습니다.
+                                {t.inbox.noMessages}
                             </div>
                         ) : (
                             conversations.map((conv) => (
@@ -132,11 +144,11 @@ export default function InboxPage() {
                                         <Avatar className="w-10 h-10 border">
                                             <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                         </Avatar>
-                                        <div className="overflow-hidden">
+                                        <div className="overflow-hidden flex-1">
                                             <p className="font-medium text-sm truncate">{conv.partnerName}</p>
                                             <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
                                             <p className="text-[10px] text-muted-foreground mt-1 text-right">
-                                                {formatDistanceToNow(new Date(conv.lastDate), { addSuffix: true, locale: ko })}
+                                                {formatDistanceToNow(new Date(conv.lastDate), { addSuffix: true, locale: getDateLocale() })}
                                             </p>
                                         </div>
                                     </div>
@@ -154,7 +166,7 @@ export default function InboxPage() {
                             <div className="p-4 border-b bg-card/50 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                                    <span className="font-bold">Chatting</span>
+                                    <span className="font-bold">{t.inbox.chatting}</span>
                                 </div>
                             </div>
 
@@ -183,7 +195,7 @@ export default function InboxPage() {
                                     <Input
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
-                                        placeholder="메시지를 입력하세요..."
+                                        placeholder={t.inbox.placeholder}
                                         className="flex-1 bg-background/80"
                                         disabled={sending}
                                     />
@@ -196,7 +208,7 @@ export default function InboxPage() {
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
                             <MessageSquare className="w-16 h-16 mb-4" />
-                            <p>대화를 선택하거나 새로운 대화를 시작하세요.</p>
+                            <p>{t.inbox.emptySelect}</p>
                         </div>
                     )}
                 </Card>

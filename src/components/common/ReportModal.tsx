@@ -13,6 +13,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useGeoSmart } from '@/hooks/use-geo-smart';
 
 interface ReportModalProps {
     targetType: 'POST' | 'COMMENT';
@@ -20,6 +21,7 @@ interface ReportModalProps {
 }
 
 export function ReportModal({ targetType, targetId }: ReportModalProps) {
+    const { t } = useGeoSmart();
     const [open, setOpen] = useState(false);
     const [reason, setReason] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,14 +43,14 @@ export function ReportModal({ targetType, targetId }: ReportModalProps) {
             });
 
             if (res.ok) {
-                toast.success('Report Submitted', { description: 'Thank you for keeping our community safe.' });
+                toast.success(t.reports.success, { description: t.reports.successDesc });
                 setOpen(false);
                 setReason('');
             } else {
-                toast.error('Failed to report');
+                toast.error(t.reports.errorFailed);
             }
         } catch (e) {
-            toast.error('System error');
+            toast.error(t.reports.errorSystem);
         } finally {
             setLoading(false);
         }
@@ -65,24 +67,24 @@ export function ReportModal({ targetType, targetId }: ReportModalProps) {
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-red-500" />
-                        Report Content
+                        {t.reports.title}
                     </DialogTitle>
                     <DialogDescription>
-                        Why are you reporting this {targetType.toLowerCase()}?
+                        {t.reports.description.replace('{type}', targetType.toLowerCase())}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <Textarea
-                        placeholder="Please describe the issue..."
+                        placeholder={t.reports.placeholder}
                         value={reason}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setReason(e.target.value)}
                         className="min-h-[100px]"
                     />
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>Cancel</Button>
+                    <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>{t.reports.cancel}</Button>
                     <Button onClick={handleSubmit} disabled={loading || !reason.trim()} className="bg-red-600 hover:bg-red-700 text-white">
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Report'}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t.reports.submit}
                     </Button>
                 </DialogFooter>
             </DialogContent>
