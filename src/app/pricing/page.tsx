@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 import { useState } from 'react';
 import { PaymentModal } from '@/components/payment/PaymentModal';
+import { CouponRedeemer } from '@/components/payment/CouponRedeemer';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { POINT_COSTS } from "@/lib/payment/types";
 
@@ -234,6 +235,16 @@ export default function PricingPage() {
                         </Card>
                     </motion.div>
                 </div>
+
+                {/* 🧧 Coupon Section */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="max-w-md mx-auto mb-20"
+                >
+                    <CouponRedeemer onRedeemSuccess={() => window.location.reload()} />
+                </motion.div>
 
                 {/* 📢 Policy Notice Section */}
                 <motion.div
