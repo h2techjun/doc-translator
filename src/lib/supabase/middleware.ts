@@ -36,23 +36,22 @@ export async function updateSession(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     // Admin Route Protection
-    // i18n 경로가 포함된 경우를 고려하여 정규식 또는 인덱스 검사 (예: /ko/admin 또는 /admin)
     const pathname = request.nextUrl.pathname;
     const isAdminPath = pathname.startsWith('/admin') || /^\/[a-z]{2}\/admin/.test(pathname);
 
-    if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (isAdminPath) {
         if (!user) {
             return NextResponse.redirect(new URL('/signin', request.url))
         }
 
-        // Check Admin Role
+        // Check Admin Role (Technical role 'ADMIN' matches brand 'MASTER')
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single()
 
-        if (profile?.role !== 'ADMIN') {
+        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
             return NextResponse.redirect(new URL('/', request.url))
         }
     }

@@ -118,7 +118,7 @@ export default function AdminDashboard() {
 
                 console.log('[Admin] 👤 User role:', profile.role);
 
-                if (profile.role !== 'ADMIN') {
+                if (profile.role !== 'ADMIN' && profile.role !== 'MASTER') {
                     console.error('[Admin] ❌ Unauthorized: User role is', profile.role);
                     alert(`관리자 권한이 없습니다. 현재 역할: ${profile.role || 'USER'}`);
                     window.location.href = '/';
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
             <div className="min-h-screen bg-[#020617] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
-                    <p className="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest">{t.verifying}</p>
+                    <p className="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest italic font-black">Initializing Master Control...</p>
                 </div>
             </div>
         );
@@ -161,7 +161,7 @@ export default function AdminDashboard() {
                     <div className="w-8 h-8 bg-emerald-500 rounded flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)]">
                         <Zap className="w-5 h-5 text-black fill-current" />
                     </div>
-                    {isSidebarOpen && <span className="font-black tracking-widest text-lg">MASTER</span>}
+                    {isSidebarOpen && <span className="font-black tracking-tighter text-xl italic italic">MASTER</span>}
                 </div>
 
                 <nav className="flex-grow px-4 space-y-2 mt-4">

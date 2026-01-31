@@ -117,7 +117,7 @@ export function UserMenu() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="my-2 bg-border/50" />
-                {profile?.role === 'ADMIN' && (
+                {(profile?.role === 'ADMIN' || profile?.role === 'MASTER') && (
                     <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-purple-500/10 focus:text-purple-600">
                         <Link href="/admin/dashboard" className="flex items-center w-full">
                             <Shield className="w-4 h-4 mr-2 text-purple-500" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, CheckCircle, Activity, DollarSign, AlertTriangle } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
@@ -40,12 +41,15 @@ export default function AdminDashboard() {
         fetchStats();
     }, []);
 
-    if (loading) return <div className="p-10 flex justify-center">Loading Admin Dashboard...</div>;
+    if (loading) return <div className="p-10 flex justify-center italic text-muted-foreground animate-pulse">Initializing Master Dashboard...</div>;
     if (error) return (
-        <div className="p-10 flex flex-col items-center gap-4 text-red-500">
+        <div className="p-10 flex flex-col items-center gap-4 text-red-500 bg-red-50/10 rounded-2xl border border-red-500/20 max-w-md mx-auto my-10">
             <AlertTriangle className="w-10 h-10" />
-            <h1 className="text-xl font-bold">Access Denied</h1>
-            <p>{error}</p>
+            <h1 className="text-xl font-black italic tracking-tighter uppercase">Access Refused</h1>
+            <p className="text-sm font-bold opacity-80">{error}</p>
+            <Link href="/">
+                <Button variant="outline" size="sm" className="mt-2 border-red-500/50 text-red-500 hover:bg-red-500/10">Return Home</Button>
+            </Link>
         </div>
     );
 
@@ -57,9 +61,9 @@ export default function AdminDashboard() {
 
     return (
         <div className="container mx-auto py-10 px-4 max-w-7xl">
-            <h1 className="text-3xl font-black mb-8 dark:text-white flex items-center gap-3">
-                <Activity className="w-8 h-8 text-indigo-500" />
-                System Overview
+            <h1 className="text-4xl font-black mb-8 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
+                <Activity className="w-10 h-10 text-indigo-500" />
+                Master Dashboard
             </h1>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
