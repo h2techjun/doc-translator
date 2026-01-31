@@ -34,10 +34,12 @@ export default function NotificationBell() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
+    const [isSilenced, setIsSilenced] = useState(false); // 🔇 Silence after 401
+    const [hasAuthError, setHasAuthError] = useState(false); // 🚫 Stop all after 401
 
     const fetchNotifications = async (signal?: AbortSignal) => {
         // 🛡️ Pre-emptive checks to avoid 401
-        if (!user || isLoading) return;
+        if (!user || isLoading || isSilenced || hasAuthError) return;
 
         // Don't fetch on public auth pages
         if (pathname === '/signin' || pathname === '/signup') return;
@@ -71,9 +73,12 @@ export default function NotificationBell() {
             });
 
             if (res.status === 401) {
-                // Silently clear and stop if unauthorized
+                // 🔇 401 detected: Server likely doesn't have cookies yet.
+                // Silence and set error flag to stop further attempts.
                 setNotifications([]);
                 setUnreadCount(0);
+                setIsSilenced(true);
+                setHasAuthError(true);
                 return;
             }
 
@@ -90,12 +95,18 @@ export default function NotificationBell() {
     useEffect(() => {
         const controller = new AbortController();
 
-        if (user) {
-            // Delay initial fetch slightly to ensure session is ready
-            const timeout = setTimeout(() => fetchNotifications(controller.signal), 800);
+        if (user && !isSilenced && !hasAuthError) {
+            // Delay initial fetch significantly to ensure session cookies are fully synced
+            const timeout = setTimeout(() => {
+                if (!isLoading && user && !isSilenced && !hasAuthError) {
+                    fetchNotifications(controller.signal);
+                }
+            }, 3000);
 
             const interval = setInterval(() => {
-                if (user) fetchNotifications(controller.signal);
+                if (!isLoading && user && !isSilenced && !hasAuthError) {
+                    fetchNotifications(controller.signal);
+                }
             }, 60000);
 
             return () => {
@@ -107,7 +118,7 @@ export default function NotificationBell() {
             setNotifications([]);
             setUnreadCount(0);
         }
-    }, [user, pathname, isOpen, isLoading]); // Add isLoading to prevent early calls
+    }, [user, pathname, isOpen, isLoading, isSilenced, hasAuthError]);
 
     const markAsRead = async (id?: string) => {
         try {
