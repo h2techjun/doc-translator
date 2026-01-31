@@ -29,7 +29,7 @@ interface Notification {
 }
 
 export default function NotificationBell() {
-    const { user } = useGeoSmart();
+    const { user, isLoading } = useGeoSmart();
     const pathname = usePathname();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -37,7 +37,7 @@ export default function NotificationBell() {
 
     const fetchNotifications = async (signal?: AbortSignal) => {
         // 🛡️ Pre-emptive checks to avoid 401
-        if (!user) return;
+        if (!user || isLoading) return;
 
         // Don't fetch on public auth pages
         if (pathname === '/signin' || pathname === '/signup') return;
@@ -50,10 +50,12 @@ export default function NotificationBell() {
         }
 
         const supabase = createClient();
-        // Use a more thorough check: getSession() then verify user existence
-        const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session || !session.user || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
+        // 🛡️ Final and strongest check: only fetch if session is absolutely valid
+        // and avoid triggering internal fetch loops if tokens are missing
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError || !session || !session.user || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
             setNotifications([]);
             setUnreadCount(0);
             return;
@@ -105,7 +107,7 @@ export default function NotificationBell() {
             setNotifications([]);
             setUnreadCount(0);
         }
-    }, [user, pathname, isOpen]); // Re-fetch on open for freshness
+    }, [user, pathname, isOpen, isLoading]); // Add isLoading to prevent early calls
 
     const markAsRead = async (id?: string) => {
         try {
