@@ -10,7 +10,7 @@ export const i18n: Record<Locale, {
         format: { title: string; desc: string };
         speed: { title: string; desc: string };
     };
-    pricingRule: { title: string; base: string; extra: string };
+    pricingRule: { title: string; base: string; extra: string; guestBadge: string };
     pricingPage: {
         hero: { title: string; highlight: string; subtitle: string; };
         tiers: {
@@ -66,7 +66,7 @@ export const i18n: Record<Locale, {
         tierBronze: string;
         tierSilver: string;
         tierGold: string;
-        proAccount: string;
+        memberLogin: string;
     };
     community: {
         title: string;
@@ -184,7 +184,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "합리적인 포인트 정책",
             base: "기본 5P (최대 2페이지)",
-            extra: "3페이지부터 페이지당 2P 추가"
+            extra: "3페이지부터 페이지당 2P 추가",
+            guestBadge: "GUEST: 2페이지 무료"
         },
         selector: "도착 언어 선택",
         selectorLabel: "번역할 언어 선택",
@@ -219,7 +220,7 @@ export const i18n: Record<Locale, {
             tierBronze: "브론즈",
             tierSilver: "실버",
             tierGold: "골드",
-            proAccount: "프로페셔널 계정",
+            memberLogin: "회원 로그인",
         },
         auth: {
             signinTitle: "로그인",
@@ -318,7 +319,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "Pricing Policy",
             base: "Base 5P (up to 2p)",
-            extra: "+2P/page from p.3"
+            extra: "+2P/page from p.3",
+            guestBadge: "GUEST: 2P FREE"
         },
         selector: "Target Language",
         selectorLabel: "Select Target Language",
@@ -353,7 +355,7 @@ export const i18n: Record<Locale, {
             tierBronze: "BRONZE",
             tierSilver: "SILVER",
             tierGold: "GOLD",
-            proAccount: "PROFESSIONAL ACCOUNT",
+            memberLogin: "MEMBER LOGIN",
         },
         auth: {
             signinTitle: "Sign In",
@@ -451,7 +453,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "ポイント規定",
             base: "基本 5P (2ページまで)",
-            extra: "3ページから+2P/ページ"
+            extra: "3ページから+2P/ページ",
+            guestBadge: "ゲスト: 2ページ無料"
         },
         selector: "翻訳言語を選択",
         selectorLabel: "翻訳言語を選択してください",
@@ -486,7 +489,7 @@ export const i18n: Record<Locale, {
             tierBronze: "ブロンズ",
             tierSilver: "シルバー",
             tierGold: "ゴールド",
-            proAccount: "プロフェッショナルアカウント",
+            memberLogin: "会員ログイン",
         },
         auth: {
             signinTitle: "ログイン",
@@ -584,7 +587,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "积分政策",
             base: "基础 5P (最多 2页)",
-            extra: "从第 3页起 每页增加 2P"
+            extra: "从第 3页起 每页增加 2P",
+            guestBadge: "访客：2页免费"
         },
         selector: "选择目标语言",
         selectorLabel: "请选择目标语言",
@@ -619,7 +623,7 @@ export const i18n: Record<Locale, {
             tierBronze: "青铜",
             tierSilver: "白银",
             tierGold: "黄金",
-            proAccount: "专业账户",
+            memberLogin: "会员登录",
         },
         auth: {
             signinTitle: "登录",
@@ -717,7 +721,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "Política de puntos",
             base: "Base 5P (hasta 2 pág.)",
-            extra: "+2P por cada pág. adicional"
+            extra: "+2P por cada pág. adicional",
+            guestBadge: "INVITADO: 2 PÁG. GRATIS"
         },
         selector: "Idioma de destino",
         selectorLabel: "Seleccionar idioma de destino",
@@ -752,7 +757,7 @@ export const i18n: Record<Locale, {
             tierBronze: "BRONCE",
             tierSilver: "PLATA",
             tierGold: "ORO",
-            proAccount: "CUENTA PROFESIONAL",
+            memberLogin: "ACCESSO MIEMBROS",
         },
         auth: {
             signinTitle: "Sign In",
@@ -804,7 +809,8 @@ export const i18n: Record<Locale, {
         pricingRule: {
             title: "Politique de points",
             base: "Base 5P (jusqu'à 2 p.)",
-            extra: "+2P par p. supplémentaire"
+            extra: "+2P par p. supplémentaire",
+            guestBadge: "INVITÉ : 2 P. GRATUITES"
         },
         pricingPage: {
             hero: { title: "CHOISISSEZ VOTRE", highlight: "NIVEAU DE PUISSANCE", subtitle: "Développez votre communication mondiale avec notre moteur de traduction IA haute fidélité." },
@@ -885,7 +891,7 @@ export const i18n: Record<Locale, {
             tierBronze: "BRONZE",
             tierSilver: "ARGENT",
             tierGold: "OR",
-            proAccount: "COMPTE PROFESSIONNEL",
+            memberLogin: "ACCÈS MEMBRE",
         },
         auth: {
             signinTitle: "Sign In",

@@ -239,7 +239,7 @@ export default function SignInPage() {
                                 <span className="w-full border-t border-white/5" />
                             </div>
                             <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-                                <span className="bg-[#141414] px-3 text-gray-500">{t.nav.proAccount}</span>
+                                <span className="bg-[#141414] px-3 text-gray-500 italic">{t.nav.memberLogin}</span>
                             </div>
                         </div>
 

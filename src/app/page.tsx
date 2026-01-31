@@ -299,9 +299,10 @@ export default function HomePage() {
                             </div>
                         </div>
                         <div className="hidden sm:block h-8 w-px bg-zinc-200 dark:bg-zinc-800" />
-                        <div className="flex flex-row sm:flex-col gap-2 sm:gap-1 items-center sm:items-end w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-200 dark:border-zinc-800">
-                            <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-[10px] font-bold text-blue-600">PRO: UNLIMITED</span>
-                            <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-bold text-zinc-500">GUEST: 2P FREE</span>
+                        <div className="flex items-center sm:items-end w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-200 dark:border-zinc-800">
+                            <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-bold text-zinc-500 uppercase tracking-tighter shadow-sm border border-zinc-200/50 dark:border-zinc-700/50 whitespace-nowrap">
+                                {t.pricingRule.guestBadge}
+                            </span>
                         </div>
                     </div>
                 </motion.div>
