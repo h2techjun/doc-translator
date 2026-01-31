@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { OfficeTranslationEngine } from '@/lib/translation/engine';
+import { POINT_COSTS } from '@/lib/payment/types';
+import { PointManager } from '@/lib/payment/point-manager';
 // import { CreditManager } from '@/lib/payment/credit-manager';
 // import { CREDIT_COSTS } from '@/lib/payment/types';
 
@@ -37,16 +39,6 @@ export async function POST(
             return NextResponse.json({ error: '작업을 찾을 수 없습니다.' }, { status: 404 });
         }
 
-        // [수익화] Credit 차감 (Auth 연동 후 활성화)
-        // const { data: { user } } = await supabase.auth.getUser();
-        // if (user) { ... deductCredits ... }
-
-        // 상태 업데이트
-        await supabase
-            .from('translation_jobs')
-            .update({ status: 'PROCESSING', progress: 10 })
-            .eq('id', jobId);
-
         // 2. 파일 다운로드
         const { data: fileData, error: downloadError } = await supabase
             .storage
@@ -58,6 +50,41 @@ export async function POST(
         }
 
         const fileBuffer = Buffer.from(await fileData.arrayBuffer());
+
+        // 5. [수익화] 페이지 수 감지 및 포인트 차감
+        const extension = job.original_filename.split('.').pop()?.toLowerCase() || '';
+        const pageCount = await OfficeTranslationEngine.getPageCount(fileBuffer, extension);
+
+        let pointsToDeduct = POINT_COSTS.BASE_COST;
+        if (pageCount > POINT_COSTS.BASE_PAGES) {
+            pointsToDeduct += (pageCount - POINT_COSTS.BASE_PAGES) * POINT_COSTS.ADDITIONAL_PAGE_COST;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+            const success = await PointManager.usePoints(
+                user.id,
+                pointsToDeduct,
+                `${job.original_filename} Drive 번역 (${pageCount}p)`
+            );
+
+            if (!success) {
+                throw new Error('포인트가 부족합니다. 광고 시청이나 충전을 통해 포인트를 획득하세요.');
+            }
+        } else {
+            // Guest mode limit check
+            if (pageCount > POINT_COSTS.BASE_PAGES) {
+                throw new Error(`게스트 모드에서는 최대 ${POINT_COSTS.BASE_PAGES}페지만 무료 번역이 가능합니다. 대용량 문서는 로그인해 주세요.`);
+            }
+            console.log(`Guest Drive translation free tier: ${job.original_filename} (${pageCount}p)`);
+        }
+
+        // 상태 업데이트
+        await supabase
+            .from('translation_jobs')
+            .update({ status: 'PROCESSING', progress: 10 })
+            .eq('id', jobId);
 
         // 3. 번역 엔진 구동
         const result = await OfficeTranslationEngine.translateFile(

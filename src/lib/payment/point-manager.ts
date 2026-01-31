@@ -27,7 +27,14 @@ export class PointManager {
             .single();
 
         if (error || !data) {
-            throw new Error(`프로필 정보를 찾을 수 없습니다: ${error?.message}`);
+            // 🚨 Fallback: 프로필이 없는 경우 기본값 반환
+            console.warn(`[PointManager] Profile not found for ${userId}. Using defaults.`);
+            return {
+                userId,
+                points: 0,
+                tier: 'BRONZE',
+                totalTranslations: 0
+            };
         }
 
         return {

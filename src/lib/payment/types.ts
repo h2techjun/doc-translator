@@ -17,8 +17,9 @@ export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED';
 
 // 포인트 비용 정의
 export const POINT_COSTS = {
-    TRANSLATION_BASE: 5,        // 번역당 기본 5포인트
-    TRANSLATION_EXTRA: 1,      // 대용량 추가 포인트
+    BASE_PAGES: 2,              // 기본 제공 페이지
+    BASE_COST: 5,               // 기본 5포인트
+    ADDITIONAL_PAGE_COST: 2,   // 3페이지부터 페이지당 2포인트
 } as const;
 
 // 사용자 포인트 정보 인터페이스

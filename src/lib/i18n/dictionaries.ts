@@ -12,6 +12,7 @@ export const i18n: Record<Locale, {
         format: { title: string; desc: string };
         speed: { title: string; desc: string };
     };
+    pricingRule: { title: string; base: string; extra: string };
     selector: string;
     selectorLabel: string;
     button: { translate: string };
@@ -98,6 +99,11 @@ export const i18n: Record<Locale, {
             compatibility: { title: "완벽한 호환성", desc: "Microsoft Office 문서(Word, Excel, PPT)를 포맷 변환 없이 원본 그대로 처리합니다." },
             format: { title: "서식 100% 보존", desc: "표, 차트, 스타일이 깨지지 않습니다. 디자이너가 작업한 듯 깔끔합니다." },
             speed: { title: "압도적인 속도", desc: "대용량 문서도 수초 내에 분석하고 번역을 완료합니다." }
+        },
+        pricingRule: {
+            title: "합리적인 포인트 정책",
+            base: "기본 5P (최대 2페이지)",
+            extra: "3페이지부터 페이지당 2P 추가"
         },
         selector: "도착 언어 선택",
         selectorLabel: "번역할 언어 선택",
@@ -186,6 +192,11 @@ export const i18n: Record<Locale, {
             format: { title: "Zero Layout Shift", desc: "Tables, charts, and styles stay perfectly aligned." },
             speed: { title: "Lightning Fast", desc: "Optimized engine processes huge files in seconds." }
         },
+        pricingRule: {
+            title: "Pricing Policy",
+            base: "Base 5P (up to 2p)",
+            extra: "+2P/page from p.3"
+        },
         selector: "Target Language",
         selectorLabel: "Select Target Language",
         button: { translate: "Start Translation" },
@@ -272,6 +283,11 @@ export const i18n: Record<Locale, {
             compatibility: { title: "完全な互換性", desc: "Office文書からHWPまで、フォーマット変換なしでそのまま処理します。" },
             format: { title: "レイアウト崩れなし", desc: "表、グラフ、スタイルが崩れません。デザイナーが作業したように綺麗です。" },
             speed: { title: "圧倒的なスピード", desc: "大容量の文書も数秒で分析し、翻訳を完了します。" }
+        },
+        pricingRule: {
+            title: "ポイント規定",
+            base: "基本 5P (2ページまで)",
+            extra: "3ページから+2P/ページ"
         },
         selector: "翻訳言語を選択",
         selectorLabel: "翻訳言語を選択してください",
@@ -360,6 +376,11 @@ export const i18n: Record<Locale, {
             format: { title: "零布局偏移", desc: "表格、图表和样式保持完美对齐。就像设计师制作的一样整洁。" },
             speed: { title: "极速处理", desc: "优化引擎在几秒钟内处理大文件。" }
         },
+        pricingRule: {
+            title: "积分政策",
+            base: "基础 5P (最多 2页)",
+            extra: "从第 3页起 每页增加 2P"
+        },
         selector: "选择目标语言",
         selectorLabel: "请选择目标语言",
         button: { translate: "开始翻译" },
@@ -446,6 +467,11 @@ export const i18n: Record<Locale, {
             compatibility: { title: "Tương thích hoàn hảo", desc: "Từ Office đến HWP, xử lý tệp gốc mà không cần chuyển đổi." },
             format: { title: "Không vỡ bố cục", desc: "Bảng, biểu đồ và kiểu chữ được giữ nguyên hoàn hảo." },
             speed: { title: "Tốc độ cực nhanh", desc: "Công cụ tối ưu hóa xử lý các tệp lớn chỉ trong vài giây." }
+        },
+        pricingRule: {
+            title: "Chính sách điểm",
+            base: "Cơ bản 5P (đến 2 trang)",
+            extra: "Thêm 2P mỗi trang từ trang 3"
         },
         selector: "Chọn ngôn ngữ đích",
         selectorLabel: "Chọn ngôn ngữ mục tiêu",
@@ -534,6 +560,11 @@ export const i18n: Record<Locale, {
             format: { title: "Diseño Perfecto", desc: "Tablas y gráficos mantienen su alineación exacta." },
             speed: { title: "Ultrarrápido", desc: "Motor optimizado para procesar archivos grandes en segundos." }
         },
+        pricingRule: {
+            title: "Política de puntos",
+            base: "Base 5P (hasta 2 pág.)",
+            extra: "+2P por cada pág. adicional"
+        },
         selector: "Idioma de destino",
         selectorLabel: "Seleccionar idioma de destino",
         button: { translate: "Traducir ahora" },
@@ -616,6 +647,11 @@ export const i18n: Record<Locale, {
         title: { main: "Le format reste,", highlight: "La langue change." },
         description: "Traduisez des documents complexes sans perdre la mise en page.\nL'IA comprend le contexte pour une traduction naturelle.",
         dropzone: { idle: "Déposez votre fichier ici", sub: "ou cliquez pour parcourir", support: "Supporte DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Politique de points",
+            base: "Base 5P (jusqu'à 2 p.)",
+            extra: "+2P par p. supplémentaire"
+        },
         features: {
             compatibility: { title: "Support Natif", desc: "Traitement direct des fichiers Office et HWP." },
             format: { title: "Mise en page intacte", desc: "Tableaux et images restent parfaitement alignés." },
@@ -703,6 +739,11 @@ export const i18n: Record<Locale, {
         title: { main: "Format bleibt,", highlight: "Sprache wechselt." },
         description: "Übersetzen Sie Dokumente mit komplexen Tabellen ohne Layoutverlust.\nKI versteht den Kontext für natürliche Übersetzungen.",
         dropzone: { idle: "Datei hier ablegen", sub: "oder klicken zum Auswählen", support: "Unterstützt DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Punkte-Regelung",
+            base: "Basis 5P (bis 2 S.)",
+            extra: "+2P pro weitere S."
+        },
         features: {
             compatibility: { title: "Native Unterstützung", desc: "Direkte Verarbeitung von Office und HWP Dateien." },
             format: { title: "Perfektes Layout", desc: "Tabellen und Grafiken bleiben exakt ausgerichtet." },
@@ -790,12 +831,17 @@ export const i18n: Record<Locale, {
         title: { main: "Формат тот же,", highlight: "Язык новый." },
         description: "Переводите сложные документы без потери верстки.\nИИ понимает контекст для естественного перевода.",
         dropzone: { idle: "Перетащите файл сюда", sub: "или нажмите для выбора", support: "Поддержка DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Правила поинтов",
+            base: "5P за 2 стр. (базово)",
+            extra: "+2P за каждую доп. стр."
+        },
         features: {
             compatibility: { title: "Нативная поддержка", desc: "Работаем с Office и HWP напрямую без конвертации." },
             format: { title: "Идеальная верстка", desc: "Таблицы и изображения остаются на своих местах." },
             speed: { title: "Мгновенно", desc: "Обработка больших файлов за секунды." }
         },
-        selector: "Целевой язык",
+        selector: "Выберите язык",
         selectorLabel: "Выберите целевой язык",
         button: { translate: "Перевести" },
         time: { estimated: "Осталось", seconds: "сек" },
@@ -877,6 +923,11 @@ export const i18n: Record<Locale, {
         title: { main: "Formato mantido,", highlight: "Idioma transformado." },
         description: "Traduza documentos complexos sem quebrar o layout.\nIA entende o contexto para a tradução mais natural.",
         dropzone: { idle: "Arraste seu arquivo aqui", sub: "ou clique para selecionar", support: "Suporta DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Política de pontos",
+            base: "Base 5P (até 2 pág.)",
+            extra: "+2P por pág. adicional"
+        },
         features: {
             compatibility: { title: "Suporte Nativo", desc: "Processamos arquivos Office e HWP diretamente." },
             format: { title: "Layout Perfeito", desc: "Tabelas e imagens permanecem perfeitamente alinhadas." },
@@ -964,6 +1015,11 @@ export const i18n: Record<Locale, {
         title: { main: "Il formato resta,", highlight: "La lingua cambia." },
         description: "Traduci documenti complessi mantenendo il layout originale.\nL'IA capisce il contesto per una traduzione naturale.",
         dropzone: { idle: "Trascina qui il file", sub: "o clicca per selezionare", support: "Supporta DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Politica punti",
+            base: "Base 5P (fino a 2 pag.)",
+            extra: "+2P per pag. extra"
+        },
         features: {
             compatibility: { title: "Supporto Nativo", desc: "Processiamo file Office e HWP direttamente." },
             format: { title: "Layout Perfetto", desc: "Tabelle e grafici rimangono perfettamente allineati." },
@@ -1051,12 +1107,17 @@ export const i18n: Record<Locale, {
         title: { main: "Format Tetap,", highlight: "Bahasa Berubah." },
         description: "Terjemahkan dokumen kompleks tanpa merusak tata letak.\nAI memahami konteks untuk terjemahan yang alami.",
         dropzone: { idle: "Letakkan file di sini", sub: "atau klik untuk memilih", support: "Mendukung DOCX, XLSX, PPTX, HWP" },
+        pricingRule: {
+            title: "Kebijakan Poin",
+            base: "Dasar 5P (hingga 2 hal.)",
+            extra: "+2P per hal. tambahan"
+        },
         features: {
             compatibility: { title: "Dukungan Asli", desc: "Memproses file Office dan HWP secara langsung." },
             format: { title: "Tata Letak Sempurna", desc: "Tabel dan gambar tetap rapi pada tempatnya." },
             speed: { title: "Super Cepat", desc: "Mesin yang dioptimalkan memproses file besar dalam hitungan detik." }
         },
-        selector: "Bahasa Target",
+        selector: "Pilih bahasa tujuan",
         selectorLabel: "Pilih Bahasa Target",
         button: { translate: "Mulai Terjemahan" },
         time: { estimated: "Estimasi waktu", seconds: "detik" },
@@ -1142,6 +1203,11 @@ export const i18n: Record<Locale, {
             compatibility: { title: "รองรับโดยตรง", desc: "จัดการไฟล์ Office และ HWP ได้โดยไม่ต้องแปลงไฟล์" },
             format: { title: "จัดหน้าเป๊ะ", desc: "ตารางและรูปภาพยังคงจัดวางอย่างถูกต้อง" },
             speed: { title: "รวดเร็วทันใจ", desc: "ประมวลผลไฟล์ขนาดใหญ่ได้ในไม่กี่วินาที" }
+        },
+        pricingRule: {
+            title: "นโยบายราคา",
+            base: "พื้นฐาน 5P (สูงสุด 2 หน้า)",
+            extra: "+2P ต่อหน้าตั้งแต่หน้าที่ 3"
         },
         selector: "ภาษาปลายทาง",
         selectorLabel: "เลือกภาษาปลายทาง",
@@ -1230,6 +1296,11 @@ export const i18n: Record<Locale, {
             format: { title: "Kusursuz Düzen", desc: "Tablolar ve görseller yerli yerinde kalır." },
             speed: { title: "Yıldırım Hızı", desc: "Büyük dosyaları saniyeler içinde işler." }
         },
+        pricingRule: {
+            title: "Fiyat Politikası",
+            base: "Temel 5P (2 sayfaya kadar)",
+            extra: "3. sayfadan itibaren sayfa başı +2P"
+        },
         selector: "Hedef Dil",
         selectorLabel: "Hedef Dili Seçin",
         button: { translate: "Çeviriye Başla" },
@@ -1317,6 +1388,11 @@ export const i18n: Record<Locale, {
             format: { title: "Układ Idealny", desc: "Tabele i obrazy pozostają na swoim miejscu." },
             speed: { title: "Błyskawicznie", desc: "Zoptymalizowany silnik przetwarza duże pliki w sekundy." }
         },
+        pricingRule: {
+            title: "Polityka cenowa",
+            base: "Podstawa 5P (do 2 str.)",
+            extra: "+2P za każdą dod. str."
+        },
         selector: "Język docelowy",
         selectorLabel: "Wybierz język docelowy",
         button: { translate: "Rozpocznij tłumaczenie" },
@@ -1397,12 +1473,17 @@ export const i18n: Record<Locale, {
     nl: {
         badge: "100% Formaatbehoud",
         title: { main: "Opmaak blijft,", highlight: "Taal verandert." },
-        description: "Vertaal complexe documenten zonder lay-outverlies.\nAI begrijpt context voor de meest natuurlijke vertaling.",
+        description: "Vertaal complexe documenten zonder lay-outverlies.\nAI begrijpt context voor de meest naturelle vertaling.",
         dropzone: { idle: "Sleep je bestand hierheen", sub: "of klik om te selecteren", support: "Ondersteunt DOCX, XLSX, PPTX, HWP" },
         features: {
             compatibility: { title: "Native Ondersteuning", desc: "Directe verwerking van Office en HWP bestanden." },
             format: { title: "Perfecte Lay-out", desc: "Tabellen en afbeeldingen blijven perfect uitgelijnd." },
             speed: { title: "Razendsnel", desc: "Geoptimaliseerde engine verwerkt grote bestanden in seconden." }
+        },
+        pricingRule: {
+            title: "Prijsbeleid",
+            base: "Basis 5P (tot 2 pag.)",
+            extra: "+2P per extra pag."
         },
         selector: "Doeltaal",
         selectorLabel: "Selecteer doeltaal",
@@ -1491,7 +1572,12 @@ export const i18n: Record<Locale, {
             format: { title: "تخطيط مثالي", desc: "الجداول والصور تبقى في مكانها الصحيح." },
             speed: { title: "سرعة البرق", desc: "محرك محسن يعالج الملفات الكبيرة في ثوانٍ." }
         },
-        selector: "الغة الهدف",
+        pricingRule: {
+            title: "سياسة التسعير",
+            base: "أساسي 5P (حتى 2 صفحة)",
+            extra: "+2P لكل صفحة إضافية"
+        },
+        selector: "Target Language",
         selectorLabel: "اختر اللغة الهدف",
         button: { translate: "ابدأ الترجمة" },
         time: { estimated: "الوقت المقدر", seconds: "ثانية" },
@@ -1578,7 +1664,12 @@ export const i18n: Record<Locale, {
             format: { title: "सही लेआउट", desc: "टेबल और चित्र बिल्कुल सही जगह पर रहते हैं।" },
             speed: { title: "बिजली की गति", desc: "बड़े फाइलों को सेकंडों में प्रोसेस करता है।" }
         },
-        selector: "लक्षित भाषा",
+        pricingRule: {
+            title: "मूल्य निर्धारण नीति",
+            base: "आधार 5P (2 पृष्ठों तक)",
+            extra: "तीसरे पृष्ठ से +2P प्रति पृष्ठ"
+        },
+        selector: "Target Language",
         selectorLabel: "लक्षित भाषा चुनें",
         button: { translate: "अनुवाद शुरू करें" },
         time: { estimated: "अनुमानित समय", seconds: "सेकंड" },
@@ -1606,7 +1697,7 @@ export const i18n: Record<Locale, {
             loggedOut: "लॉगआउट सफल।",
             backToUpload: "वापस",
             local: "स्थानीय अपलोड",
-            cloud: "क्लाउड चयन",
+            cloud: "클라우드 선택",
             brandName: "DocTranslation",
             tierBronze: "कांस्य",
             tierSilver: "चांदी",
@@ -1665,7 +1756,12 @@ export const i18n: Record<Locale, {
             format: { title: "নিখুঁত লেআউট", desc: "টেবিল এবং ছবি ঠিক জায়গায় থাকে।" },
             speed: { title: "বিদ্যুত গতি", desc: "বড় ফাইল সেকেন্ডের মধ্যে প্রসেস করে।" }
         },
-        selector: "টার্গেট ভাষা",
+        pricingRule: {
+            title: "মূল্য নির্ধারণ নীতি",
+            base: "ভিত্তি 5P (২ পৃষ্ঠা পর্যন্ত)",
+            extra: "৩য় পৃষ্ঠা থেকে পৃষ্ঠা প্রতি +2P"
+        },
+        selector: "Target Language",
         selectorLabel: "টার্গেট ভাষা নির্বাচন করুন",
         button: { translate: "অনুবাদ শুরু করুন" },
         time: { estimated: "আনুমানিক সময়", seconds: "সেকেন্ড" },
@@ -1751,6 +1847,11 @@ export const i18n: Record<Locale, {
             compatibility: { title: "Sokongan Asli", desc: "Memproses fail Office dan HWP secara terus." },
             format: { title: "Susun Atur Sempurna", desc: "Jadual dan imej kekal di tempat asalnya." },
             speed: { title: "Pantas Kilat", desc: "Enjin dioptimumkan memproses fail besar dalam saat." },
+        },
+        pricingRule: {
+            title: "Polisi Harga",
+            base: "Asas 5P (sehingga 2 ms)",
+            extra: "+2P setiap ms tambahan"
         },
         selector: "Bahasa Sasaran",
         selectorLabel: "Pilih Bahasa Sasaran",

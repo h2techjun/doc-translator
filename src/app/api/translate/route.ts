@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OfficeTranslationEngine } from '@/lib/translation/engine';
 import { createClient } from '@/lib/supabase/server';
+import { POINT_COSTS } from '@/lib/payment/types';
+import { PointManager } from '@/lib/payment/point-manager';
 
 export async function POST(req: NextRequest) {
     try {
@@ -13,17 +15,29 @@ export async function POST(req: NextRequest) {
         }
 
         // 1. Auth & Points Check
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const extension = file.name.split('.').pop()?.toLowerCase() || '';
+
+        // 🌟 [POINT CALCULATION LOGIC]
+        // 5 points for first 2 pages + 2 points per additional page.
+        const pageCount = await OfficeTranslationEngine.getPageCount(buffer, extension);
+
+        let pointsToDeduct = POINT_COSTS.BASE_COST;
+        if (pageCount > POINT_COSTS.BASE_PAGES) {
+            pointsToDeduct += (pageCount - POINT_COSTS.BASE_PAGES) * POINT_COSTS.ADDITIONAL_PAGE_COST;
+        }
+
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         // 🌟 [GUEST MODE SUPPORT]
-        // If logged in, deduct points. If guest, allow free translation (monetized via ads on the frontend).
+        // Guests: Up to 2 pages free (ad-monetized). More than 2 pages? Login required.
         if (user) {
-            const { PointManager } = await import('@/lib/payment/point-manager');
             const success = await PointManager.usePoints(
                 user.id,
-                5,
-                `${file.name} 번역 (${targetLang})`
+                pointsToDeduct,
+                `${file.name} 번역 (${pageCount}p, ${targetLang})`
             );
 
             if (!success) {
@@ -33,13 +47,17 @@ export async function POST(req: NextRequest) {
                 }, { status: 403 });
             }
         } else {
-            // Guest mode: Logging or rate limiting can be added here if needed.
-            console.log(`Guest translation request for file: ${file.name}`);
+            // Guest mode limit check
+            if (pageCount > POINT_COSTS.BASE_PAGES) {
+                return NextResponse.json({
+                    error: `게스트 모드에서는 최대 ${POINT_COSTS.BASE_PAGES}페지만 무료 번역이 가능합니다. 대용량 문서는 로그인해 주세요.`,
+                    isAuthError: true
+                }, { status: 403 });
+            }
+            console.log(`Guest translation request (Free): ${file.name} (${pageCount}p)`);
         }
 
-        // 2. Buffer Conversion
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        // 2. Buffer Conversion (Already done above)
 
         // 3. Translation Engine Execution
         // @The-Nerd: Engine handles DOCX, XLSX, PPTX, HWP
@@ -74,7 +92,11 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json(
-            { error: error.message || 'Translation failed' },
+            {
+                error: error.message || 'Translation failed',
+                cause: error.cause,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
             { status: 500 }
         );
     }

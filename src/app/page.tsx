@@ -255,9 +255,9 @@ export default function HomePage() {
                         <span className="text-muted-foreground">{t.badge}</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-1.1">
+                    <h1 className="text-4xl xs:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.15] md:leading-[1.1]">
                         {t.title.main}<br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 dark:from-indigo-400 dark:via-blue-400 dark:to-cyan-300 animate-gradient-x">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 dark:from-indigo-400 dark:via-blue-400 dark:to-cyan-300 animate-gradient-x px-1">
                             {t.title.highlight}
                         </span>
                     </h1>
@@ -265,6 +265,26 @@ export default function HomePage() {
                     <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
                         {t.description}
                     </p>
+
+                    {/* ✨ Pricing Policy Banner */}
+                    <div className="mt-8 bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{t.pricingRule.title}</h3>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                                    {t.pricingRule.base} + {t.pricingRule.extra}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="hidden sm:block h-8 w-px bg-zinc-200 dark:bg-zinc-800" />
+                        <div className="flex flex-row sm:flex-col gap-2 sm:gap-1 items-center sm:items-end w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-200 dark:border-zinc-800">
+                            <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-[10px] font-bold text-blue-600">PRO: UNLIMITED</span>
+                            <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-bold text-zinc-500">GUEST: 2P FREE</span>
+                        </div>
+                    </div>
                 </motion.div>
 
                 {/* Persistent Game Ad Area (Always Visible) */}
@@ -362,24 +382,34 @@ export default function HomePage() {
                                 </div>
                             </div>
 
-                            {/* Floating Icons Decoration */}
-                            <FileText className="absolute top-10 left-10 w-8 h-8 text-blue-500/10 dark:text-blue-500/20 -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
-                            <FileSpreadsheet className="absolute bottom-10 right-10 w-8 h-8 text-green-500/10 dark:text-green-500/20 rotate-12 group-hover:rotate-45 transition-transform duration-500" />
+                            {/* Floating Icons Decoration - Hidden on mobile to avoid overlap */}
+                            <FileText className="absolute top-10 left-10 w-8 h-8 text-blue-500/10 dark:text-blue-500/20 -rotate-12 group-hover:-rotate-45 transition-transform duration-500 hidden sm:block" />
+                            <FileSpreadsheet className="absolute bottom-10 right-10 w-8 h-8 text-green-500/10 dark:text-green-500/20 rotate-12 group-hover:rotate-45 transition-transform duration-500 hidden sm:block" />
                         </div>
                     ) : status === 'ready' ? (
                         <div className="relative w-full rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-8 flex flex-col items-center animate-in zoom-in-95 duration-300">
                             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
                                 <FileText className="w-8 h-8" />
                             </div>
-                            <h2 className="text-2xl font-bold mb-2">{file?.name || driveFile?.name}</h2>
+                            <h2 className="text-xl sm:text-2xl font-bold mb-2 break-all px-4 text-center">{file?.name || driveFile?.name}</h2>
                             <p className="text-muted-foreground mb-8">
                                 {((file?.size || driveFile?.sizeBytes || 0) / 1024 / 1024).toFixed(2)} MB
                                 {estimation.estimatedSeconds > 0 && (
-                                    <span className="ml-2 text-blue-500 font-medium">
+                                    <span className="ml-2 text-blue-500 font-medium italic">
                                         (Est. {estimation.estimatedSeconds}s)
                                     </span>
                                 )}
                             </p>
+
+                            {/* Estimated Point Cost */}
+                            {file && (
+                                <div className="mb-6 px-4 py-2 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg flex items-center gap-2">
+                                    <Zap className="w-4 h-4 text-blue-600 fill-current" />
+                                    <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                        Point Requirement: <span className="underline underline-offset-4 decoration-blue-500/30">Dynamic (Based on Page Count)</span>
+                                    </span>
+                                </div>
+                            )}
 
                             <button
                                 onClick={handleTranslate}
@@ -405,21 +435,30 @@ export default function HomePage() {
                                 errorMessage={errorMessage}
                                 onDownload={() => {
                                     if (downloadUrl) {
-                                        // Use Proxy API for reliable download with correct filename
-                                        const proxyUrl = `/api/download?url=${encodeURIComponent(downloadUrl)}&filename=${encodeURIComponent(resultFileName)}`;
-
-                                        const a = document.createElement('a');
-                                        a.href = proxyUrl;
-                                        // a.download attribute is not needed when using the proxy, as the server sends Content-Disposition
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        document.body.removeChild(a);
+                                        // 🛑 BLOB URL vs REMOTE URL 처리 분기
+                                        // blob URL(로컬 업로드 결과)은 브라우저 메모리에 있으므로 서버 프록시가 접근할 수 없음.
+                                        if (downloadUrl.startsWith('blob:')) {
+                                            const a = document.createElement('a');
+                                            a.href = downloadUrl;
+                                            a.download = resultFileName; // 직접 다운로드 시 파일명 지정
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                        } else {
+                                            // 원격 URL(드라이브 번역 등)은 프록시 사용하여 파일명 강제 및 CORS 우회
+                                            const proxyUrl = `/api/download?url=${encodeURIComponent(downloadUrl)}&filename=${encodeURIComponent(resultFileName)}`;
+                                            const a = document.createElement('a');
+                                            a.href = proxyUrl;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                        }
 
                                         // Reset state after download
                                         setStatus('idle');
                                         setProgress(0);
                                         setFile(null);
-                                        setDriveFile(null); // Clear drive file too
+                                        setDriveFile(null);
                                     }
                                 }}
                             />
