@@ -183,7 +183,7 @@ export default function PricingPage() {
                                 1. 포인트 정책 (Point Policy)
                             </h3>
                             <ul className="space-y-2 text-sm leading-relaxed">
-                                <li>• <b>신규 가입 리워드</b>: 최초 회원가입 시 <b>10P</b>가 즉시 지급됩니다.</li>
+                                <li>• <b>신규 가입 리워드</b>: 최초 회원가입 시 <b>50P</b>가 즉시 지급됩니다.</li>
                                 <li>• <b>기본 번역 비용</b>: 문서당 <b>5P</b>가 기본으로 소모됩니다 (2페이지 이내).</li>
                                 <li>• <b>추가 과금</b>: 3페이지부터는 페이지당 <b>2P</b>씩 추가 포인트가 필요합니다.</li>
                                 <li>• <b>게스트 모드</b>: 비회원은 2페이지까지만 무료 번역이 가능합니다.</li>
