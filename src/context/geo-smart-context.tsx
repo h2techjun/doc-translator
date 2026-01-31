@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { GEO_CONFIG, getGeoConfig, GeoConfig } from '@/lib/i18n/geo-config';
 import { i18n, Locale } from '@/lib/i18n/dictionaries';
-import { createClient } from '@/lib/supabase/config';
+import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 
 interface GeoSmartContextType {

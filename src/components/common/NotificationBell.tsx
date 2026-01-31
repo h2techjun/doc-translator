@@ -12,6 +12,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -26,11 +27,13 @@ interface Notification {
 }
 
 export default function NotificationBell() {
+    const { user } = useGeoSmart();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchNotifications = async () => {
+        if (!user) return; // Prevent 401: Don't fetch if not logged in
         try {
             const res = await fetch('/api/notifications');
             if (res.ok) {
@@ -44,13 +47,13 @@ export default function NotificationBell() {
     };
 
     useEffect(() => {
-        // Initial fetch
-        fetchNotifications();
-
-        // Polling every 60 seconds (Simple realtime alternative)
-        const interval = setInterval(fetchNotifications, 60000);
-        return () => clearInterval(interval);
-    }, []);
+        if (user) {
+            fetchNotifications();
+            // Polling every 60 seconds (Simple realtime alternative)
+            const interval = setInterval(fetchNotifications, 60000);
+            return () => clearInterval(interval);
+        }
+    }, [user]);
 
     const markAsRead = async (id?: string) => {
         try {
