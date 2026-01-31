@@ -2,11 +2,19 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    })
+    let response = NextResponse.next();
+
+    const pathname = request.nextUrl.pathname;
+
+    // ⚡ Fast-path: Skip middleware logic for static assets and internal Next.js paths
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.includes('.') ||
+        pathname === '/favicon.ico' ||
+        pathname.startsWith('/api/og')
+    ) {
+        return response;
+    }
 
     try {
         // Create Middleware Client

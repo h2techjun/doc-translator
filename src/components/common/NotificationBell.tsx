@@ -1,9 +1,8 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bell, Check } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -11,7 +10,6 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { formatDistanceToNow } from 'date-fns';
@@ -34,83 +32,60 @@ export default function NotificationBell() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
-    const [isSilenced, setIsSilenced] = useState(false); // 🔇 Silence after 401
-    const [hasAuthError, setHasAuthError] = useState(false); // 🚫 Stop all after 401
+    const [hasAuthError, setHasAuthError] = useState(false);
 
-    const fetchNotifications = async (signal?: AbortSignal) => {
-        // 🛡️ Pre-emptive checks to avoid 401
-        if (!user || isLoading || isSilenced || hasAuthError) return;
+    const fetchNotifications = useCallback(async () => {
+        // 🛡️ Pre-emptive checks
+        if (!user || isLoading || hasAuthError) return;
 
         // Don't fetch on public auth pages
         if (pathname === '/signin' || pathname === '/signup') return;
 
-        // Extra check: Ensure the actual auth cookie exists
-        if (typeof document !== 'undefined' && !document.cookie.includes('sb-')) {
-            setNotifications([]);
-            setUnreadCount(0);
-            return;
-        }
-
         const supabase = createClient();
 
-        // 🛡️ Final and strongest check: only fetch if session is absolutely valid
-        // and avoid triggering internal fetch loops if tokens are missing
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        if (sessionError || !session || !session.user || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
-            setNotifications([]);
-            setUnreadCount(0);
-            return;
-        }
-
         try {
-            const res = await fetch('/api/notifications', {
-                signal,
-                credentials: 'same-origin', // Ensure cookies are sent
-                headers: {
-                    'Cache-Control': 'no-cache',
-                }
-            });
+            // 🛡️ Verify session client-side first
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
 
-            if (res.status === 401) {
-                // 🔇 401 detected: Server likely doesn't have cookies yet.
-                // Silence and set error flag to stop further attempts.
-                setNotifications([]);
-                setUnreadCount(0);
-                setIsSilenced(true);
+            // 🚀 Direct fetch from Supabase
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (!error && data) {
+                setNotifications(data as Notification[]);
+
+                const { count } = await supabase
+                    .from('notifications')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', session.user.id)
+                    .eq('is_read', false);
+
+                setUnreadCount(count || 0);
+            } else if (error?.status === 401 || error?.message?.includes('JWT')) {
                 setHasAuthError(true);
-                return;
-            }
-
-            if (res.ok) {
-                const data = await res.json();
-                setNotifications(data.notifications || []);
-                setUnreadCount(data.unread_count || 0);
             }
         } catch (e) {
-            // Silently fail in dev/dev-poll to avoid console clutter
+            // Silent
         }
-    };
+    }, [user, pathname, isLoading, hasAuthError]);
 
     useEffect(() => {
-        const controller = new AbortController();
-
-        if (user && !isSilenced && !hasAuthError) {
-            // Delay initial fetch significantly to ensure session cookies are fully synced
+        if (user && !hasAuthError) {
+            // Initial delay to allow auth state to stabilize
             const timeout = setTimeout(() => {
-                if (!isLoading && user && !isSilenced && !hasAuthError) {
-                    fetchNotifications(controller.signal);
-                }
+                fetchNotifications();
             }, 3000);
 
             const interval = setInterval(() => {
-                if (!isLoading && user && !isSilenced && !hasAuthError) {
-                    fetchNotifications(controller.signal);
-                }
+                fetchNotifications();
             }, 60000);
 
             return () => {
-                controller.abort();
                 clearTimeout(timeout);
                 clearInterval(interval);
             };
@@ -118,15 +93,27 @@ export default function NotificationBell() {
             setNotifications([]);
             setUnreadCount(0);
         }
-    }, [user, pathname, isOpen, isLoading, isSilenced, hasAuthError]);
+    }, [user, pathname, hasAuthError, isLoading, fetchNotifications]);
 
     const markAsRead = async (id?: string) => {
+        const supabase = createClient();
         try {
-            await fetch('/api/notifications', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(id ? { id } : { all: true })
-            });
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            if (id) {
+                await supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('id', id)
+                    .eq('user_id', session.user.id);
+            } else {
+                await supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('user_id', session.user.id)
+                    .eq('is_read', false);
+            }
             fetchNotifications();
         } catch (e) {
             console.error(e);
@@ -162,14 +149,14 @@ export default function NotificationBell() {
                             {notifications.map((n) => (
                                 <div
                                     key={n.id}
-                                    className={`p-4 hover:bg-slate-800/50 transition-colors ${!n.is_read ? 'bg-slate-800/20' : ''}`}
+                                    className={`p-4 hover:bg-slate-800/50 transition-colors cursor-pointer ${!n.is_read ? 'bg-slate-800/40' : ''}`}
                                     onClick={() => !n.is_read && markAsRead(n.id)}
                                 >
                                     <div className="flex gap-3">
                                         <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${!n.is_read ? 'bg-blue-500' : 'bg-transparent'}`} />
                                         <div className="space-y-1">
                                             <p className="text-sm font-medium leading-none text-white">{n.title}</p>
-                                            <p className="text-xs text-slate-400 line-clamp-2">{n.message}</p>
+                                            <p className="text-xs text-slate-400 line-clamp-2 mt-1">{n.message}</p>
                                             <div className="flex justify-between items-center mt-2">
                                                 <span className="text-[10px] text-slate-600">
                                                     {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ko })}
