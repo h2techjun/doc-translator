@@ -70,11 +70,6 @@ export function Navbar() {
                         </Select>
                     </div>
 
-                    {/* Github Link */}
-                    <a href="https://github.com" target="_blank" rel="noreferrer" className="hidden sm:inline-flex p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                        <Github className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
-                    </a>
-
                     {/* Theme Toggle */}
                     <Button
                         variant="ghost"

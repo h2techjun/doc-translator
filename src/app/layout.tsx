@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { GeoSmartProvider } from "@/context/geo-smart-context";
-import { Navbar } from "@/components/layout/navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/footer";
 
 const inter = Inter({ subsets: ["latin"] });
