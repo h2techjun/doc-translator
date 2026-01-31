@@ -6,6 +6,7 @@ import { Globe, Github, Sun, Moon } from "lucide-react";
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { UserMenu } from './UserMenu';
 import { useTheme } from 'next-themes';
+import NotificationBell from '@/components/common/NotificationBell';
 import {
     Select,
     SelectContent,
@@ -81,6 +82,10 @@ export function Navbar() {
                         <Moon className="absolute h-[1.1rem] w-[1.1rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                         <span className="sr-only">Toggle theme</span>
                     </Button>
+
+                    <div className="hidden sm:block">
+                        <NotificationBell />
+                    </div>
 
                     {/* User Profile Hook */}
                     <UserMenu />
