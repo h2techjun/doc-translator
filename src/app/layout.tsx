@@ -8,8 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GoogleAnalytics } from '@next/third-parties/google';
-import Script from 'next/script';
+import { Suspense } from 'react';
 import AdSense from "@/components/ads/AdSense";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -52,17 +51,18 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GeoSmartProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <Suspense fallback={<div className="min-h-screen bg-white dark:bg-black" />}>
+              <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </Suspense>
             <Toaster richColors expand position="top-center" />
           </GeoSmartProvider>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ''} />
         <AdSense />
       </body>
     </html>

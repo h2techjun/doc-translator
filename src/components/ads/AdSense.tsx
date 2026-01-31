@@ -2,6 +2,11 @@
 
 import { useEffect } from 'react';
 
+/**
+ * 🛡️ Third Party Scripts Manager
+ * Handles AdSense, Funding Choices, and Google Analytics dynamically 
+ * to avoid Next.js's data-nscript and preload warnings.
+ */
 export default function AdSense() {
     useEffect(() => {
         // 1. Google AdSense
@@ -9,7 +14,6 @@ export default function AdSense() {
             const adsScript = document.createElement('script');
             adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8134930906845147';
             adsScript.async = true;
-            // Removed crossOrigin to match default browser preload mode if it exists
             document.head.appendChild(adsScript);
         }
 
@@ -21,7 +25,27 @@ export default function AdSense() {
             document.head.appendChild(fcScript);
         }
 
-        // 3. Signal Google FC Present
+        // 3. Google Analytics (gtag.js)
+        const gaId = 'G-W3S70Y9F7L'; // From NEXT_PUBLIC_GOOGLE_ANALYTICS
+        if (gaId && !document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)) {
+            // a. Base gtag script
+            const gaScript = document.createElement('script');
+            gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+            gaScript.async = true;
+            document.head.appendChild(gaScript);
+
+            // b. Config script
+            const configScript = document.createElement('script');
+            configScript.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${gaId}');
+      `;
+            document.head.appendChild(configScript);
+        }
+
+        // 4. Signal Google FC Present
         if (!window.frames['googlefcPresent']) {
             const signalScript = document.createElement('script');
             signalScript.id = 'google-fc-present-logic';

@@ -35,7 +35,7 @@ export default function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = async (signal?: AbortSignal) => {
         // 🛡️ Pre-emptive checks to avoid 401
         if (!user) return;
 
@@ -43,7 +43,6 @@ export default function NotificationBell() {
         if (pathname === '/signin' || pathname === '/signup') return;
 
         // Extra check: Ensure the actual auth cookie exists
-        // Supabase cookies usually start with 'sb-'
         if (typeof document !== 'undefined' && !document.cookie.includes('sb-')) {
             setNotifications([]);
             setUnreadCount(0);
@@ -51,25 +50,34 @@ export default function NotificationBell() {
         }
 
         const supabase = createClient();
+        // Use a more thorough check: getSession() then verify user existence
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
+        if (!session || !session.user || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
             setNotifications([]);
             setUnreadCount(0);
             return;
         }
 
         try {
-            const res = await fetch('/api/notifications');
+            const res = await fetch('/api/notifications', {
+                signal,
+                headers: {
+                    'Cache-Control': 'no-cache',
+                }
+            });
+
             if (res.status === 401) {
+                // Silently clear and stop if unauthorized
                 setNotifications([]);
                 setUnreadCount(0);
                 return;
             }
+
             if (res.ok) {
                 const data = await res.json();
-                setNotifications(data.notifications);
-                setUnreadCount(data.unread_count);
+                setNotifications(data.notifications || []);
+                setUnreadCount(data.unread_count || 0);
             }
         } catch (e) {
             // Silently fail in dev/dev-poll to avoid console clutter
@@ -77,15 +85,18 @@ export default function NotificationBell() {
     };
 
     useEffect(() => {
+        const controller = new AbortController();
+
         if (user) {
             // Delay initial fetch slightly to ensure session is ready
-            const timeout = setTimeout(fetchNotifications, 500);
+            const timeout = setTimeout(() => fetchNotifications(controller.signal), 800);
 
             const interval = setInterval(() => {
-                if (user) fetchNotifications();
+                if (user) fetchNotifications(controller.signal);
             }, 60000);
 
             return () => {
+                controller.abort();
                 clearTimeout(timeout);
                 clearInterval(interval);
             };
@@ -93,7 +104,7 @@ export default function NotificationBell() {
             setNotifications([]);
             setUnreadCount(0);
         }
-    }, [user]);
+    }, [user, pathname]);
 
     const markAsRead = async (id?: string) => {
         try {
