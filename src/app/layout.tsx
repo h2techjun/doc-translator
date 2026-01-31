@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,12 +42,21 @@ export default function RootLayout({
     <html lang="ko" translate="no" className="notranslate" suppressHydrationWarning>
       <head>
         <meta name="google" content="notranslate" />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8134930906845147" crossOrigin="anonymous"></script>
+        <Script
+          id="adsbygoogle-init"
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8134930906845147"
+          crossOrigin="anonymous"
+        />
         {/* Ad Block Recovery Scripts */}
-        <script async src="https://fundingchoicesmessages.google.com/i/pub-8134930906845147?ers=1"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();`
-        }} />
+        <Script
+          id="fundingchoices-init"
+          strategy="afterInteractive"
+          src="https://fundingchoicesmessages.google.com/i/pub-8134930906845147?ers=1"
+        />
+        <Script id="google-fc-present" strategy="afterInteractive">
+          {`(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();`}
+        </Script>
       </head>
       <body className={inter.className}>
         <ThemeProvider

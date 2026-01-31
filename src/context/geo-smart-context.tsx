@@ -102,16 +102,27 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
+        const supabase = createClient();
+
+        // 1. Initial User Fetch
         const fetchUser = async () => {
-            const supabase = createClient();
             const { data } = await supabase.auth.getUser();
             setUser(data.user);
         };
+
+        // 2. Auth State Listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
 
         if (!isInitialized) {
             detectGeo();
             fetchUser();
         }
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, [isInitialized]);
 
     const setUiLang = (lang: Locale) => {

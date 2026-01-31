@@ -33,9 +33,15 @@ export default function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchNotifications = async () => {
-        if (!user) return; // Prevent 401: Don't fetch if not logged in
+        if (!user) return;
         try {
             const res = await fetch('/api/notifications');
+            if (res.status === 401) {
+                // If backend says 401, the session is likely invalid even if client thinks user exists
+                setNotifications([]);
+                setUnreadCount(0);
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setNotifications(data.notifications);
