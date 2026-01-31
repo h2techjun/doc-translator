@@ -191,32 +191,38 @@ export default function HomePage() {
                 // 이후 처리는 polling useEffect가 담당함
 
             } else if (file) {
-                // --- 로컬 파일 워크플로우 (/api/translate) ---
+                // --- 로컬 파일 워크플로우 (Async Queue) ---
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('targetLang', targetLang);
 
-                const response = await fetch('/api/translate', {
+                // 1. 업로드 및 Job 생성 (Pending)
+                const uploadRes = await fetch('/api/translation/upload/local', {
                     method: 'POST',
                     body: formData,
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `번역 실패 (${response.status})`);
+                if (!uploadRes.ok) {
+                    const errorData = await uploadRes.json().catch(() => ({}));
+                    throw new Error(errorData.error || `업로드 실패 (${uploadRes.status})`);
                 }
 
-                // 2. 결과 처리 (Blob)
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const contentDisposition = response.headers.get('Content-Disposition');
-                const filename = contentDisposition?.split('filename="')[1]?.split('"')[0] || `translated_${file.name}`;
+                const { jobId: newJobId } = await uploadRes.json();
+                setJobId(newJobId); // 시작과 동시에 폴링 훅(useEffect) 활성화
 
-                setDownloadUrl(url);
-                setResultFileName(filename);
-                setProgress(100);
-                setEstimatedTime(0);
-                setStatus('completed');
+                // 2. 번역 프로세스 트리거 (Fire & Forget 가능하지만 에러 체크 권장)
+                // Vercel Timeout 방지를 위해 await를 하되, 서버가 60초 내 응답하도록 설계됨.
+                // 만약 서버가 응답 없이 백그라운드 처리한다면 여기서 await이 타임아웃 날 수 있으나,
+                // 현재 구조는 60초 내 완료를 목표로 하므로 await 유지.
+                // (만약 60초 넘으면 클라이언트에서 에러 처리되겠지만, 폴링이 계속 돌고 있다면 문제 없음)
+                fetch(`/api/translation/${newJobId}/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ outputFormat: 'docx' })
+                }).catch(err => console.warn("Trigger warning:", err));
+
+                // 상태를 processing으로 변경하여 UI가 "처리중"임을 알림
+                setStatus('processing');
             }
         } catch (error: any) {
             console.error(error);
