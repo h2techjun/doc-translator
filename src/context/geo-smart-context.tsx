@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { GEO_CONFIG, getGeoConfig, GeoConfig } from '@/lib/i18n/geo-config';
 import { i18n, Locale } from '@/lib/i18n/dictionaries';
+import { createClient } from '@/lib/supabase/config';
+import { User } from '@supabase/supabase-js';
 
 interface GeoSmartContextType {
     // Core Geo Data (Immutable by User)
@@ -15,6 +17,9 @@ interface GeoSmartContextType {
     uiLang: Locale;
     targetLang: string;
     t: typeof i18n['ko']; // Typed translation object
+
+    // User Data
+    user: User | null;
 
     // Actions
     setUiLang: (lang: Locale) => void;
@@ -33,6 +38,7 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
     const [targetLang, setTargetLangState] = useState<string>('en');
     const [isLoading, setIsLoading] = useState(true);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
 
     // Derived State: Translation Object
     const t = i18n[uiLang] || i18n['en'];
@@ -45,8 +51,6 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
                 const savedTargetLang = localStorage.getItem('global_target_lang');
 
                 // 1. IP Geolocation (Source of Truth for Price/Region)
-                // We only fetch if we don't have region info, OR we always fetch to ensure accuracy?
-                // Let's fetch to set Region/Currency correctly, but respect Language preference.
                 const res = await fetch('https://ipapi.co/json/');
 
                 let countryCode = 'US';
@@ -98,8 +102,15 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
+        const fetchUser = async () => {
+            const supabase = createClient();
+            const { data } = await supabase.auth.getUser();
+            setUser(data.user);
+        };
+
         if (!isInitialized) {
             detectGeo();
+            fetchUser();
         }
     }, [isInitialized]);
 
@@ -121,6 +132,7 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
         uiLang,
         targetLang,
         t,
+        user,
         setUiLang,
         setTargetLang,
         isLoading

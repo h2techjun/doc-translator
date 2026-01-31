@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { Globe, Github, Sun, Moon } from "lucide-react";
+import { Globe, Github, Sun, Moon, MessageSquare } from "lucide-react";
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { UserMenu } from './UserMenu';
 import { useTheme } from 'next-themes';
@@ -82,6 +82,14 @@ export function Navbar() {
                         <Moon className="absolute h-[1.1rem] w-[1.1rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                         <span className="sr-only">Toggle theme</span>
                     </Button>
+
+                    <div className="hidden sm:block">
+                        <Link href="/inbox">
+                            <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-white hover:bg-white/10">
+                                <MessageSquare className="w-5 h-5" />
+                            </Button>
+                        </Link>
+                    </div>
 
                     <div className="hidden sm:block">
                         <NotificationBell />
