@@ -22,6 +22,18 @@ export const POINT_COSTS = {
     ADDITIONAL_PAGE_COST: 2,   // 3페이지부터 페이지당 2포인트
 } as const;
 
+// 포인트 충전 패키지
+export const POINT_PACKAGES = [
+    {
+        id: 'starter_pack',
+        price: 5000,
+        currency: 'KRW',
+        points: 50, // 5000원 = 50P (100원/1P)
+        name: 'Starter Point Pack',
+        desc: '가볍게 시작하는 50포인트'
+    }
+] as const;
+
 // 사용자 포인트 정보 인터페이스
 export interface UserProfileInfo {
     userId: string;

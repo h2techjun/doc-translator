@@ -6,61 +6,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 
-const tiers = [
-    {
-        name: 'GUEST',
-        price: 'Free',
-        description: 'No login required. Experience the power of AI translation instantly.',
-        points: '2 Pages Limit',
-        features: [
-            'Word/Excel/PPT Translation',
-            'Format-preserving technology',
-            'Max 2 pages per document',
-            'No download history saved',
-        ],
-        icon: <Globe className="w-6 h-6 text-zinc-400" />,
-        buttonText: 'Try Guest Mode',
-        active: true,
-        highlight: false,
-    },
-    {
-        name: 'BRONZE / SILVER',
-        price: 'Free+',
-        description: 'Unlimited access powered by interactive ads.',
-        points: 'Watch Ads, Earn 5P',
-        features: [
-            'Premium AI Translation (Docx, Xlsx, Pptx)',
-            'Format-preserving technology',
-            'Earn 5P per ad interaction',
-            'Community-driven support',
-        ],
-        icon: <Zap className="w-6 h-6 text-emerald-400" />,
-        buttonText: 'Start Free with Ads',
-        active: true,
-        highlight: true,
-    },
-    {
-        name: 'GOLD (Pro)',
-        price: 'BETA',
-        period: '/waitlist',
-        description: 'Ad-free experience with priority queue.',
-        points: 'Unlimited Quota',
-        features: [
-            '100% Ad-Free experience',
-            'Priority processing speed',
-            'Advanced glossary control',
-            'Unlimited page counts',
-        ],
-        icon: <Rocket className="w-6 h-6 text-blue-400" />,
-        buttonText: 'Join Waitlist',
-        active: false,
-        highlight: false,
-    },
-];
+import { useState } from 'react';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 
 export default function PricingPage() {
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [selectedPackageId, setSelectedPackageId] = useState<string>('');
+
+    const handlePurchase = (packageId: string) => {
+        setSelectedPackageId(packageId);
+        setIsPaymentModalOpen(true);
+    };
+
     return (
         <div className="min-h-screen bg-background text-foreground py-24 px-6 relative overflow-hidden transition-colors duration-300">
+            {/* Payment Modal */}
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                packageId={selectedPackageId}
+            />
             {/* Background Decor */}
             <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 dark:bg-blue-600/5 rounded-full blur-[120px] -z-10" />
             <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 dark:bg-purple-600/5 rounded-full blur-[120px] -z-10" />
@@ -79,63 +44,125 @@ export default function PricingPage() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-                    {tiers.map((tier, idx) => (
-                        <motion.div
-                            key={tier.name}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                        >
-                            <Card className={`relative h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] ${tier.highlight ? 'ring-2 ring-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : ''}`}>
-                                {tier.highlight && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                                        Most Popular
-                                    </div>
-                                )}
-                                <CardHeader>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-white/5 rounded-lg border border-white/10">
-                                            {tier.icon}
-                                        </div>
-                                        <CardTitle className="text-xl font-bold tracking-widest">{tier.name}</CardTitle>
-                                    </div>
-                                    <div className="flex items-end gap-1 mt-4">
-                                        <span className="text-4xl font-black">{tier.price}</span>
-                                        {tier.period && <span className="text-slate-500 mb-1">{tier.period}</span>}
-                                    </div>
-                                    <CardDescription className="text-slate-400 mt-2">{tier.description}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="py-2 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                                        <p className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
-                                            <Zap className="w-3 h-3 fill-current" />
-                                            Benefit: {tier.points}
-                                        </p>
-                                    </div>
-                                    <ul className="space-y-3">
-                                        {tier.features.map((feature) => (
-                                            <li key={feature} className="flex items-start gap-3 text-sm text-slate-300">
-                                                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                                {feature}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="mt-auto">
-                                    <Button
-                                        asChild
-                                        className={`w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${tier.highlight
-                                            ? 'bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]'
-                                            : 'bg-white text-black hover:bg-slate-200'
-                                            }`}
-                                    >
-                                        <Link href="/">{tier.buttonText}</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </motion.div>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
+                    {/* GUEST */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0 }}
+                    >
+                        <Card className="h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02]">
+                            <CardHeader>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Globe className="w-6 h-6 text-zinc-400" /></div>
+                                    <CardTitle className="text-xl font-bold tracking-widest">GUEST</CardTitle>
+                                </div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">Free</span></div>
+                                <CardDescription className="text-slate-400 mt-2">No login required.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="py-2 px-3 bg-zinc-800 rounded-lg"><p className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Limit: 2 Pages</p></div>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Word/Excel/PPT</li>
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Max 2 pages</li>
+                                </ul>
+                            </CardContent>
+                            <CardFooter className="mt-auto">
+                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white text-black hover:bg-slate-200"><Link href="/">Try Guest Mode</Link></Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+
+                    {/* AD-SUPPORTED */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <Card className="h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02]">
+                            <CardHeader>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Zap className="w-6 h-6 text-emerald-400" /></div>
+                                    <CardTitle className="text-xl font-bold tracking-widest">FREE+</CardTitle>
+                                </div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">0</span><span className="text-slate-500 mb-1">/mo</span></div>
+                                <CardDescription className="text-slate-400 mt-2">Powered by Ads.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="py-2 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg"><p className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Earn 5P / Ad</p></div>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Unlimited Quota (with ads)</li>
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Format Preservation</li>
+                                </ul>
+                            </CardContent>
+                            <CardFooter className="mt-auto">
+                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white"><Link href="/signin">Start Free</Link></Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+
+                    {/* STARTER PACK (PAYMENT) */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <Card className="relative h-full border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent backdrop-blur-xl transition-all duration-300 hover:scale-[1.05] shadow-[0_0_30px_rgba(245,158,11,0.1)] ring-1 ring-amber-500/30">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest shadow-lg">Best Value</div>
+                            <CardHeader>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30"><Crown className="w-6 h-6 text-amber-500" /></div>
+                                    <CardTitle className="text-xl font-bold tracking-widest text-amber-500">STARTER</CardTitle>
+                                </div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">₩5,000</span></div>
+                                <CardDescription className="text-amber-200/60 mt-2">Instant 50 Points.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="py-2 px-3 bg-amber-500/10 border border-amber-500/20 rounded-lg"><p className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2"><Zap className="w-3 h-3 fill-current" />Get 50P Instantly</p></div>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />No Ads Required</li>
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />~25 Pages Translation</li>
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />Priority Support</li>
+                                </ul>
+                            </CardContent>
+                            <CardFooter className="mt-auto">
+                                <Button
+                                    onClick={() => handlePurchase('starter_pack')}
+                                    className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                                >
+                                    Charge 50P
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+
+                    {/* ENTERPRISE */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        <Card className="h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02]">
+                            <CardHeader>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Shield className="w-6 h-6 text-blue-400" /></div>
+                                    <CardTitle className="text-xl font-bold tracking-widest">PRO</CardTitle>
+                                </div>
+                                <div className="flex items-end gap-1 mt-4"><span className="text-4xl font-black">Contact</span></div>
+                                <CardDescription className="text-slate-400 mt-2">For high volume.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="py-2 px-3 bg-blue-500/10 border border-blue-500/20 rounded-lg"><p className="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><Rocket className="w-3 h-3 fill-current" />Unlimited Scale</p></div>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />API Access</li>
+                                    <li className="flex items-start gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Dedicated Server</li>
+                                </ul>
+                            </CardContent>
+                            <CardFooter className="mt-auto">
+                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white text-black hover:bg-slate-200"><Link href="mailto:support@doctranslation.co">Contact Sales</Link></Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
                 </div>
 
                 {/* 📢 Policy Notice Section (Korean Content) */}

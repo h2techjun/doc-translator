@@ -20,6 +20,12 @@ export const metadata: Metadata = {
     url: "https://doctranslation.co",
     siteName: "DocTranslation",
     type: "website",
+    images: ["/brand_logo.jpg"],
+  },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
