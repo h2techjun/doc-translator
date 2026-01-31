@@ -29,8 +29,12 @@ export function Navbar() {
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2 sm:px-6 lg:px-8">
                 {/* Logo Section */}
                 <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 transition-opacity hover:opacity-90">
-                    <div className="rounded-xl bg-zinc-100 p-1.5 sm:p-2 dark:bg-zinc-800">
-                        <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-900 dark:text-zinc-100" />
+                    <div className="relative w-8 h-8 sm:w-10 sm:h-10">
+                        <img
+                            src="/logo.png"
+                            alt="Logo"
+                            className="w-full h-full object-contain rounded-lg"
+                        />
                     </div>
                     <span className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 hidden md:block">
                         {t.nav.brandName}

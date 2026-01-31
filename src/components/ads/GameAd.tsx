@@ -42,7 +42,8 @@ export const GameAd = () => {
                         🎮 PLAY GAME WHILE WAITING
                     </button>
                 </div>
-                <div className="text-[10px] text-muted-foreground tracking-widest uppercase opacity-50">
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground tracking-widest uppercase opacity-70">
+                    <img src="/adsense_logo.jpg" alt="Sponsor" className="w-4 h-4 rounded-sm object-cover filter grayscale h-fit" />
                     Sponsor Space
                 </div>
             </div>

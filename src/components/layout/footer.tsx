@@ -9,8 +9,11 @@ export const Footer = () => {
     return (
         <footer className="w-full border-t border-border bg-background/50 backdrop-blur-md py-8 mt-auto">
             <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-sm text-muted-foreground">
-                    © {new Date().getFullYear()} {t.nav.brandName}. All rights reserved.
+                <div className="flex items-center gap-3">
+                    <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain opacity-80" />
+                    <div className="text-sm text-muted-foreground">
+                        © {new Date().getFullYear()} {t.nav.brandName}. All rights reserved.
+                    </div>
                 </div>
                 <div className="flex gap-6 text-sm">
                     <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
