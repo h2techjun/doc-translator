@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { createClient } from '@/lib/supabase/client';
 
 interface Notification {
     id: string;
@@ -34,14 +35,21 @@ export default function NotificationBell() {
 
     const fetchNotifications = async () => {
         if (!user) return;
+
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+        }
+
         try {
             const res = await fetch('/api/notifications');
             if (res.status === 401) {
-                // If backend says 401, the session is likely invalid even if client thinks user exists
                 setNotifications([]);
                 setUnreadCount(0);
-                // We might want to clear local user state here if we had a setter, 
-                // but for now just stop this specific component's polling
                 return;
             }
             if (res.ok) {
@@ -50,18 +58,23 @@ export default function NotificationBell() {
                 setUnreadCount(data.unread_count);
             }
         } catch (e) {
-            console.error('Failed to fetch notifications');
+            // Silently fail in dev/dev-poll to avoid console clutter
         }
     };
 
     useEffect(() => {
         if (user) {
-            fetchNotifications();
-            // Polling every 60 seconds (Simple realtime alternative)
+            // Delay initial fetch slightly to ensure session is ready
+            const timeout = setTimeout(fetchNotifications, 500);
+
             const interval = setInterval(() => {
                 if (user) fetchNotifications();
             }, 60000);
-            return () => clearInterval(interval);
+
+            return () => {
+                clearTimeout(timeout);
+                clearInterval(interval);
+            };
         } else {
             setNotifications([]);
             setUnreadCount(0);
