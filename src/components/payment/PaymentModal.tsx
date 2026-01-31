@@ -40,15 +40,33 @@ export const PaymentModal = ({ isOpen, onClose, packageId }: PaymentModalProps) 
                     </div>
                 </div>
 
-                <div className="mt-4">
-                    <PaypalButton
-                        packageId={pkg.id}
+                <div className="mt-4 space-y-4">
+                    {/* 🚧 베타 테스트 안내 문구 */}
+                    <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3">
+                        <Zap className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                            <h4 className="text-sm font-bold text-yellow-500">결제 시스템 점검 중 (Beta)</h4>
+                            <p className="text-xs text-yellow-200/70 leading-relaxed">
+                                현재 베타 테스트 기간으로 실제 결제 기능은 잠시 제한되어 있습니다.<br />
+                                포인트 부족 시 <b>광고 시청 리워드(+5P)</b>를 이용해 주세요.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* <PaypalButton 
+                        packageId={pkg.id} 
                         onSuccess={() => {
                             onClose();
-                            // 페이지 새로고침하여 포인트 반영 (또는 전역 상태 업데이트)
-                            window.location.reload();
-                        }}
-                    />
+                            window.location.reload(); 
+                        }} 
+                    /> */}
+
+                    <button
+                        onClick={onClose}
+                        className="w-full py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium text-sm transition-colors"
+                    >
+                        닫기 (Close)
+                    </button>
                 </div>
 
                 <p className="text-[10px] text-zinc-500 text-center mt-2">
