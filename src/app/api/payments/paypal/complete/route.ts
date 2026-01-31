@@ -43,20 +43,37 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Failed to record transaction' }, { status: 500 });
         }
 
-        // 4. 프로필 포인트 업데이트
-        // 먼저 현재 포인트를 가져옴
+        // 4. 프로필 포인트 및 등급 업데이트
+        // 현재 정보 조회
         const { data: profile } = await supabase
             .from('profiles')
-            .select('points')
+            .select('points, tier, total_payment_amount')
             .eq('id', userId)
             .single();
 
         const currentPoints = profile?.points || 0;
+        const currentTier = profile?.tier || 'BRONZE';
+        const currentTotal = profile?.total_payment_amount || 0;
+        const paymentAmount = selectedPackage.price; // KRW
+        const newTotal = currentTotal + paymentAmount;
+
+        // 등급 계산 로직 (MASTER는 유지)
+        let newTier = currentTier;
+        if (currentTier !== 'MASTER') {
+            if (newTotal >= 100000) {
+                newTier = 'GOLD';
+            } else if (newTotal > 0 && currentTier === 'BRONZE') {
+                newTier = 'SILVER';
+            }
+        }
 
         const { error: updateError } = await supabase
             .from('profiles')
             .update({
-                points: currentPoints + selectedPackage.points
+                points: currentPoints + selectedPackage.points,
+                total_payment_amount: newTotal,
+                tier: newTier,
+                updated_at: new Date().toISOString()
             })
             .eq('id', userId);
 
@@ -65,7 +82,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Failed to update balance' }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, points: selectedPackage.points });
+        return NextResponse.json({
+            success: true,
+            points: selectedPackage.points,
+            tier: newTier,
+            upgraded: newTier !== currentTier
+        });
 
     } catch (error: any) {
         console.error('Payment Handler Error:', error);
