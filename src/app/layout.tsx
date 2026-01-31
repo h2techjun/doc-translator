@@ -8,7 +8,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Suspense } from 'react';
 import AdSense from "@/components/ads/AdSense";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -51,13 +50,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GeoSmartProvider>
-            <Suspense fallback={<div className="min-h-screen bg-white dark:bg-black" />}>
-              <div className="flex min-h-screen flex-col">
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-            </Suspense>
+            <div className="flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
             <Toaster richColors expand position="top-center" />
           </GeoSmartProvider>
         </ThemeProvider>
