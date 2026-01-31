@@ -28,8 +28,8 @@ export const PaypalButton = ({ packageId, onSuccess }: PaypalPaymentProps) => {
                 intent: "capture"
             }}>
                 <PayPalButtons
-                    style={{ layout: "horizontal", height: 45, tagline: false, text: false }}
-                    createOrder={(data, actions) => {
+                    style={{ layout: "horizontal", height: 45, tagline: false }}
+                    createOrder={(data: any, actions: any) => {
                         // 5000 KRW -> approx 3.8 USD (고정 환율 또는 실시간 환율 적용 필요)
                         // 여기서는 데모를 위해 5000원을 $4.99로 가정하거나 
                         // 실제로는 서버에서 Order를 생성해서 반환하는 것이 가장 안전함.
@@ -52,7 +52,7 @@ export const PaypalButton = ({ packageId, onSuccess }: PaypalPaymentProps) => {
                             intent: "CAPTURE"
                         });
                     }}
-                    onApprove={async (data, actions) => {
+                    onApprove={async (data: any, actions: any) => {
                         try {
                             const details = await actions.order?.capture();
                             // console.log("Payment Successful:", details);
@@ -79,7 +79,7 @@ export const PaypalButton = ({ packageId, onSuccess }: PaypalPaymentProps) => {
                             toast.error("결제 처리 중 오류가 발생했습니다.");
                         }
                     }}
-                    onError={(err) => {
+                    onError={(err: any) => {
                         console.error("PayPal Error:", err);
                         toast.error("PayPal 결제 연결에 실패했습니다.");
                     }}
