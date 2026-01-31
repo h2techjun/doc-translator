@@ -20,6 +20,7 @@ import { i18n, type Locale } from '@/lib/i18n/dictionaries';
 import { LANGUAGES } from '@/lib/i18n/languages';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 import { useSmartEstimation } from '@/hooks/use-smart-estimation';
+import { useUrlSync } from '@/hooks/use-url-sync';
 
 import { GoogleDrivePicker, DriveFile } from '@/components/drive/GoogleDrivePicker';
 import { toast } from 'sonner';
@@ -46,8 +47,8 @@ export default function HomePage() {
         isLoading: isGeoLoading
     } = useGeoSmart(); // IP 기반으로 위치를 파악하며, 기본값은 한국어입니다.
 
-    // Remove local T logic as it is now provided by useGeoSmart
-
+    // 🔗 URL 기반 언어 동기화 (pSEO 지원)
+    useUrlSync();
 
     const { estimation, estimateTime } = useSmartEstimation();
 
