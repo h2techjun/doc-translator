@@ -1,435 +1,115 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import {
-    LayoutDashboard, Users, CreditCard, Activity,
-    ArrowUpRight, ArrowDownRight, Globe, ShieldAlert,
-    BarChart3, Settings, LogOut, Menu, X, Zap, RefreshCw, Trash2, Ban
-} from 'lucide-react';
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer, BarChart, Bar
-} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { createClient } from '@/lib/supabase/config';
-import { useGeoSmart } from '@/context/geo-smart-context';
+import { Activity, Users, CreditCard, ArrowUpRight, ArrowDownRight, Globe, BarChart3, CloudLightning } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-// Mock Data for the cybernetic dashboard
+// Mock Data (will be replaced by real API)
 const data = [
-    { name: '00:00', points: 400, traffic: 240 },
-    { name: '04:00', points: 300, traffic: 139 },
-    { name: '08:00', points: 980, traffic: 980 },
-    { name: '12:00', points: 390, traffic: 390 },
-    { name: '16:00', points: 480, traffic: 480 },
-    { name: '20:00', points: 700, traffic: 600 },
+    { name: '00:00', points: 400 },
+    { name: '04:00', points: 300 },
+    { name: '08:00', points: 980 },
+    { name: '12:00', points: 390 },
+    { name: '16:00', points: 480 },
+    { name: '20:00', points: 700 },
 ];
 
-/**
- * 👑 마스터 관리자 대시보드 (Master Admin Dashboard)
- * 
- * 디자인 테마: Cybernetic Dark Mode
- * 색상: Emerald & Cyan Neon accents on Deep Indigo
- */
-export default function AdminDashboard() {
-    const { t: rootT } = useGeoSmart();
-    const t = rootT.admin;
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [bannedList, setBannedList] = useState<any[]>([]);
-    const [isActionLoading, setIsActionLoading] = useState(false);
-    const [newBanIdentifier, setNewBanIdentifier] = useState('');
-    const supabase = createClient();
-
-    const fetchBanned = async () => {
-        try {
-            const res = await fetch('/api/admin/banned');
-            if (res.ok) {
-                const data = await res.json();
-                setBannedList(data);
-            }
-        } catch (err) {
-            console.error('Fetch banned list error:', err);
-        }
-    };
-
-    const [users, setUsers] = useState<any[]>([]);
-    const [jobs, setJobs] = useState<any[]>([]);
-
-    const fetchUsers = async () => {
-        try {
-            const res = await fetch('/api/admin/users');
-            if (res.ok) setUsers(await res.json());
-        } catch (err) { console.error(err); }
-    };
-
-    const fetchJobs = async () => {
-        try {
-            const res = await fetch('/api/admin/jobs');
-            if (res.ok) setJobs(await res.json());
-        } catch (err) { console.error(err); }
-    };
-
-    useEffect(() => {
-        if (activeTab === 'users') fetchUsers();
-        if (activeTab === 'jobs') fetchJobs();
-    }, [activeTab]);
-
-    useEffect(() => {
-        const checkAdmin = async () => {
-            try {
-                console.log('[Admin] 🔐 Starting admin verification...');
-                const { data: { user } } = await supabase.auth.getUser();
-
-                if (!user) {
-                    console.log('[Admin] ❌ No user found, redirecting to signin');
-                    window.location.href = '/signin';
-                    return;
-                }
-
-                console.log('[Admin] ✅ User found:', user.email, 'ID:', user.id);
-
-                const { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                console.log('[Admin] 📊 Profile query result:', { profile, error });
-
-                if (error) {
-                    console.error('[Admin] ❌ Profile fetch error:', error);
-                    alert(`프로필 조회 실패: ${error.message}`);
-                    window.location.href = '/';
-                    return;
-                }
-
-                if (!profile) {
-                    console.error('[Admin] ❌ No profile found for user');
-                    alert('프로필이 존재하지 않습니다.');
-                    window.location.href = '/';
-                    return;
-                }
-
-                console.log('[Admin] 👤 User role:', profile.role);
-
-                if (profile.role !== 'ADMIN' && profile.role !== 'MASTER') {
-                    console.error('[Admin] ❌ Unauthorized: User role is', profile.role);
-                    alert(`관리자 권한이 없습니다. 현재 역할: ${profile.role || 'USER'}`);
-                    window.location.href = '/';
-                    return;
-                }
-
-                console.log('[Admin] ✅ Admin access granted!');
-                setIsAdmin(true);
-                fetchBanned();
-            } catch (err) {
-                console.error('[Admin] 💥 Unexpected error:', err);
-                alert(`관리자 인증 중 오류 발생: ${err}`);
-                window.location.href = '/';
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        checkAdmin();
-    }, [supabase]);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
-                    <p className="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest italic font-black">Initializing Master Control...</p>
+export default function AdminDashboardPage() {
+    return (
+        <div className="p-8 pb-20 max-w-7xl mx-auto">
+            {/* Header with Server Time */}
+            <header className="flex justify-between items-center mb-10">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 italic uppercase">
+                        Master Control
+                    </h1>
+                    <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest font-bold">System Online | 99.9% Optimal</p>
                 </div>
+                <div className="text-right hidden md:block">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Server Timestamp</p>
+                    <p className="text-sm font-mono text-emerald-400">{new Date().toISOString()}</p>
+                </div>
+            </header>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard title="Total Credits" value="1,284,592" change="+12.5%" trend="up" icon={<CreditCard className="text-emerald-400" />} />
+                <StatCard title="Active Users" value="45,883" change="+5.2%" trend="up" icon={<Users className="text-cyan-400" />} />
+                <StatCard title="System GPU" value="24.8%" change="-2.1%" trend="down" icon={<CloudLightning className="text-orange-400" />} />
+                <StatCard title="Throughput" value="4.2 TB" change="+18.4%" trend="up" icon={<Globe className="text-blue-400" />} />
             </div>
-        );
-    }
 
-    if (!isAdmin) return null;
+            {/* Main Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                {/* Real-time Graph */}
+                <Card className="lg:col-span-2 bg-[#0f172a]/50 border-emerald-500/20 text-slate-100 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-emerald-400 flex items-center gap-2 italic uppercase tracking-tight">
+                            <Activity className="w-5 h-5" />
+                            Neural Network Load
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={data}>
+                                <defs>
+                                    <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="name" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#10b981' }}
+                                />
+                                <Area type="monotone" dataKey="points" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorPoints)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
 
-    return (
-        <div className="min-h-screen bg-[#020617] text-slate-100 flex font-sans">
-            {/* 📟 Cyber Sidebar */}
-            <aside className={`bg-[#0f172a] border-r border-[#1e293b] transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'} hidden md:flex flex-col`}>
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-500 rounded flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-                        <Zap className="w-5 h-5 text-black fill-current" />
-                    </div>
-                    {isSidebarOpen && <span className="font-black tracking-tighter text-xl italic italic">MASTER</span>}
-                </div>
-
-                <nav className="flex-grow px-4 space-y-2 mt-4">
-                    <NavItem icon={<LayoutDashboard />} label={t.dashboard} active={activeTab === 'dashboard'} isOpen={isSidebarOpen} onClick={() => setActiveTab('dashboard')} />
-                    <NavItem icon={<Users />} label={t.users} active={activeTab === 'users'} isOpen={isSidebarOpen} onClick={() => setActiveTab('users')} />
-                    <NavItem icon={<Globe />} label={t.jobs} active={activeTab === 'jobs'} isOpen={isSidebarOpen} onClick={() => setActiveTab('jobs')} />
-                    <NavItem icon={<ShieldAlert />} label={t.security} active={activeTab === 'security'} isOpen={isSidebarOpen} onClick={() => setActiveTab('security')} />
-                </nav>
-
-                <div className="p-4 border-t border-[#1e293b]">
-                    <Button
-                        variant="ghost"
-                        className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                        onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')}
-                    >
-                        <LogOut className="w-5 h-5 mr-3" />
-                        {isSidebarOpen && t.shutdown}
-                    </Button>
-                </div>
-            </aside>
-
-            {/* 🌌 Main Control Area */}
-            <main className="flex-grow p-8 overflow-y-auto">
-                {/* Header */}
-                <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
-                            MASTER CONTROL
-                        </h1>
-                        <p className="text-slate-500 text-sm mt-1 uppercase tracking-widest">System Online | 99.8% Optimal</p>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="text-right">
-                            <p className="text-xs text-slate-500 uppercase tracking-tighter">Server Time</p>
-                            <p className="text-sm font-mono text-emerald-400">2026-01-28 04:12:05</p>
-                        </div>
-                        <Button className="bg-[#1e293b] border border-[#334155] hover:bg-[#334155]">
-                            <Settings className="w-4 h-4 mr-2" />
-                            SysConf
-                        </Button>
-                    </div>
-                </header>
-
-                {/* Content based on Active Tab */}
-                {activeTab === 'dashboard' && (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            <StatCard title="Total Credits" value="1,284,592" change="+12.5%" trend="up" icon={<CreditCard className="text-emerald-400" />} />
-                            <StatCard title="Active Sessions" value="45,883" change="+5.2%" trend="up" icon={<Users className="text-cyan-400" />} />
-                            <StatCard title="System Load" value="24.8%" change="-2.1%" trend="down" icon={<Activity className="text-orange-400" />} />
-                            <StatCard title="Global Traffic" value="4.2 TB" change="+18.4%" trend="up" icon={<Globe className="text-blue-400" />} />
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                            <Card className="lg:col-span-2 bg-[#0f172a] border-[#1e293b] text-slate-100">
-                                <CardHeader>
-                                    <CardTitle className="text-emerald-400 flex items-center gap-2">
-                                        <BarChart3 className="w-5 h-5" />
-                                        Real-time Credit Flow
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={data}>
-                                            <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                                            <YAxis stroke="#64748b" fontSize={12} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }} />
-                                            <Area type="monotone" dataKey="points" stroke="#10b981" fillOpacity={0.3} fill="#10b981" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
-                                <CardHeader>
-                                    <CardTitle className="text-cyan-400">Tier Distribution</CardTitle>
-                                </CardHeader>
-                                <CardContent className="h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={[{ name: 'Bronze', count: 4000 }, { name: 'Silver', count: 1200 }, { name: 'Gold', count: 350 }]}>
-                                            <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                                            <YAxis stroke="#64748b" fontSize={12} />
-                                            <Bar dataKey="count" fill="#22d3ee" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </>
-                )}
-
-                {activeTab === 'users' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
-                            <CardHeader>
-                                <CardTitle className="text-emerald-400">{t.userManagement}</CardTitle>
-                                <CardDescription>{t.totalUsers}: {users.length}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {users.map(user => (
-                                        <div key={user.id} className="flex items-center justify-between p-4 bg-[#1e293b]/50 rounded-lg border border-[#1e293b]">
-                                            <div>
-                                                <p className="font-bold">{user.email}</p>
-                                                <p className="text-xs text-slate-500">{user.id}</p>
-                                            </div>
-                                            <div className="flex items-center gap-4">
-                                                <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-500/20 text-slate-400'}`}>
-                                                    {user.role || 'USER'}
-                                                </span>
-                                                <span className="text-xs text-slate-500">{new Date(user.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
-
-                {activeTab === 'jobs' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
-                            <CardHeader>
-                                <CardTitle className="text-cyan-400">{t.translationJobs}</CardTitle>
-                                <CardDescription>{t.recentActivity}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {jobs.map(job => (
-                                        <div key={job.id} className="flex items-center justify-between p-4 bg-[#1e293b]/50 rounded-lg border border-[#1e293b]">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
-                                                    {job.original_filename?.split('.').pop()?.toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-sm">{job.original_filename}</p>
-                                                    <p className="text-xs text-slate-500">{job.target_lang} • {new Date(job.created_at).toLocaleString()}</p>
-                                                </div>
-                                            </div>
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' :
-                                                job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
-                                                    'bg-yellow-500/20 text-yellow-400'
-                                                }`}>
-                                                {job.status}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
-
-                {activeTab === 'security' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                        <Card className="bg-[#0f172a] border-[#1e293b] text-slate-100">
-                            <CardHeader>
-                                <CardTitle className="text-rose-400 flex items-center gap-2">
-                                    <ShieldAlert className="w-6 h-6" />
-                                    {t.banSystem}
-                                </CardTitle>
-                                <CardDescription className="text-slate-400">
-                                    {t.banDesc}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex gap-4 mb-8 p-4 bg-rose-500/5 border border-rose-500/10 rounded-xl">
-                                    <Input
-                                        placeholder="차단할 Email 또는 IP 주소 입력..."
-                                        className="bg-[#020617] border-[#1e293b] text-white"
-                                        value={newBanIdentifier}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewBanIdentifier(e.target.value)}
-                                    />
-                                    <Button
-                                        className="bg-rose-600 hover:bg-rose-500 text-white min-w-[120px]"
-                                        disabled={isActionLoading || !newBanIdentifier}
-                                        onClick={async () => {
-                                            setIsActionLoading(true);
-                                            await fetch('/api/admin/banned', {
-                                                method: 'POST',
-                                                body: JSON.stringify({ action: 'BAN', identifier: newBanIdentifier })
-                                            });
-                                            setNewBanIdentifier('');
-                                            await fetchBanned();
-                                            setIsActionLoading(false);
-                                        }}
-                                    >
-                                        <Ban className="w-4 h-4 mr-2" />
-                                        수동 차단
-                                    </Button>
-                                    <Button variant="ghost" className="text-slate-400" onClick={fetchBanned}>
-                                        <RefreshCw className="w-4 h-4" />
-                                    </Button>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {bannedList.length === 0 ? (
-                                        <div className="text-center py-10 border border-dashed border-[#1e293b] rounded-xl text-slate-500">
-                                            차단된 엔티티가 없습니다. 시스템이 청정합니다.
-                                        </div>
-                                    ) : (
-                                        bannedList.map((ban) => (
-                                            <div key={ban.id} className="flex justify-between items-center p-4 bg-[#1e293b]/50 border border-[#1e293b] rounded-xl group hover:border-rose-500/30 transition-all">
-                                                <div>
-                                                    <p className="font-mono text-white text-lg">{ban.identifier}</p>
-                                                    <div className="flex gap-4 mt-1">
-                                                        <span className="text-[10px] uppercase tracking-widest text-slate-500">Reason: {ban.reason}</span>
-                                                        <span className="text-[10px] uppercase tracking-widest text-rose-500/60">{new Date(ban.created_at).toLocaleString()}</span>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    className="opacity-0 group-hover:opacity-100 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10"
-                                                    disabled={isActionLoading}
-                                                    onClick={async () => {
-                                                        setIsActionLoading(true);
-                                                        await fetch('/api/admin/banned', {
-                                                            method: 'POST',
-                                                            body: JSON.stringify({ action: 'UNBAN', identifier: ban.identifier })
-                                                        });
-                                                        await fetchBanned();
-                                                        setIsActionLoading(false);
-                                                    }}
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-2" />
-                                                    차단 해제
-                                                </Button>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
-            </main>
-        </div>
-    );
-}
-
-function NavItem({ icon, label, active = false, isOpen = true, onClick }: { icon: any, label: string, active?: boolean, isOpen?: boolean, onClick?: () => void }) {
-    return (
-        <div
-            onClick={onClick}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all ${active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1e293b]'}`}
-        >
-            <span className="w-5 h-5">{icon}</span>
-            {isOpen && <span className="font-medium">{label}</span>}
-            {active && isOpen && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />}
+                {/* Tier Distribution */}
+                <Card className="bg-[#0f172a]/50 border-cyan-500/20 text-slate-100 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-cyan-400 italic uppercase tracking-tight">User Hierarchy</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={[{ name: 'Bronze', count: 4000 }, { name: 'Silver', count: 1200 }, { name: 'Gold', count: 350 }]}>
+                                <XAxis dataKey="name" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+                                <Bar dataKey="count" fill="#22d3ee" radius={[4, 4, 0, 0]} barSize={40} />
+                                <Tooltip
+                                    cursor={{ fill: 'transparent' }}
+                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
 
 function StatCard({ title, value, change, trend, icon }: { title: string, value: string, change: string, trend: 'up' | 'down', icon: any }) {
     return (
-        <Card className="bg-[#0f172a] border-[#1e293b] hover:border-emerald-500/30 transition-all group">
+        <Card className="bg-[#0f172a]/40 border-slate-800 hover:border-emerald-500/30 transition-all group backdrop-blur-sm">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                    <div className="p-2 bg-[#1e293b] rounded-lg group-hover:bg-emerald-500/10 transition-colors">
+                    <div className="p-2 bg-[#1e293b] rounded-lg group-hover:bg-emerald-500/10 transition-colors shadow-inner">
                         {icon}
                     </div>
-                    <div className={`flex items-center text-xs font-bold ${trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <div className={`flex items-center text-xs font-black ${trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {trend === 'up' ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                         {change}
                     </div>
                 </div>
-                <h3 className="text-slate-500 text-xs font-bold uppercase tracking-widest">{title}</h3>
-                <p className="text-2xl font-bold mt-1 tracking-tight text-white">{value}</p>
+                <h3 className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{title}</h3>
+                <p className="text-2xl font-bold mt-1 tracking-tight text-white font-mono">{value}</p>
             </CardContent>
         </Card>
     );

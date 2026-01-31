@@ -41,18 +41,29 @@ export async function updateSession(request: NextRequest) {
 
     if (isAdminPath) {
         if (!user) {
-            return NextResponse.redirect(new URL('/signin', request.url))
+            // Redirect to signin with return URL
+            const url = new URL('/signin', request.url);
+            url.searchParams.set('redirect', pathname);
+            return NextResponse.redirect(url);
         }
 
-        // Check Admin Role (Technical role 'ADMIN' matches brand 'MASTER')
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
+        try {
+            // Check Admin Role
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
-            return NextResponse.redirect(new URL('/', request.url))
+            // Debugging: If error (e.g., column missing) or role mismatch
+            if (error || (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER')) {
+                console.error('[Middleware] Admin access denied:', { userId: user.id, error, role: profile?.role });
+                // Redirect to home with error parameter
+                return NextResponse.redirect(new URL('/?error=access_denied', request.url));
+            }
+        } catch (err) {
+            console.error('[Middleware] Unexpected auth error:', err);
+            return NextResponse.redirect(new URL('/', request.url));
         }
     }
 
