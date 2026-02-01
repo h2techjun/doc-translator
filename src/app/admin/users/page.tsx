@@ -67,15 +67,15 @@ export default function AdminUsersPage() {
             });
 
             if (res.ok) {
-                toast.success('User updated successfully');
+                toast.success('회원 정보가 업데이트되었습니다');
                 fetchUsers(page);
                 setIsDialogOpen(false);
             } else {
                 const err = await res.json();
-                toast.error(`Update failed: ${err.error}`);
+                toast.error(`업데이트 실패: ${err.error}`);
             }
         } catch (error) {
-            toast.error('An unexpected error occurred');
+            toast.error('예기치 않은 오류가 발생했습니다');
         } finally {
             setIsUpdating(false);
         }
@@ -105,17 +105,17 @@ export default function AdminUsersPage() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-3xl font-black mb-2 dark:text-white flex items-center gap-3">
                 <Users className="w-8 h-8 text-indigo-500" />
-                User Management
+                회원 관리 (User Management)
             </h1>
             <p className="text-muted-foreground mb-8">
-                Manage platform users, roles, and points.
+                플랫폼 회원, 역할 및 포인트 관리.
             </p>
 
             <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-border/50">
                 <CardHeader>
-                    <CardTitle>All Users</CardTitle>
+                    <CardTitle>전체 회원 목록</CardTitle>
                     <CardDescription>
-                        List of all registered users on the platform.
+                        플랫폼에 등록된 모든 사용자의 목록입니다.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -123,26 +123,26 @@ export default function AdminUsersPage() {
                         <Table>
                             <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
                                 <TableRow>
-                                    <TableHead>Email / ID</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Tier</TableHead>
-                                    <TableHead>Points</TableHead>
-                                    <TableHead>Translations</TableHead>
-                                    <TableHead>Joined</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead>이메일 / ID</TableHead>
+                                    <TableHead>역할</TableHead>
+                                    <TableHead>등급 (Tier)</TableHead>
+                                    <TableHead>포인트</TableHead>
+                                    <TableHead>작업 수</TableHead>
+                                    <TableHead>가입일</TableHead>
+                                    <TableHead className="text-right">관리</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center">
-                                            Loading users...
+                                            회원 정보 로딩 중...
                                         </TableCell>
                                     </TableRow>
                                 ) : users.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                                            No users found.
+                                            회원이 없습니다.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -150,7 +150,7 @@ export default function AdminUsersPage() {
                                         <TableRow key={user.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
                                             <TableCell>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{user.email || 'No Email'}</span>
+                                                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{user.email || '이메일 없음'}</span>
                                                     <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[150px] opacity-50">
                                                         {user.id}
                                                     </span>
@@ -201,19 +201,19 @@ export default function AdminUsersPage() {
                                                                 setIsDialogOpen(true);
                                                             }}
                                                         >
-                                                            Edit
+                                                            수정
                                                         </Button>
                                                     </DialogTrigger>
                                                     <DialogContent className="max-w-md bg-white dark:bg-slate-900 border-border/50 shadow-2xl rounded-2xl">
                                                         <DialogHeader>
-                                                            <DialogTitle className="text-xl font-black italic tracking-tighter uppercase text-indigo-600">Modify Master Record</DialogTitle>
+                                                            <DialogTitle className="text-xl font-black italic tracking-tighter uppercase text-indigo-600">마스터 권한 수정</DialogTitle>
                                                             <DialogDescription className="text-xs font-bold opacity-70">
-                                                                Applying administrative changes to <span className="text-foreground">{selectedUser?.email}</span>
+                                                                <span className="text-foreground">{selectedUser?.email}</span> 계정에 대한 관리자 변경을 적용합니다.
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="grid gap-6 py-6">
                                                             <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label className="text-right text-xs font-black uppercase opacity-60">Points</Label>
+                                                                <Label className="text-right text-xs font-black uppercase opacity-60">포인트</Label>
                                                                 <Input
                                                                     type="number"
                                                                     className="col-span-3 h-10 bg-slate-50 dark:bg-slate-950/50 border-border/50 text-amber-500 font-black text-lg"
@@ -222,20 +222,20 @@ export default function AdminUsersPage() {
                                                                 />
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label className="text-right text-xs font-black uppercase opacity-60">Tier</Label>
+                                                                <Label className="text-right text-xs font-black uppercase opacity-60">등급</Label>
                                                                 <Select defaultValue={selectedUser?.tier} onValueChange={(v) => setSelectedUser(prev => prev ? { ...prev, tier: v as any } : null)}>
                                                                     <SelectTrigger className="col-span-3 h-10 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-bold">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent className="rounded-xl">
-                                                                        <SelectItem value="BRONZE">BRONZE (Default)</SelectItem>
-                                                                        <SelectItem value="SILVER">SILVER (Premium)</SelectItem>
+                                                                        <SelectItem value="BRONZE">BRONZE (기본)</SelectItem>
+                                                                        <SelectItem value="SILVER">SILVER (프리미엄)</SelectItem>
                                                                         <SelectItem value="GOLD">GOLD (VIP)</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label className="text-right text-xs font-black uppercase opacity-60">Role</Label>
+                                                                <Label className="text-right text-xs font-black uppercase opacity-60">역할</Label>
                                                                 <Select defaultValue={selectedUser?.role} onValueChange={(v) => setSelectedUser(prev => prev ? { ...prev, role: v as any } : null)}>
                                                                     <SelectTrigger className="col-span-3 h-10 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-bold">
                                                                         <SelectValue />
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                                                                 className="h-10 text-xs font-bold"
                                                                 onClick={() => setIsDialogOpen(false)}
                                                             >
-                                                                Cancel
+                                                                취소
                                                             </Button>
                                                             <Button
                                                                 className="h-10 text-xs font-black uppercase bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 px-6"
@@ -269,7 +269,7 @@ export default function AdminUsersPage() {
                                                                 }}
                                                                 disabled={isUpdating}
                                                             >
-                                                                {isUpdating ? 'Synchronizing...' : 'Apply Authorization'}
+                                                                {isUpdating ? '동기화 중...' : '권한 적용'}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -292,7 +292,7 @@ export default function AdminUsersPage() {
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
                         <div className="text-sm font-medium">
-                            Page {page} of {totalPages}
+                            페이지 {page} / {totalPages}
                         </div>
                         <Button
                             variant="outline"

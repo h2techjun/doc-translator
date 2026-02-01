@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
                 setSettings(data);
             }
         } catch (e) {
-            toast.error('Failed to load settings');
+            toast.error('설정을 불러오지 못했습니다');
         } finally {
             setLoading(false);
         }
@@ -48,25 +48,25 @@ export default function AdminSettingsPage() {
             });
 
             if (!res.ok) throw new Error('Failed');
-            toast.success('System configuration updated');
+            toast.success('시스템 설정이 업데이트되었습니다');
         } catch (e) {
-            toast.error('Update failed');
+            toast.error('업데이트 실패');
             fetchSettings(); // Revert
         } finally {
             setSaving(false);
         }
     };
 
-    if (loading) return <div className="p-10 animate-pulse font-mono">Loading Neural Configuration...</div>;
+    if (loading) return <div className="p-10 animate-pulse font-mono">시스템 구성 로딩 중...</div>;
 
     return (
         <div className="container mx-auto py-10 px-4 max-w-5xl">
             <h1 className="text-4xl font-black mb-2 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <Settings className="w-10 h-10 text-indigo-500" />
-                System Configuration
+                시스템 설정 (System Config)
             </h1>
             <p className="text-muted-foreground mb-8 font-bold italic opacity-70 uppercase text-xs">
-                Global parameters and emergency controls.
+                글로벌 매개변수 및 비상 제어.
             </p>
 
             <div className="grid gap-6">
@@ -74,17 +74,17 @@ export default function AdminSettingsPage() {
                 <Card className="bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <div className="space-y-1">
-                            <CardTitle className="text-red-600 dark:text-red-400 font-black italic uppercase">🚨 Emergency Protocol</CardTitle>
-                            <CardDescription className="text-red-600/70 font-bold">Manage global maintenance mode.</CardDescription>
+                            <CardTitle className="text-red-600 dark:text-red-400 font-black italic uppercase">🚨 비상 프로토콜 (Emergency Protocol)</CardTitle>
+                            <CardDescription className="text-red-600/70 font-bold">전체 점검 모드를 관리합니다.</CardDescription>
                         </div>
                         <ShieldAlert className="w-8 h-8 text-red-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-red-100 dark:border-red-900/20">
                             <div className="space-y-0.5">
-                                <Label className="text-base font-bold">Maintenance Mode</Label>
+                                <Label className="text-base font-bold">점검 모드 (Maintenance Mode)</Label>
                                 <p className="text-xs text-muted-foreground">
-                                    When enabled, only Admins can access the site. All other users will see a maintenance screen.
+                                    활성화되면 관리자를 제외한 모든 사용자의 접근이 차단되고 점검 화면이 표시됩니다.
                                 </p>
                             </div>
                             <Switch
@@ -101,15 +101,15 @@ export default function AdminSettingsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-black italic uppercase text-indigo-600">
                             <Megaphone className="w-5 h-5" />
-                            Global Announcement
+                            글로벌 공지 배너 (Announcement)
                         </CardTitle>
-                        <CardDescription className="font-bold">Top banner visible to all users.</CardDescription>
+                        <CardDescription className="font-bold">모든 사용자에게 상단 배너를 표시합니다.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid gap-2">
-                            <Label>Banner Text (Leave empty to disable)</Label>
+                            <Label>배너 텍스트 (비워두면 비활성화)</Label>
                             <Input
-                                placeholder="e.g., 'Server maintenance scheduled for 10 PM'"
+                                placeholder="예: '서버 점검이 10시에 예정되어 있습니다'"
                                 defaultValue={settings.ANNOUNCEMENT_BANNER?.text || ''}
                                 onBlur={(e) => {
                                     const val = e.target.value;
@@ -122,7 +122,7 @@ export default function AdminSettingsPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label>Link URL</Label>
+                                <Label>링크 URL</Label>
                                 <Input
                                     placeholder="/pricing"
                                     defaultValue={settings.ANNOUNCEMENT_BANNER?.link || ''}
@@ -136,7 +136,7 @@ export default function AdminSettingsPage() {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label>Theme Color</Label>
+                                <Label>테마 색상</Label>
                                 <div className="flex gap-2">
                                     {['indigo', 'emerald', 'amber', 'red'].map((color) => (
                                         <div

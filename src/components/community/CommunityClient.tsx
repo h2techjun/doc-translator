@@ -92,7 +92,7 @@ export const CommunityClient = ({ posts, tab }: CommunityClientProps) => {
                     </div>
                 ) : (
                     posts?.map((post) => (
-                        <div key={post.id} className="block p-6 bg-white dark:bg-zinc-900 border rounded-lg hover:shadow-md transition cursor-pointer">
+                        <Link href={`/community/${post.id}`} key={post.id} className="block p-6 bg-white dark:bg-zinc-900 border rounded-lg hover:shadow-md transition cursor-pointer">
                             <div className="flex justify-between items-start">
                                 <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
                                 <span className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString()}</span>
@@ -102,11 +102,11 @@ export const CommunityClient = ({ posts, tab }: CommunityClientProps) => {
                                 <span>{t.community.postedBy} {post.users?.full_name || 'Anonymous'}</span>
                                 <span className="mx-2">•</span>
                                 <span>{t.community.views} {post.view_count}</span>
-                                <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+                                <div className="ml-auto" onClick={(e) => e.preventDefault()}>
                                     <ReportModal targetType="POST" targetId={post.id} />
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))
                 )}
             </div>

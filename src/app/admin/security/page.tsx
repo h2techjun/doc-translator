@@ -42,7 +42,7 @@ export default function AdminSecurityPage() {
     }, []);
 
     const banIp = async () => {
-        if (!newIp) return toast.error('IP Address required');
+        if (!newIp) return toast.error('IP 주소를 입력해주세요');
 
         try {
             const res = await fetch('/api/admin/blacklist', {
@@ -52,26 +52,26 @@ export default function AdminSecurityPage() {
             });
 
             if (res.ok) {
-                toast.success(`IP ${newIp} Banned`);
+                toast.success(`IP ${newIp} 차단됨`);
                 setNewIp('');
                 setBanReason('');
                 fetchData();
             } else {
-                toast.error('Failed to ban IP');
+                toast.error('차단 실패');
             }
         } catch (e) {
-            toast.error('Error banning IP');
+            toast.error('IP 차단 중 오류 발생');
         }
     };
 
     const unbanIp = async (ip: string) => {
-        if (!confirm(`Unban ${ip}?`)) return;
+        if (!confirm(`${ip} 차단을 해제하시겠습니까?`)) return;
         try {
             await fetch(`/api/admin/blacklist?ip=${ip}`, { method: 'DELETE' });
-            toast.success('IP Unbanned');
+            toast.success('차단 해제됨');
             fetchData();
         } catch (e) {
-            toast.error('Failed to unban');
+            toast.error('해제 실패');
         }
     };
 
@@ -79,10 +79,10 @@ export default function AdminSecurityPage() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-4xl font-black mb-2 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <ShieldAlert className="w-10 h-10 text-rose-500" />
-                Security Nexus
+                보안 센터 (Security Nexus)
             </h1>
             <p className="text-muted-foreground mb-8 font-bold italic opacity-70 uppercase text-xs">
-                Audit logs, access control, and threat mitigation.
+                감사 로그, 접근 제어 및 위협 관리.
             </p>
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -91,21 +91,21 @@ export default function AdminSecurityPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-rose-400">
                             <Lock className="w-5 h-5" />
-                            Access Control (IP Ban)
+                            접근 제어 (IP Ban)
                         </CardTitle>
-                        <CardDescription>Blacklist IP addresses to prevent access.</CardDescription>
+                        <CardDescription>IP 주소를 차단하여 접근을 제한합니다.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="flex gap-2 mb-6">
                             <Input placeholder="192.168.1.1" value={newIp} onChange={e => setNewIp(e.target.value)} className="bg-black/20 font-mono" />
-                            <Input placeholder="Reason (Optional)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-black/20" />
+                            <Input placeholder="차단 사유 (선택)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-black/20" />
                             <Button onClick={banIp} variant="destructive">
                                 <Ban className="w-4 h-4" />
                             </Button>
                         </div>
 
                         <div className="max-h-[300px] overflow-y-auto space-y-2">
-                            {blacklist.length === 0 && <p className="text-center text-muted-foreground text-sm italic">No active bans.</p>}
+                            {blacklist.length === 0 && <p className="text-center text-muted-foreground text-sm italic">현재 차단된 IP가 없습니다.</p>}
                             {blacklist.map((item) => (
                                 <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20">
                                     <div>
@@ -126,18 +126,18 @@ export default function AdminSecurityPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-amber-400">
                             <Eye className="w-5 h-5" />
-                            Audit Trail
+                            감사 로그 (Audit Trail)
                         </CardTitle>
-                        <CardDescription>Recent administrative actions.</CardDescription>
+                        <CardDescription>최근 관리자 작업 내역입니다.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="max-h-[400px] overflow-y-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-slate-800">
-                                        <TableHead className="text-slate-400">Action</TableHead>
-                                        <TableHead className="text-slate-400">Resource</TableHead>
-                                        <TableHead className="text-right text-slate-400">Time</TableHead>
+                                        <TableHead className="text-slate-400">작업 (Action)</TableHead>
+                                        <TableHead className="text-slate-400">대상 (Resource)</TableHead>
+                                        <TableHead className="text-right text-slate-400">시간 (Time)</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

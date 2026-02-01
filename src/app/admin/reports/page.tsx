@@ -40,18 +40,18 @@ export default function AdminReportsPage() {
                 body: JSON.stringify({
                     report_id: id,
                     status,
-                    resolution_notes: status === 'RESOLVED' ? 'Action Taken' : 'Dismissed by Admin'
+                    resolution_notes: status === 'RESOLVED' ? '조치 완료' : '관리자에 의해 기각됨'
                 })
             });
 
             if (res.ok) {
-                toast.success(`Report ${status}`);
+                toast.success(`신고가 ${status === 'RESOLVED' ? '처리' : '기각'}되었습니다`);
                 fetchReports();
             } else {
-                toast.error('Update failed');
+                toast.error('업데이트 실패');
             }
         } catch (e) {
-            toast.error('System error');
+            toast.error('시스템 오류');
         }
     };
 
@@ -59,17 +59,17 @@ export default function AdminReportsPage() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-4xl font-black mb-2 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <Flag className="w-10 h-10 text-orange-500" />
-                Moderation Queue
+                신고 관리 대기열 (Moderation Queue)
             </h1>
             <p className="text-muted-foreground mb-8 font-bold italic opacity-70 uppercase text-xs">
-                Review and resolve user-submitted reports.
+                사용자 신고를 검토하고 처리합니다.
             </p>
 
             <Tabs defaultValue="PENDING" onValueChange={setStatusFilter} className="w-full">
                 <TabsList className="bg-slate-900/50 border border-slate-800">
-                    <TabsTrigger value="PENDING">Pending Review</TabsTrigger>
-                    <TabsTrigger value="RESOLVED">Resolved</TabsTrigger>
-                    <TabsTrigger value="DISMISSED">Dismissed</TabsTrigger>
+                    <TabsTrigger value="PENDING">검토 대기</TabsTrigger>
+                    <TabsTrigger value="RESOLVED">처리 완료</TabsTrigger>
+                    <TabsTrigger value="DISMISSED">기각됨</TabsTrigger>
                 </TabsList>
 
                 <Card className="mt-4 bg-slate-900/50 border-slate-800 backdrop-blur-sm">
@@ -77,18 +77,18 @@ export default function AdminReportsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-slate-800 hover:bg-transparent">
-                                    <TableHead>Reporter</TableHead>
-                                    <TableHead>Target</TableHead>
-                                    <TableHead>Reason</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    {statusFilter === 'PENDING' && <TableHead className="text-right">Actions</TableHead>}
+                                    <TableHead>신고자</TableHead>
+                                    <TableHead>신고 대상</TableHead>
+                                    <TableHead>사유</TableHead>
+                                    <TableHead>날짜</TableHead>
+                                    {statusFilter === 'PENDING' && <TableHead className="text-right">관리</TableHead>}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {reports.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                                            No reports found in this category.
+                                            신고 내역이 없습니다.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -111,10 +111,10 @@ export default function AdminReportsPage() {
                                             {statusFilter === 'PENDING' && (
                                                 <TableCell className="text-right space-x-2">
                                                     <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-500" onClick={() => handleResolve(report.id, 'RESOLVED')}>
-                                                        <CheckCircle className="w-4 h-4 mr-2" /> Resolve
+                                                        <CheckCircle className="w-4 h-4 mr-2" /> 승인/처리
                                                     </Button>
                                                     <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white" onClick={() => handleResolve(report.id, 'DISMISSED')}>
-                                                        <XCircle className="w-4 h-4 mr-2" /> Dismiss
+                                                        <XCircle className="w-4 h-4 mr-2" /> 기각(무시)
                                                     </Button>
                                                 </TableCell>
                                             )}

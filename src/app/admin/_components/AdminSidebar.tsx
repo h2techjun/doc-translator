@@ -11,25 +11,34 @@ import {
     Menu, ChevronRight, Flag
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/config';
+import { useGeoSmart } from '@/context/geo-smart-context';
 import { motion } from 'framer-motion';
 
 export default function AdminSidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const supabase = createClient();
+    const { profile } = useGeoSmart(); // useGeoSmart를 통해 profile.role 가져오기 (가장 정확)
 
     const isActive = (path: string) => pathname === path;
 
+    // 🔒 권한별 메뉴 필터링
     const navItems = [
-        { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/admin/users', label: 'Members', icon: Users },
-        { href: '/admin/jobs', label: 'Jobs Inspector', icon: FileText },
-        { href: '/admin/posts', label: 'Community', icon: MessageSquare },
-        { href: '/admin/finance', label: 'Treasury', icon: DollarSign },
-        { href: '/admin/reports', label: 'Moderation', icon: Flag },
-        { href: '/admin/settings', label: 'SysConf', icon: Settings },
-        { href: '/admin/security', label: 'Security', icon: ShieldAlert },
+        { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard, role: ['MASTER', 'ADMIN'] },
+        { href: '/admin/users', label: '회원 관리', icon: Users, role: ['MASTER', 'ADMIN'] },
+        { href: '/admin/jobs', label: '작업 감시', icon: FileText, role: ['MASTER', 'ADMIN'] },
+        { href: '/admin/posts', label: '커뮤니티', icon: MessageSquare, role: ['MASTER', 'ADMIN'] },
+        { href: '/admin/finance', label: '자금 관리', icon: DollarSign, role: ['MASTER'] },
+        { href: '/admin/reports', label: '신고 관리', icon: Flag, role: ['MASTER', 'ADMIN'] },
+        // 🔹 아래 메뉴는 MASTER 전용
+        { href: '/admin/settings', label: '시스템 설정', icon: Settings, role: ['MASTER'] },
+        { href: '/admin/security', label: '보안 센터', icon: ShieldAlert, role: ['MASTER'] },
     ];
+
+    // 현재 사용자의 권한으로 필터링
+    const visibleNavItems = navItems.filter(item =>
+        !item.role || (profile?.role && item.role.includes(profile.role))
+    );
 
     return (
         <aside
@@ -41,8 +50,8 @@ export default function AdminSidebar() {
         >
             {/* Header */}
             <div className="p-6 flex items-center gap-3 relative">
-                <div className="w-8 h-8 bg-emerald-500 rounded flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] shrink-0">
-                    <Zap className="w-5 h-5 text-black fill-current" />
+                <div className={`w-8 h-8 rounded flex items-center justify-center shrink-0 shadow-[0_0_15px] ${profile?.role === 'MASTER' ? 'bg-purple-500 shadow-purple-500/50' : 'bg-emerald-500 shadow-emerald-500/50'}`}>
+                    {profile?.role === 'MASTER' ? <ShieldAlert className="w-5 h-5 text-black fill-current" /> : <Zap className="w-5 h-5 text-black fill-current" />}
                 </div>
                 {isOpen && (
                     <motion.span
@@ -50,7 +59,7 @@ export default function AdminSidebar() {
                         animate={{ opacity: 1 }}
                         className="font-black tracking-tighter text-xl italic text-white"
                     >
-                        MASTER
+                        {profile?.role === 'MASTER' ? 'MASTER' : 'ADMIN'}
                     </motion.span>
                 )}
                 <button
@@ -63,7 +72,7 @@ export default function AdminSidebar() {
 
             {/* Nav */}
             <nav className="flex-grow px-3 space-y-1 mt-4 overflow-y-auto">
-                {navItems.map((item) => (
+                {visibleNavItems.map((item) => (
                     <Link key={item.href} href={item.href} className="block">
                         <div
                             className={`
@@ -104,7 +113,7 @@ export default function AdminSidebar() {
                     }}
                 >
                     <LogOut className={`w-5 h-5 ${isOpen ? 'mr-3' : ''}`} />
-                    {isOpen && "SHUTDOWN"}
+                    {isOpen && "로그아웃"}
                 </Button>
             </div>
         </aside>

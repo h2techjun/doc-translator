@@ -73,18 +73,23 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
             try {
                 const savedUiLang = localStorage.getItem('global_ui_lang') as Locale;
                 const savedTargetLang = localStorage.getItem('global_target_lang');
-
-                const res = await fetch('https://ipapi.co/json/');
                 let countryCode = 'US';
-                if (res.ok) {
-                    const data = await res.json();
-                    countryCode = data.country_code || 'US';
+
+                // 🌍 1. Browser-based Geo Detection (Fastest & Zero Errors)
+                // Why? 외부 무료 API(ipapi.co)는 Rate Limit(429) 및 CORS 문제 잦음.
+                const browserLang = navigator.language || 'en';
+
+                if (browserLang.startsWith('ko')) {
+                    countryCode = 'KR';
+                } else {
+                    countryCode = 'US'; // Default fallback
                 }
 
                 const policy = getGeoConfig(countryCode);
                 setRegion(countryCode);
                 setConfig(policy);
 
+                // 사용자 설정이 있으면 우선, 없으면 정책 기본값
                 if (savedUiLang) setUiLangState(savedUiLang);
                 else setUiLangState(policy.defaultUiLang);
 
@@ -92,21 +97,18 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
                 else setTargetLangState(policy.defaultTargetLang);
 
             } catch (error) {
-                console.error("📍 Geo-Detection Failed:", error);
-                const savedUiLang = localStorage.getItem('global_ui_lang') as Locale;
-                if (savedUiLang) {
-                    setUiLangState(savedUiLang);
+                // 심각한 로직 에러(거의 발생 안 함)
+                // console.error("Critical Geo Logic Error:", error);
+
+                // 최후의 보루: 한국어 브라우저면 KR, 아니면 US
+                const browserLang = navigator.language || 'en';
+                if (browserLang.startsWith('ko')) {
+                    setConfig(GEO_CONFIG['KR']);
+                    setRegion('KR');
+                    setUiLangState('ko');
                 } else {
-                    const browserLang = navigator.language.slice(0, 2);
-                    if (browserLang === 'ko') {
-                        setConfig(GEO_CONFIG['KR']);
-                        setRegion('KR');
-                        setUiLangState('ko');
-                        setTargetLangState('en');
-                    } else {
-                        setConfig(GEO_CONFIG['DEFAULT']);
-                        setRegion('US');
-                    }
+                    setConfig(GEO_CONFIG['DEFAULT']);
+                    setRegion('US');
                 }
             } finally {
                 setIsLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Github, Mail, Lock, Languages, Chrome, ArrowRight, Shield, Apple } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { createClient } from '@/lib/supabase/config';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useGeoSmart } from '@/hooks/use-geo-smart';
 
 /**
@@ -21,6 +22,7 @@ import { useGeoSmart } from '@/hooks/use-geo-smart';
  */
 export default function SignInPage() {
     const { t } = useGeoSmart();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -28,6 +30,15 @@ export default function SignInPage() {
     const [isUnconfirmed, setIsUnconfirmed] = useState(false);
     const [cooldown, setCooldown] = useState(0);
     const supabase = createClient();
+
+    // 🛡️ Redirect Reason Handling
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const reason = params.get('reason');
+        if (reason === 'unauthenticated') {
+            toast.error("로그인이 필요하거나 세션이 만료되었습니다.");
+        }
+    }, []);
 
     const handleGuestLogin = async () => {
         setIsLoading(true);
@@ -170,7 +181,20 @@ export default function SignInPage() {
             }
 
             toast.success(t.auth.submitLogin);
-            window.location.href = '/';
+
+            // [Fix] 세션 쿠키 동기화를 위해 강력한 새로고침 로직 적용
+            // router.refresh()는 서버 컴포넌트를 다시 렌더링하도록 요청합니다.
+            router.refresh();
+
+            // 리다이렉트 처리 (쿼리 파라미터 제거)
+            const params = new URLSearchParams(window.location.search);
+            const nextUrl = params.get('redirect') || '/';
+
+            // [UX] 약간의 지연 후 이동하여 토스트 메시지가 보이도록 함 (선택적)
+            setTimeout(() => {
+                router.replace(nextUrl);
+            }, 500);
+
         } catch (error: any) {
             // Expected User Erros (Don't spam console.error)
             if (error.message === "비밀번호가 일치하지 않습니다." || error.message.includes("이메일")) {

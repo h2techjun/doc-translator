@@ -66,7 +66,7 @@ export default function NotificationBell() {
                     .eq('is_read', false);
 
                 setUnreadCount(count || 0);
-            } else if (error?.status === 401 || error?.message?.includes('JWT')) {
+            } else if (error?.status === 401 || error?.status === 404 || error?.message?.includes('JWT')) {
                 setHasAuthError(true);
             }
         } catch (e) {

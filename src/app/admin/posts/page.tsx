@@ -41,7 +41,7 @@ export default function AdminPostsPage() {
                 setPosts(data);
             }
         } catch (error) {
-            toast.error('Failed to fetch posts');
+            toast.error('게시글을 불러오지 못했습니다');
         } finally {
             setLoading(false);
         }
@@ -59,32 +59,32 @@ export default function AdminPostsPage() {
                 body: JSON.stringify({ is_hidden: !currentHidden }),
             });
             if (res.ok) {
-                toast.success(currentHidden ? 'Post visible now' : 'Post hidden safely');
+                toast.success(currentHidden ? '게시글이 공개되었습니다' : '게시글이 숨김 처리되었습니다');
                 fetchPosts();
             }
         } catch (error) {
-            toast.error('Operation failed');
+            toast.error('작업 실패');
         }
     };
 
     const deletePost = async (id: string) => {
-        if (!confirm('Are you sure you want to PERMANENTLY delete this post?')) return;
+        if (!confirm('정말 이 게시글을 영구적으로 삭제하시겠습니까?')) return;
         try {
             const res = await fetch(`/api/admin/posts/${id}`, { method: 'DELETE' });
             if (res.ok) {
-                toast.success('Post purged from archives');
+                toast.success('게시글이 삭제되었습니다');
                 fetchPosts();
             }
         } catch (error) {
-            toast.error('Purge failed');
+            toast.error('삭제 실패');
         }
     };
 
     const getCategoryBadge = (cat: string) => {
         switch (cat) {
-            case 'notice': return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1"><Megaphone className="w-3 h-3" /> NOTICE</Badge>;
-            case 'inquiry': return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">INQUIRY</Badge>;
-            default: return <Badge variant="secondary" className="bg-slate-500/10 text-slate-500 text-[10px]">COMMUNITY</Badge>;
+            case 'notice': return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1"><Megaphone className="w-3 h-3" /> 공지사항</Badge>;
+            case 'inquiry': return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">문의</Badge>;
+            default: return <Badge variant="secondary" className="bg-slate-500/10 text-slate-500 text-[10px]">자유</Badge>;
         }
     };
 
@@ -92,33 +92,33 @@ export default function AdminPostsPage() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-3xl font-black mb-2 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <MessageSquare className="w-8 h-8 text-indigo-500" />
-                Community Intelligence
+                커뮤니티 관리 (Community)
             </h1>
             <p className="text-muted-foreground mb-8 font-bold italic opacity-70 uppercase text-xs">
-                Monitor and moderate user-generated content across the grid.
+                사용자 게시글 모니터링 및 관리.
             </p>
 
             <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-border/50 shadow-xl overflow-hidden">
                 <CardHeader className="border-b border-border/10 bg-slate-50/30 dark:bg-slate-900/30">
-                    <CardTitle className="text-lg font-black italic uppercase tracking-widest text-indigo-600">Post Moderation Feed</CardTitle>
-                    <CardDescription className="text-xs font-bold">Manage visibility and integrity of the community board.</CardDescription>
+                    <CardTitle className="text-lg font-black italic uppercase tracking-widest text-indigo-600">게시글 피드 (Post Feed)</CardTitle>
+                    <CardDescription className="text-xs font-bold">커뮤니티 게시판의 가시성 및 내용을 관리합니다.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
                             <TableRow className="border-b border-border/20">
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest px-6">Content Intelligence</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest">Metadata</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest">Traffic</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest">Temporal</TableHead>
-                                <TableHead className="text-right font-black uppercase text-[10px] tracking-widest px-6">Direct Action</TableHead>
+                                <TableHead className="font-black uppercase text-[10px] tracking-widest px-6">콘텐츠 정보</TableHead>
+                                <TableHead className="font-black uppercase text-[10px] tracking-widest">작성자</TableHead>
+                                <TableHead className="font-black uppercase text-[10px] tracking-widest">트래픽</TableHead>
+                                <TableHead className="font-black uppercase text-[10px] tracking-widest">작성일</TableHead>
+                                <TableHead className="text-right font-black uppercase text-[10px] tracking-widest px-6">관리</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                <TableRow><TableCell colSpan={5} className="h-48 text-center animate-pulse italic font-bold">Scanning digital footprints...</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={5} className="h-48 text-center animate-pulse italic font-bold">스캔 중...</TableCell></TableRow>
                             ) : posts.length === 0 ? (
-                                <TableRow><TableCell colSpan={5} className="h-48 text-center font-bold opacity-30 text-2xl italic">NO DATA DETECTED</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={5} className="h-48 text-center font-bold opacity-30 text-2xl italic">데이터 없음</TableCell></TableRow>
                             ) : (
                                 posts.map((post) => (
                                     <TableRow key={post.id} className={`group hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors border-b border-border/10 ${post.is_hidden ? 'opacity-50 grayscale' : ''}`}>
@@ -127,14 +127,14 @@ export default function AdminPostsPage() {
                                                 <div className="flex items-center gap-2">
                                                     {getCategoryBadge(post.category)}
                                                     <span className="font-black text-sm text-zinc-900 dark:text-zinc-100 italic tracking-tight">{post.title}</span>
-                                                    {post.is_hidden && <Badge variant="destructive" className="h-4 px-1 text-[8px] font-black italic">HIDDEN</Badge>}
+                                                    {post.is_hidden && <Badge variant="destructive" className="h-4 px-1 text-[8px] font-black italic">숨김</Badge>}
                                                 </div>
                                                 <span className="text-[10px] font-mono text-muted-foreground opacity-50">{post.id}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-bold text-indigo-500">{post.author?.email || 'GHOST_USER'}</span>
+                                                <span className="text-xs font-bold text-indigo-500">{post.author?.email || '알 수 없음'}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>

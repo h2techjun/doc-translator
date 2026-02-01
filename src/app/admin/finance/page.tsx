@@ -41,7 +41,7 @@ export default function AdminFinancePage() {
 
     const createCoupon = async () => {
         if (!newCode || discountValue <= 0) {
-            toast.error('Please check your inputs');
+            toast.error('입력 정보를 확인해주세요');
             return;
         }
 
@@ -59,26 +59,26 @@ export default function AdminFinancePage() {
             });
 
             if (res.ok) {
-                toast.success('Coupon Created');
+                toast.success('쿠폰이 생성되었습니다');
                 setIsCreating(false);
                 setNewCode('');
                 fetchCoupons();
             } else {
-                toast.error('Creation failed');
+                toast.error('생성 실패');
             }
         } catch (e) {
-            toast.error('System error');
+            toast.error('시스템 오류');
         }
     };
 
     const deleteCoupon = async (code: string) => {
-        if (!confirm('Revoke this coupon?')) return;
+        if (!confirm('이 쿠폰을 폐기하시겠습니까?')) return;
         try {
             await fetch(`/api/admin/coupons/${code}`, { method: 'DELETE' });
-            toast.success('Coupon Revoked');
+            toast.success('쿠폰이 폐기되었습니다');
             fetchCoupons();
         } catch (e) {
-            toast.error('Deletion failed');
+            toast.error('폐기 실패');
         }
     };
 
@@ -86,10 +86,10 @@ export default function AdminFinancePage() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-4xl font-black mb-2 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <DollarSign className="w-10 h-10 text-emerald-500" />
-                Treasury & Finance
+                자금 및 재무 (Treasury & Finance)
             </h1>
             <p className="text-muted-foreground mb-8 font-bold italic opacity-70 uppercase text-xs">
-                Manage revenue streams, transactions, and promotional assets.
+                수익 흐름, 거래 내역 및 프로모션 자산을 관리합니다.
             </p>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -99,12 +99,12 @@ export default function AdminFinancePage() {
                         <div>
                             <CardTitle className="flex items-center gap-2 text-emerald-400">
                                 <Ticket className="w-5 h-5" />
-                                Coupon Manager
+                                쿠폰 관리자 (Coupon Manager)
                             </CardTitle>
-                            <CardDescription>Issue and revoke promotional codes.</CardDescription>
+                            <CardDescription>프로모션 코드를 발급하거나 폐기합니다.</CardDescription>
                         </div>
                         <Button size="sm" onClick={() => setIsCreating(!isCreating)} variant={isCreating ? "secondary" : "default"}>
-                            {isCreating ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Issue New</>}
+                            {isCreating ? '취소' : <><Plus className="w-4 h-4 mr-2" /> 새 쿠폰 발급</>}
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -112,42 +112,42 @@ export default function AdminFinancePage() {
                             <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Code</Label>
+                                        <Label>코드명</Label>
                                         <Input placeholder="SUMMER_SALE" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="font-mono uppercase" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Discount Type</Label>
+                                        <Label>할인 유형</Label>
                                         <Select onValueChange={setDiscountType} defaultValue={discountType}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="FIXED">Points (Fixed Amount)</SelectItem>
-                                                <SelectItem value="PERCENT">Percent (%)</SelectItem>
+                                                <SelectItem value="FIXED">포인트 (고정액)</SelectItem>
+                                                <SelectItem value="PERCENT">퍼센트 (%)</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Value</Label>
+                                        <Label>값</Label>
                                         <Input type="number" value={discountValue} onChange={e => setDiscountValue(Number(e.target.value))} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Limit</Label>
+                                        <Label>사용 제한</Label>
                                         <Input type="number" value={usageLimit} onChange={e => setUsageLimit(Number(e.target.value))} />
                                     </div>
                                 </div>
-                                <Button className="w-full bg-emerald-600 hover:bg-emerald-500" onClick={createCoupon}>Issue Coupon</Button>
+                                <Button className="w-full bg-emerald-600 hover:bg-emerald-500" onClick={createCoupon}>쿠폰 발급</Button>
                             </div>
                         )}
 
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Code</TableHead>
-                                    <TableHead>Value</TableHead>
-                                    <TableHead>Usage</TableHead>
-                                    <TableHead>Expires</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
+                                    <TableHead>코드</TableHead>
+                                    <TableHead>혜택</TableHead>
+                                    <TableHead>사용량</TableHead>
+                                    <TableHead>만료일</TableHead>
+                                    <TableHead className="text-right">관리</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -161,13 +161,13 @@ export default function AdminFinancePage() {
                                             {coupon.used_count} / {coupon.usage_limit}
                                         </TableCell>
                                         <TableCell className="text-xs text-muted-foreground">
-                                            {coupon.valid_until ? format(new Date(coupon.valid_until), 'yyyy-MM-dd') : 'No Expiry'}
+                                            {coupon.valid_until ? format(new Date(coupon.valid_until), 'yyyy-MM-dd') : '무제한'}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Button size="icon" variant="ghost" onClick={() => {
                                                     navigator.clipboard.writeText(coupon.code);
-                                                    toast.success('Copied to clipboard');
+                                                    toast.success('클립보드에 복사됨');
                                                 }}>
                                                     <Copy className="w-4 h-4" />
                                                 </Button>
@@ -188,18 +188,18 @@ export default function AdminFinancePage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-cyan-400">
                             <TrendingUp className="w-5 h-5" />
-                            Revenue Statistics
+                            수익 통계 (Revenue)
                         </CardTitle>
-                        <CardDescription>Estimated earnings.</CardDescription>
+                        <CardDescription>예상 수익 현황입니다.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex justify-between items-end">
-                                <span className="text-sm font-bold text-muted-foreground">Today</span>
+                                <span className="text-sm font-bold text-muted-foreground">오늘</span>
                                 <span className="text-2xl font-black text-white">$124.50</span>
                             </div>
                             <div className="flex justify-between items-end">
-                                <span className="text-sm font-bold text-muted-foreground">This Month</span>
+                                <span className="text-sm font-bold text-muted-foreground">이번 달</span>
                                 <span className="text-2xl font-black text-emerald-400">$3,492.00</span>
                             </div>
                             <div className="h-32 flex items-end justify-between gap-1 mt-6">
