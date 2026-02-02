@@ -46,7 +46,7 @@ export default function AdSense() {
         }
 
         // 4. Signal Google FC Present
-        if (!window.frames['googlefcPresent']) {
+        if (!(window.frames as any)['googlefcPresent']) {
             const signalScript = document.createElement('script');
             signalScript.id = 'google-fc-present-logic';
             signalScript.innerHTML = `

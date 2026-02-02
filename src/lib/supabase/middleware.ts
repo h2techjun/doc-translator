@@ -56,21 +56,26 @@ export async function updateSession(request: NextRequest) {
         // 4. Refresh Session (with Explicit Recovery)
     let { data: { user }, error } = await supabase.auth.getUser();
 
-    // [Fix] Fundamental Solution: Manual Recovery if SDK fails but cookie exists
-    if (!user) {
-        try {
-            const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-            const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
-            if (projectId) {
-                const cookieName = `sb-${projectId}-auth-token`;
-                const authCookie = request.cookies.get(cookieName);
+        // 0. Manual Recovery (Improved)
+        if (!user) {
+            try {
+                // Try standard cookie name first
+                const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+                const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
+                let authCookie = projectId ? request.cookies.get(`sb-${projectId}-auth-token`) : null;
+
+                // Fallback: Search for any supabase auth token (for custom domains or different envs)
+                if (!authCookie) {
+                    const allCookies = request.cookies.getAll();
+                    authCookie = allCookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'));
+                    if (authCookie) console.log(`[Middleware] Found fallback auth cookie: ${authCookie.name}`);
+                }
 
                 if (authCookie) {
-                    console.log(`[Middleware] Manual Recovery Attempt for: ${cookieName}`);
+                    console.log(`[Middleware] Manual Recovery Attempt using cookie: ${authCookie.name}`);
                     let tokenValue: string | undefined;
                     let refreshToken: string | undefined;
 
-                    // Parse JSON (handle both encoded and plain)
                     try {
                         const json = JSON.parse(authCookie.value);
                         tokenValue = json.access_token;
@@ -93,64 +98,122 @@ export async function updateSession(request: NextRequest) {
 
                         if (recoverData.session && recoverData.user) {
                             console.log(`[Middleware] ✅ Recovery Successful: ${recoverData.user.email}`);
-                            user = recoverData.user; // Update user variable
+                            user = recoverData.user; 
                         } else {
                             console.log(`[Middleware] ❌ Recovery Failed: ${recoverError?.message}`);
                         }
                     }
                 }
+            } catch (e) {
+                console.error(`[Middleware] Recovery Exception:`, e);
             }
-        } catch (e) {
-            console.error(`[Middleware] Recovery Exception:`, e);
         }
-    }
 
         // Admin Route Protection
         const isAdminPath = pathname.startsWith('/admin') || /^\/[a-z]{2}\/admin/.test(pathname);
 
         if (isAdminPath) {
             // Check auth status
-            const isAuth = !!user; // user is now updated by recovery logic
+            const isAuth = !!user;
             
-            // Assuming 'locale' is extracted from the path or available elsewhere, e.g.,
-            // const locale = pathname.split('/')[1]; // Example: /en/admin -> en
-            // For now, using a placeholder or assuming it's defined.
-            const locale = request.nextUrl.pathname.split('/')[1] || 'en'; // Placeholder for locale
-
             console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Auth: ${isAuth}, Role: ${user?.role}`);
 
-            if (!isAuth || (error && !user)) { // Use 'error' from getUser(), but respect 'user' if recovered
+            if (!isAuth || (error && !user)) {
                 console.warn(`[Middleware] Unauthorized Admin Access Attempt. Error: ${error?.message}`);
-                const loginUrl = new URL(`/${locale}/signin`, request.url);
-                loginUrl.searchParams.set('redirect', pathname);
-                loginUrl.searchParams.set('reason', 'unauthenticated');
-                // loginUrl.searchParams.set('debug_err', authError.message); 
-                return NextResponse.redirect(loginUrl);
+                // [Change] Relaxed Middleware Blocking - Delegating to Client-side Guard
+                // const loginUrl = new URL('/signin', request.url);
+                // loginUrl.searchParams.set('redirect', pathname);
+                // loginUrl.searchParams.set('reason', 'unauthenticated');
+                
+                // // [Fix] Preserve cookies on redirect (Critical for Session Persistence)
+                // const redirectResponse = NextResponse.redirect(loginUrl);
+                // const sourceCookies = response.cookies.getAll();
+                // sourceCookies.forEach(cookie => {
+                //     redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+                // });
+                
+                // return redirectResponse;
+                 console.log('[Middleware] Passing through to Client Guard...');
             }
 
-            console.log(`[Middleware] Authenticated User: ${user.id} (${user.email}) accessing Admin.`);
+            if (user) {
+                const authUser = user;
+                console.log(`[Middleware] Authenticated User: ${authUser.id} (${authUser.email}) accessing Admin.`);
 
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+                // 1. Fetch Profile (Optimized: only if user exists)
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('role, status, banned_until, ban_reason')
+                    .eq('id', authUser.id)
+                    .single();
 
-            if (profileError) {
-                console.error(`[Middleware] Profile Fetch Error for user ${user.id}:`, profileError);
-            } else {
-                console.log(`[Middleware] User Role: ${profile?.role}`);
+                if (profileError) {
+                    console.error(`[Middleware] Profile Fetch Error for user ${authUser.id}:`, profileError);
+                }
+
+                // 2. [Security] Block Suspended/Banned Users
+                // Skip check for signout or specific status pages to avoid infinite loops
+                const isStatusPage = pathname.includes('/account-status') || pathname.includes('/signin');
+                
+                if (profile && !isStatusPage) {
+                    const now = new Date();
+                    const isBanned = profile.status === 'BANNED';
+                    const isSuspended = profile.status === 'SUSPENDED' && (!profile.banned_until || new Date(profile.banned_until) > now);
+
+                    if (isBanned || isSuspended) {
+                        console.warn(`[Middleware] Access blocked for ${profile.status} user: ${authUser.id}`);
+                        // locale is already defined above or we extract it here
+                        const localeFromPath = pathname.split('/')[1] || 'en';
+                        const statusUrl = new URL(`/${localeFromPath}/account-status`, request.url);
+                        statusUrl.searchParams.set('status', profile.status);
+                        if (profile.ban_reason) statusUrl.searchParams.set('reason', profile.ban_reason);
+                        if (profile.banned_until) statusUrl.searchParams.set('until', profile.banned_until);
+                        return NextResponse.redirect(statusUrl);
+                    }
+                }
+
+                // 3. Admin Route Protection
+                // 'isAdminPath' is already true here because of the outer check (line 111)
+
+                console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Role: ${profile?.role}`);
+
+                if (profileError || (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER')) {
+                    console.warn(`[Middleware] Unauthorized Admin access by user ${authUser.id}. Role: ${profile?.role || 'None'}`);
+                    const url = request.nextUrl.clone();
+                    url.pathname = '/forbidden';
+                    return NextResponse.rewrite(url);
+                }
+
+                // 3-1. [Security] Granular Permission Checks for ADMIN (MASTER bypasses)
+                if (profile.role === 'ADMIN') {
+                    const { data: permissions } = await supabase
+                        .from('admin_permissions')
+                        .select('*')
+                        .eq('user_id', authUser.id)
+                        .maybeSingle(); // Use maybeSingle to avoid 406 error if row missing
+
+                    const subPath = pathname.replace(/^\/[a-z]{2}\/admin/, '/admin');
+
+                    // If no permissions row exists, permissions is null. Default to false (Block).
+                    
+                    if (subPath.startsWith('/admin/users') && !permissions?.can_manage_users) {
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/users (Missing can_manage_users)`);
+                        return NextResponse.redirect(new URL('/forbidden', request.url));
+                    }
+
+                    if (subPath.startsWith('/admin/permissions') && !permissions?.can_manage_admins) {
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/permissions (Missing can_manage_admins)`);
+                        return NextResponse.redirect(new URL('/forbidden', request.url));
+                    }
+
+                    if (subPath.startsWith('/admin/audit-logs') && !permissions?.can_access_security) {
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/audit-logs (Missing can_access_security)`);
+                        return NextResponse.redirect(new URL('/forbidden', request.url));
+                    }
+                }
+
+                console.log(`[Middleware] Admin Access Granted.`);
             }
-
-            if (profileError || (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER')) {
-                console.warn(`[Middleware] Unauthorized Admin access by user ${user.id}. Role: ${profile?.role || 'None'}`);
-                // 권한이 없으면 403 Forbidden 페이지 표시 (로그 아웃 방지)
-                const url = request.nextUrl.clone();
-                url.pathname = '/forbidden';
-                return NextResponse.rewrite(url);
-            }
-
-            console.log(`[Middleware] Admin Access Granted.`);
         }
     } catch (e) {
         console.error('[Middleware Error]:', e);

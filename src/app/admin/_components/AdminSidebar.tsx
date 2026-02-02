@@ -30,6 +30,7 @@ export default function AdminSidebar() {
         { href: '/admin/posts', label: '커뮤니티', icon: MessageSquare, role: ['MASTER', 'ADMIN'] },
         { href: '/admin/finance', label: '자금 관리', icon: DollarSign, role: ['MASTER'] },
         { href: '/admin/reports', label: '신고 관리', icon: Flag, role: ['MASTER', 'ADMIN'] },
+        { href: '/admin/permissions', label: '권한 관리', icon: ShieldAlert, role: ['MASTER'] },
         // 🔹 아래 메뉴는 MASTER 전용
         { href: '/admin/settings', label: '시스템 설정', icon: Settings, role: ['MASTER'] },
         { href: '/admin/security', label: '보안 센터', icon: ShieldAlert, role: ['MASTER'] },
@@ -59,7 +60,7 @@ export default function AdminSidebar() {
                         animate={{ opacity: 1 }}
                         className="font-black tracking-tighter text-xl italic text-white"
                     >
-                        {profile?.role === 'MASTER' ? 'MASTER' : 'ADMIN'}
+                        {profile?.role === 'MASTER' ? '총 관리자' : '관리자'}
                     </motion.span>
                 )}
                 <button
@@ -78,17 +79,17 @@ export default function AdminSidebar() {
                             className={`
                                 flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative
                                 ${isActive(item.href)
-                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
-                                    : 'text-slate-400 hover:text-white hover:bg-[#1e293b]'}
+                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                    : 'text-slate-300 hover:text-white hover:bg-[#1e293b]'}
                             `}
                         >
-                            <item.icon className={`w-5 h-5 shrink-0 ${isActive(item.href) ? 'text-emerald-400' : 'group-hover:text-white'}`} />
+                            <item.icon className={`w-5 h-5 shrink-0 ${isActive(item.href) ? 'text-emerald-400' : 'text-slate-400 group-hover:text-white'}`} />
 
                             {isOpen && (
                                 <motion.span
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="font-medium text-sm whitespace-nowrap"
+                                    className="font-bold text-sm whitespace-nowrap"
                                 >
                                     {item.label}
                                 </motion.span>

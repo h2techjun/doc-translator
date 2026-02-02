@@ -49,7 +49,7 @@ export default function NotificationBell() {
             if (!session) return;
 
             // 🚀 Direct fetch from Supabase
-            const { data, error } = await supabase
+            const { data, error, status } = await supabase
                 .from('notifications')
                 .select('*')
                 .eq('user_id', session.user.id)
@@ -66,7 +66,7 @@ export default function NotificationBell() {
                     .eq('is_read', false);
 
                 setUnreadCount(count || 0);
-            } else if (error?.status === 401 || error?.status === 404 || error?.message?.includes('JWT')) {
+            } else if (status === 401 || status === 404 || error?.message?.includes('JWT')) {
                 setHasAuthError(true);
             }
         } catch (e) {
