@@ -7,7 +7,7 @@
  */
 
 // 사용자 등급 (Tier)
-export type UserTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'MASTER';
+export type UserTier = 'GUEST' | 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'MASTER';
 
 // 트랜잭션 유형
 export type TransactionType = 'CHARGE' | 'USAGE' | 'REWARD' | 'REFUND';

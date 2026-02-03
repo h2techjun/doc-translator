@@ -55,6 +55,63 @@ export default function AdminUsersPage() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    
+    // 🌟 Bulk Selection State
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+    const [bulkAction, setBulkAction] = useState<'grant_points' | 'update_role' | null>(null);
+    const [bulkValue, setBulkValue] = useState<string>('');
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === users.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(users.map(u => u.id)));
+        }
+    };
+
+    const toggleSelectUser = (id: string) => {
+        const newSet = new Set(selectedIds);
+        if (newSet.has(id)) {
+            newSet.delete(id);
+        } else {
+            newSet.add(id);
+        }
+        setSelectedIds(newSet);
+    };
+
+    const handleBulkAction = async () => {
+        if (!bulkAction || selectedIds.size === 0) return;
+        if (!confirm(`${selectedIds.size}명의 사용자에게 작업을 수행하시겠습니까?`)) return;
+
+        setIsBulkProcessing(true);
+        try {
+            const res = await fetch('/api/admin/users/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userIds: Array.from(selectedIds),
+                    action: bulkAction,
+                    value: bulkValue
+                })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                toast.success(result.message || '일괄 처리가 완료되었습니다.');
+                setSelectedIds(new Set());
+                setBulkAction(null);
+                setBulkValue('');
+                fetchUsers(page);
+            } else {
+                toast.error(`작업 실패: ${result.error}`);
+            }
+        } catch (error) {
+            toast.error('일괄 처리 중 오류 발생');
+        } finally {
+            setIsBulkProcessing(false);
+        }
+    };
 
     const handleUpdateUser = async (updatedData: Partial<User>) => {
         if (!selectedUser) return;
@@ -83,6 +140,7 @@ export default function AdminUsersPage() {
 
     const fetchUsers = async (pageNum: number) => {
         setLoading(true);
+        setSelectedIds(new Set()); // 페이지 변경 시 선택 초기화
         try {
             const res = await fetch(`/api/admin/users?page=${pageNum}&limit=20`);
             if (res.ok) {
@@ -112,17 +170,76 @@ export default function AdminUsersPage() {
             </p>
 
             <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-border/50">
-                <CardHeader>
-                    <CardTitle>전체 회원 목록</CardTitle>
-                    <CardDescription>
-                        플랫폼에 등록된 모든 사용자의 목록입니다.
-                    </CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>전체 회원 목록</CardTitle>
+                        <CardDescription>
+                            플랫폼에 등록된 모든 사용자의 목록입니다.
+                        </CardDescription>
+                    </div>
+                    
+                    {/* Bulk Action Toolbar */}
+                    {selectedIds.size > 0 && (
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
+                            <span className="text-xs font-bold text-muted-foreground mr-2">
+                                {selectedIds.size}명 선택됨
+                            </span>
+                            <Select onValueChange={(v) => setBulkAction(v as any)}>
+                                <SelectTrigger className="w-[140px] h-9 text-xs font-bold">
+                                    <SelectValue placeholder="일괄 작업 선택" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="grant_points">🎁 포인트 지급</SelectItem>
+                                    <SelectItem value="update_role">👑 역할 변경</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {bulkAction === 'grant_points' && (
+                                <Input 
+                                    placeholder="지급 포인트 (예: 1000)" 
+                                    className="w-[120px] h-9 text-xs" 
+                                    type="number"
+                                    value={bulkValue}
+                                    onChange={(e) => setBulkValue(e.target.value)}
+                                />
+                            )}
+
+                            {bulkAction === 'update_role' && (
+                                <Select onValueChange={setBulkValue}>
+                                    <SelectTrigger className="w-[100px] h-9 text-xs font-bold">
+                                        <SelectValue placeholder="역할 선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="USER">USER</SelectItem>
+                                        <SelectItem value="ADMIN">ADMIN</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+
+                            <Button 
+                                size="sm" 
+                                className="h-9 text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white"
+                                onClick={handleBulkAction}
+                                disabled={isBulkProcessing || !bulkAction || !bulkValue}
+                            >
+                                {isBulkProcessing ? '처리 중...' : '적용'}
+                            </Button>
+                        </div>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <div className="rounded-md border border-border/50 overflow-hidden">
                         <Table>
                             <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
                                 <TableRow>
+                                    <TableHead className="w-[50px]">
+                                        <input 
+                                            type="checkbox" 
+                                            className="accent-indigo-500 w-4 h-4 cursor-pointer"
+                                            checked={users.length > 0 && selectedIds.size === users.length}
+                                            onChange={toggleSelectAll}
+                                        />
+                                    </TableHead>
                                     <TableHead>이메일 / ID</TableHead>
                                     <TableHead>역할</TableHead>
                                     <TableHead>등급 (Tier)</TableHead>
@@ -135,19 +252,27 @@ export default function AdminUsersPage() {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-24 text-center">
+                                        <TableCell colSpan={8} className="h-24 text-center">
                                             회원 정보 로딩 중...
                                         </TableCell>
                                     </TableRow>
                                 ) : users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                                        <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                                             회원이 없습니다.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     users.map((user) => (
-                                        <TableRow key={user.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                                        <TableRow key={user.id} className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors ${selectedIds.has(user.id) ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}>
+                                            <TableCell>
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="accent-indigo-500 w-4 h-4 cursor-pointer"
+                                                    checked={selectedIds.has(user.id)}
+                                                    onChange={() => toggleSelectUser(user.id)}
+                                                />
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-zinc-900 dark:text-zinc-100">{user.email || '이메일 없음'}</span>

@@ -101,15 +101,7 @@ export const PostDetailClient = ({ post, initialComments }: PostDetailClientProp
         }
     };
 
-    const handleSendMessage = () => {
-        if (!user) {
-            router.push('/signin');
-            return;
-        }
-        if (post.users?.id) {
-            router.push(`/inbox?partner_id=${post.users.id}`);
-        }
-    };
+
 
     return (
         <div className="max-w-4xl mx-auto py-10 px-4">
@@ -145,11 +137,7 @@ export const PostDetailClient = ({ post, initialComments }: PostDetailClientProp
                     <span>{new Date(post.created_at).toLocaleDateString()}</span>
                     <span>조회 {post.view_count}</span>
                     <div className="ml-auto flex gap-2">
-                        {user?.id !== post.users?.id && post.users?.id && (
-                            <Button variant="outline" size="sm" onClick={handleSendMessage}>
-                                <MessageSquare className="w-4 h-4 mr-2" /> 쪽지 보내기
-                            </Button>
-                        )}
+
                         <ReportModal targetType="POST" targetId={post.id} />
                     </div>
                 </div>

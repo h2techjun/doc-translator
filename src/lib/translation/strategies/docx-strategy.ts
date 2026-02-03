@@ -35,9 +35,32 @@ export class DocxTranslationStrategy extends BaseTranslationStrategy {
         const paragraphs = xmlDoc.getElementsByTagName('w:p');
         const batchRequests: { fullText: string; textNodes: Element[] }[] = [];
 
+        // 4️⃣ 데이터 분석 및 로깅 (Layout Verification)
+        let tableCellCount = 0;
+        let captionCount = 0;
+
         // 각 문단을 순회하며 텍스트 수집
         for (let i = 0; i < paragraphs.length; i++) {
             const p = paragraphs[i];
+
+            // 🔍 Table Cell / Caption 감지
+            let isTableCell = false;
+            let parent = p.parentNode;
+            while (parent) {
+                if (parent.nodeName === 'w:tc') {
+                    isTableCell = true;
+                    break;
+                }
+                parent = parent.parentNode;
+            }
+            if (isTableCell) tableCellCount++;
+
+            // 🔍 Caption 감지 (스타일 기반)
+            const pStyle = p.getElementsByTagName('w:pStyle')[0];
+            if (pStyle && pStyle.getAttribute('w:val')?.toLowerCase().includes('caption')) {
+                captionCount++;
+            }
+
             const textNodes = Array.from(p.getElementsByTagName('w:t'));
 
             if (textNodes.length === 0) continue;
@@ -97,6 +120,7 @@ export class DocxTranslationStrategy extends BaseTranslationStrategy {
         }
 
         console.log(`  📊 배치 최적화: 총 ${batches.length}개 배치 (문단 ${batchRequests.length}개)`);
+        console.log(`  🏗️ 레이아웃 구조 감지: 테이블 셀 ${tableCellCount}개, 캡션 ${captionCount}개`);
 
         // 6️⃣ 번역 실행 및 결과 주입
         for (let i = 0; i < batches.length; i++) {

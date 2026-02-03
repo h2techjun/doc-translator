@@ -155,7 +155,7 @@ export default function MyTranslationsPage() {
                         번역 파일 목록
                     </CardTitle>
                     <CardDescription>
-                        지난 30일간의 번역 기록이 표시됩니다.
+                        번역 결과물은 보안을 위해 <strong>10일간 보관</strong>되며 이후 자동 파기됩니다.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -230,16 +230,31 @@ export default function MyTranslationsPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                {job.status === 'COMPLETED' && job.translated_file_url && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-500 hover:bg-emerald-500/10"
-                                                        onClick={() => handleDownload(job.translated_file_url!, `translated_${job.original_filename}`)}
-                                                    >
-                                                        <Download className="w-4 h-4" />
-                                                    </Button>
-                                                )}
+                                                {(() => {
+                                                    const isExpired = (new Date().getTime() - new Date(job.created_at).getTime()) / (1000 * 60 * 60 * 24) >= 10;
+
+                                                    if (job.status === 'COMPLETED' && job.translated_file_url) {
+                                                        if (isExpired) {
+                                                            return (
+                                                                <span className="text-xs text-muted-foreground font-medium flex items-center justify-end gap-1">
+                                                                    <AlertCircle className="w-3 h-3" />
+                                                                    만료됨
+                                                                </span>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-500 hover:bg-emerald-500/10"
+                                                                onClick={() => handleDownload(job.translated_file_url!, `translated_${job.original_filename}`)}
+                                                            >
+                                                                <Download className="w-4 h-4" />
+                                                            </Button>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
                                             </TableCell>
                                         </TableRow>
                                     ))}

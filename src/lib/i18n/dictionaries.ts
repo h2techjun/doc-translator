@@ -11,3 +11,6 @@ export const dictionaries = {
     es,
     fr
 };
+
+export type Locale = keyof typeof dictionaries;
+export type Dictionary = typeof dictionaries.en;

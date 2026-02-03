@@ -109,6 +109,21 @@ export async function updateSession(request: NextRequest) {
             }
         }
 
+        // 🛡️ [Security] Absolute Session Timeout (1 Hour)
+        if (user && user.last_sign_in_at) {
+            const lastSignIn = new Date(user.last_sign_in_at).getTime();
+            const now = new Date().getTime();
+            const oneHour = 60 * 60 * 1000;
+
+            if (now - lastSignIn > oneHour) {
+                console.warn(`[Middleware] Session Expired (Absolute Timeout): ${user.email}`);
+                await supabase.auth.signOut();
+                const loginUrl = new URL('/signin', request.url);
+                loginUrl.searchParams.set('reason', 'session_expired');
+                return NextResponse.redirect(loginUrl);
+            }
+        }
+
         // Admin Route Protection
         const isAdminPath = pathname.startsWith('/admin') || /^\/[a-z]{2}\/admin/.test(pathname);
 

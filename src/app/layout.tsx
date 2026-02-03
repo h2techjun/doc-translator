@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import AdSense from "@/components/ads/AdSense";
+import { AutoLogoutTimer } from "@/components/auth/AutoLogoutTimer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -53,6 +54,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GeoSmartProvider>
+            <AutoLogoutTimer />
             <div className="flex min-h-screen flex-col">
               <Navbar />
               <main className="flex-1">{children}</main>
