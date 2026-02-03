@@ -174,6 +174,7 @@ export default function PermissionsPage() {
                         </Table>
                     </CardContent>
                 </Card>
+            </div>
         </div>
     );
 }
