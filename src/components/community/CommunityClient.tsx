@@ -68,7 +68,7 @@ export const CommunityClient = ({ posts, tab }: CommunityClientProps) => {
                                 <div className="p-4 bg-white/50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
                                     <h4 className="font-bold text-zinc-900 dark:text-zinc-100 mb-2">💰 {t.pricingPage.policy.pointTitle}</h4>
                                     <ul className="text-xs space-y-1">
-                                        {t.pricingPage.policy.pointItems.map((item, i) => (
+                                        {t.pricingPage.policy.pointItems.map((item: string, i: number) => (
                                             <li key={i}>• {item.replace('{base}', '5').replace('{basePages}', '2').replace('{nextPage}', '3').replace('{extra}', '2')}</li>
                                         ))}
                                     </ul>
@@ -76,7 +76,7 @@ export const CommunityClient = ({ posts, tab }: CommunityClientProps) => {
                                 <div className="p-4 bg-white/50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
                                     <h4 className="font-bold text-zinc-900 dark:text-zinc-100 mb-2">📺 {t.pricingPage.policy.adTitle}</h4>
                                     <ul className="text-xs space-y-1">
-                                        {t.pricingPage.policy.adItems.map((item, i) => (
+                                        {t.pricingPage.policy.adItems.map((item: string, i: number) => (
                                             <li key={i}>• {item}</li>
                                         ))}
                                     </ul>

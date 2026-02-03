@@ -36,7 +36,7 @@ export const GEO_CONFIG: Record<string, GeoConfig> = {
         currency: 'JPY',
         currencySymbol: '¥',
         pppFactor: 1.0,
-        defaultUiLang: 'ja',
+        defaultUiLang: 'en',
         defaultTargetLang: 'ko'
     },
     // 🇨🇳 China
