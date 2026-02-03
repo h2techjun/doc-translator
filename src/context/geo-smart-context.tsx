@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { GEO_CONFIG, getGeoConfig, GeoConfig } from '@/lib/i18n/geo-config';
-import { i18n, Locale } from '@/lib/i18n/dictionaries';
+import { i18n, Locale, Dictionary } from '@/lib/i18n/dictionaries';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -16,7 +16,7 @@ interface GeoSmartContextType {
     // User Preferences (Mutable)
     uiLang: Locale;
     targetLang: string;
-    t: typeof i18n['ko']; // Typed translation object
+    t: Dictionary; // Typed translation object
 
     // User Data
     user: User | null;

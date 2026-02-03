@@ -11,10 +11,10 @@ const getAdminClient = () => createClient(
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: { userId: string } }
 ) {
     try {
-        const id = params.id;
+        const id = params.userId;
         const body = await req.json();
         const { points, tier, role } = body;
 
