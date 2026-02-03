@@ -52,8 +52,7 @@ export const en = {
     pricingRule: {
         title: "Points Policy",
         base: "{base} Points ({basePages}page)",
-        extra: "{extra}P/page from page {nextPage}",
-        guestBadge: "GUEST: 2page FREE"
+        extra: "{extra}P/page from page {nextPage}"
     },
     selector: "Target Language",
     selectorLabel: "Select target language",

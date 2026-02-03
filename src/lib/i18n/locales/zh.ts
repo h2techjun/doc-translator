@@ -52,8 +52,7 @@ export const zh = {
     pricingRule: {
         title: "积分政策",
         base: "{base} 积分 ({basePages}page)",
-        extra: "第 {nextPage} 页起 {extra}P/页",
-        guestBadge: "访客: 2page 免费"
+        extra: "第 {nextPage} 页起 {extra}P/页"
     },
     selector: "目标语言",
     selectorLabel: "选择目标语言",

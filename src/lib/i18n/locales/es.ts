@@ -52,8 +52,7 @@ export const es = {
     pricingRule: {
         title: "Política de puntos",
         base: "{base} Puntos ({basePages}page)",
-        extra: "{extra}P/page a partir de la página {nextPage}",
-        guestBadge: "INVITADO: 2page GRATIS"
+        extra: "{extra}P/page a partir de la página {nextPage}"
     },
     selector: "Idioma de destino",
     selectorLabel: "Seleccionar idioma de destino",

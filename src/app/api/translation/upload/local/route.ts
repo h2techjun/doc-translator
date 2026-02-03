@@ -39,25 +39,15 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: '포인트 부족', isPointError: true }, { status: 403 });
             }
         } else {
-            if (pageCount > POINT_COSTS.BASE_PAGES) {
-                return NextResponse.json({
-                    error: `게스트 제한 초과 (${POINT_COSTS.BASE_PAGES}p). 로그인 필요.`,
-                    isAuthError: true
-                }, { status: 403 });
-            }
+            // Guest or not logged in -> Must log in (as Guest or User) to have points
+            return NextResponse.json({ 
+                error: '로그인이 필요합니다. (게스트 로그인 포함)', 
+                isAuthError: true 
+            }, { status: 401 });
         }
 
-        const userId = user ? user.id : undefined; // Guest allows undefined (if DB schema allows null user_id)
+        const userId = user!.id;
 
-        // 2. Create Job (UPLOADING)
-        // Guest의 경우 RLS 때문에 insert가 안될 수 있으므로, 
-        // 서비스 키를 쓰거나 Guest용 정책이 필요함.
-        // 일단은 Authenticated User Flow로 가정.
-        if (!userId) {
-            // Guest를 위한 임시 처리가 없다면 에러
-            // return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
-            console.warn("Guest Upload Attempt - Proceeding without UserID (May fail if RLS blocks)");
-        }
 
         const { data: job, error: jobError } = await supabase
             .from('translation_jobs')

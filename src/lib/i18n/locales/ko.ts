@@ -51,9 +51,8 @@ export const ko = {
     },
     pricingRule: {
         title: "포인트 정책",
-        base: "{base} 포인트 ({basePages}page)",
-        extra: "{nextPage}페이지부터 {extra}P/장",
-        guestBadge: "게스트: 2page 무료"
+        base: "{base}포인트 ({basePages}page)",
+        extra: "{nextPage}page부터 page당 {extra}P 추가"
     },
     selector: "번역할 언어",
     selectorLabel: "도착 언어 선택",

@@ -6,8 +6,7 @@ export const fr = {
     pricingRule: {
         title: "Politique de points",
         base: "{base} Points ({basePages}page)",
-        extra: "{extra}P/page dès la page {nextPage}",
-        guestBadge: "INVITÉ : 2page GRATUITES"
+        extra: "{extra}P/page dès la page {nextPage}"
     },
     pricingPage: {
         hero: { title: "CHOISISSEZ VOTRE", highlight: "NIVEAU DE PUISSANCE", subtitle: "Développez votre communication mondiale avec notre moteur de traduction IA haute fidélité." },
