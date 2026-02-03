@@ -88,6 +88,10 @@ export const zh = {
         tierSilver: "白银",
         tierGold: "黄金",
         memberLogin: "会员登录",
+        driveSelected: "已从云端硬盘选择：{name}",
+        translateReady: "准备翻译",
+        translating: "翻译中...",
+        translateFailed: "翻译失败",
     },
      auth: {
         signinTitle: "登录",

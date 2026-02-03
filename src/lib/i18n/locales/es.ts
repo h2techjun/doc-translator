@@ -88,6 +88,10 @@ export const es = {
         tierSilver: "PLATA",
         tierGold: "ORO",
         memberLogin: "ACCESSO MIEMBROS",
+        driveSelected: "Seleccionado de Drive: {name}",
+        translateReady: "Listo para traducir",
+        translating: "Traduciendo...",
+        translateFailed: "Error de traducción",
     },
     auth: {
         signinTitle: "Iniciar sesión",
