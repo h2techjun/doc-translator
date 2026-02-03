@@ -31,6 +31,8 @@ export default function SignInPage() {
     const [cooldown, setCooldown] = useState(0);
     const supabase = createClient();
 
+    const [lastMethod, setLastMethod] = useState<string | null>(null);
+
     // 🛡️ Redirect Reason Handling
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -38,10 +40,20 @@ export default function SignInPage() {
         if (reason === 'unauthenticated') {
             toast.error("로그인이 필요하거나 세션이 만료되었습니다.");
         }
+        
+        // Load Last Login Method
+        const storedMethod = localStorage.getItem('last_signin_method');
+        if (storedMethod) setLastMethod(storedMethod);
     }, []);
+
+    const setLastLoginMethod = (method: string) => {
+        localStorage.setItem('last_signin_method', method);
+    };
 
     const handleGuestLogin = async () => {
         setIsLoading(true);
+        // Track Attempt
+        setLastLoginMethod('guest');
         try {
             const { error } = await supabase.auth.signInAnonymously();
             if (error) throw error;
@@ -55,6 +67,8 @@ export default function SignInPage() {
 
     const handleSocialLogin = async (provider: 'kakao' | 'google') => { // Naver requires specific setup, starting with Kakao/Google
         setIsLoading(true);
+        // Track Attempt
+        setLastLoginMethod(provider);
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
@@ -180,6 +194,9 @@ export default function SignInPage() {
                 throw signInError;
             }
 
+            // Success: Track Method
+            setLastLoginMethod('email');
+
             toast.success(t.auth.submitLogin);
 
             // [Fix] 세션 쿠키 동기화를 위해 강력한 새로고침 로직 적용
@@ -208,6 +225,13 @@ export default function SignInPage() {
         }
     };
 
+    // Component for 'Last Used' Badge
+    const LastUsedBadge = () => (
+        <span className="absolute -top-3 -right-2 bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-lg animate-bounce z-20 border border-blue-400">
+            Last Used
+        </span>
+    );
+
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
             {/* 🎨 Mesh Gradient Background */}
@@ -235,7 +259,8 @@ export default function SignInPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-5">
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 gap-2 relative">
+                            {lastMethod === 'guest' && <LastUsedBadge />}
                             <Button
                                 variant="outline"
                                 className="border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 h-12 justify-center px-6 font-bold text-lg shadow-[0_0_15px_rgba(16,185,129,0.2)]"
@@ -250,10 +275,12 @@ export default function SignInPage() {
 
 
                         <div className="grid grid-cols-2 gap-3">
-                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('kakao')} disabled={isLoading} className="border-yellow-400/20 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-500">
+                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('kakao')} disabled={isLoading} className="relative border-yellow-400/20 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-500">
+                                {lastMethod === 'kakao' && <LastUsedBadge />}
                                 <span className="font-bold">Kakao</span>
                             </Button>
-                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('google')} disabled={isLoading} className="border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                            <Button variant="outline" type="button" onClick={() => handleSocialLogin('google')} disabled={isLoading} className="relative border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                                {lastMethod === 'google' && <LastUsedBadge />}
                                 <span className="font-bold">Google</span>
                             </Button>
                         </div>
@@ -267,7 +294,8 @@ export default function SignInPage() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleEmailLogin} className="grid gap-3">
+                        <form onSubmit={handleEmailLogin} className="grid gap-3 relative">
+                           {lastMethod === 'email' && <LastUsedBadge />}
                             <div className="grid gap-2">
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
