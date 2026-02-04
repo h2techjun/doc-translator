@@ -117,10 +117,7 @@ export function UserMenu() {
                         <span>프로필 설정</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
-                    <Star className="w-4 h-4 text-emerald-500" />
-                    <span>{t.nav.betaBenefits}</span>
-                </DropdownMenuItem>
+
 
                 <DropdownMenuSeparator className="my-2 bg-border/50" />
 
