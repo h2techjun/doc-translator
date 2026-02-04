@@ -65,11 +65,23 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
         setProfile(existingProfile);
     }, [supabase]);
 
-    // 🌍 Geo-Detection Logic (Run once)
+    // 🌍 Geo-Detection Logic
     useEffect(() => {
+        // [Auth Sync] Check for server-side ordered logout
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('reason') === 'session_expired') {
+             console.log("[GeoSmart] Detected session expiration. Clearing client state.");
+             setUser(null);
+             setProfile(null);
+             localStorage.removeItem('sb-access-token');
+             localStorage.removeItem('sb-refresh-token');
+             supabase.auth.signOut(); // Ensure client SDK is also cleared
+        }
+
         if (isInitialized) return;
 
         const detectGeo = async () => {
+            // ... (rest of geo logic)
             try {
                 const savedUiLang = localStorage.getItem('global_ui_lang') as Locale;
                 const savedTargetLang = localStorage.getItem('global_target_lang');
