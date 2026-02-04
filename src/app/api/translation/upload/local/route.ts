@@ -78,12 +78,28 @@ export async function POST(req: NextRequest) {
         }
 
         if (user) {
+            // Check balance first to provide detailed error message
+            const profile = await PointManager.getUserProfile(user.id);
+            
+            // Check for Unlimited Tiers
+            if (profile.tier !== 'GOLD' && profile.tier !== 'MASTER') {
+                 if ((profile.points || 0) < pointsToDeduct) {
+                     return NextResponse.json({ 
+                        error: `포인트가 부족합니다. (필요: ${pointsToDeduct}P, 보유: ${profile.points || 0}P)`, 
+                        isPointError: true 
+                     }, { status: 403 });
+                 }
+            }
+
             const success = await PointManager.usePoints(
                 user.id,
                 pointsToDeduct,
                 `[Queue] ${file.name} 번역 (${pageCount}p)`
             );
+            
             if (!success) {
+                // This fallback should rarely be hit if the check above passes, 
+                // but kept for safety in case of race conditions
                 return NextResponse.json({ error: '포인트 부족', isPointError: true }, { status: 403 });
             }
         } else {
