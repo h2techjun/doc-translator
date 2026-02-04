@@ -91,12 +91,20 @@ export async function GET(req: NextRequest) {
     // Calculate Success Rate
     const successRate = jobCount ? Math.round(((completedJobCount || 0) / jobCount) * 100) : 0;
 
+    // 3. Fetch Recent Activity (Real Data)
+    const { data: recentJobs } = await supabase
+        .from('translation_jobs')
+        .select('id, original_filename, status, created_at, country_code, country_name, ip_address, user_email')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
     return NextResponse.json({
         totalUsers: userCount || 0,
         totalJobs: jobCount || 0,
         completedJobs: completedJobCount || 0,
         failedJobs: failedJobCount || 0,
         successRate,
-        estimatedRevenue
+        estimatedRevenue,
+        recentJobs: recentJobs || []
     });
 }

@@ -49,6 +49,11 @@ export async function POST(req: NextRequest) {
         const userId = user!.id;
 
 
+        // 2. Geo Tracking
+        const ip = req.headers.get('x-forwarded-for') || 'unknown';
+        const countryCode = req.headers.get('x-vercel-ip-country') || 'KR'; // Default to KR
+        const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
+
         const { data: job, error: jobError } = await supabase
             .from('translation_jobs')
             .insert({
@@ -58,7 +63,10 @@ export async function POST(req: NextRequest) {
                 target_lang: targetLang,
                 status: 'UPLOADING',
                 page_count: pageCount,
-                file_size: buffer.length
+                file_size: buffer.length,
+                ip_address: ip,
+                country_code: countryCode,
+                country_name: city // Using city as name for now, or just map code later
             })
             .select()
             .single();
