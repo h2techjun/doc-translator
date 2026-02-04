@@ -52,14 +52,17 @@ export function UserMenu() {
                 <Button variant="ghost" className="relative h-10 w-auto flex items-center gap-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-full transition-all duration-300 shadow-sm ml-2">
                     <div className="flex items-center gap-2 px-1">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                            profile?.tier === 'MASTER' ? 'bg-black text-white dark:bg-white dark:text-black border border-purple-500' :
+                            (profile?.role === 'MASTER' || profile?.tier === 'MASTER') ? 'bg-black text-white dark:bg-white dark:text-black border border-purple-500' :
+                            (profile?.role === 'ADMIN') ? 'bg-red-100 text-red-600 border border-red-200' :
                             profile?.tier === 'DIAMOND' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' :
                             profile?.tier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-600' :
                             profile?.tier === 'SILVER' ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400' :
                             profile?.tier === 'BRONZE' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
                             'bg-zinc-100 text-zinc-500 dark:bg-zinc-800' // GUEST
                         }`}>
-                            {profile?.tier || 'GUEST'}
+                            {(profile?.role === 'MASTER' || profile?.tier === 'MASTER') ? 'MASTER' : 
+                             (profile?.role === 'ADMIN') ? 'ADMIN' : 
+                             (profile?.tier || 'GUEST')}
                         </span>
                         <div className="flex items-center text-[11px] text-zinc-600 dark:text-zinc-400 font-bold">
                             <Coins className="w-3.5 h-3.5 mr-1 text-amber-500" />
