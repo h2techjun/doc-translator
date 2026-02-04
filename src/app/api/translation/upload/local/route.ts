@@ -27,7 +27,55 @@ export async function POST(req: NextRequest) {
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        
+        // 0. Manual Session Recovery (The Hammer Fix 🔨)
+        // If standard getUser() fails, we manually parse the cookie and force the session.
+        let { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            try {
+                const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+                const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
+                if (projectId) {
+                    const cookieName = `sb-${projectId}-auth-token`;
+                    const authCookie = req.cookies.get(cookieName);
+
+                    if (authCookie) {
+                        let tokenValue: string | undefined;
+                        let refreshToken: string | undefined;
+
+                        try {
+                            // Try parsing plain JSON first
+                            const json = JSON.parse(authCookie.value);
+                            tokenValue = json.access_token;
+                            refreshToken = json.refresh_token;
+                        } catch {
+                            try {
+                                // Try parsing decoded JSON
+                                const json = JSON.parse(decodeURIComponent(authCookie.value));
+                                tokenValue = json.access_token;
+                                refreshToken = json.refresh_token;
+                            } catch (e) {
+                                console.error("Manual API Cookie Parse Failed:", e);
+                            }
+                        }
+
+                        if (tokenValue && refreshToken) {
+                            const { data: recoverData } = await supabase.auth.setSession({
+                                access_token: tokenValue,
+                                refresh_token: refreshToken
+                            });
+                            if (recoverData.user) {
+                                console.log(`[Upload API] Manual Recovery Success: ${recoverData.user.id}`);
+                                user = recoverData.user;
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("[Upload API] Recovery Error:", e);
+            }
+        }
 
         if (user) {
             const success = await PointManager.usePoints(
