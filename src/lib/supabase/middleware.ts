@@ -110,7 +110,10 @@ export async function updateSession(request: NextRequest) {
         }
 
         // 🛡️ [Security] Absolute Session Timeout (1 Hour)
-        if (user && user.last_sign_in_at) {
+        // Skip check if already on signin page to prevent redirect loops
+        const isSigninPage = pathname.startsWith('/signin');
+        
+        if (user && user.last_sign_in_at && !isSigninPage) {
             const lastSignIn = new Date(user.last_sign_in_at).getTime();
             const now = new Date().getTime();
             const oneHour = 60 * 60 * 1000;
