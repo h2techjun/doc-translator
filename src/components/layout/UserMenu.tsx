@@ -53,7 +53,7 @@ export function UserMenu() {
                     <div className="flex items-center gap-2 px-1">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                             (profile?.role === 'MASTER' || profile?.tier === 'MASTER') ? 'bg-black text-white dark:bg-white dark:text-black border border-purple-500' :
-                            (profile?.role === 'ADMIN') ? 'bg-red-100 text-red-600 border border-red-200' :
+                            (profile?.role === 'ADMIN') ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' :
                             profile?.tier === 'DIAMOND' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' :
                             profile?.tier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-600' :
                             profile?.tier === 'SILVER' ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400' :
@@ -61,7 +61,7 @@ export function UserMenu() {
                             'bg-zinc-100 text-zinc-500 dark:bg-zinc-800' // GUEST
                         }`}>
                             {(profile?.role === 'MASTER' || profile?.tier === 'MASTER') ? 'MASTER' : 
-                             (profile?.role === 'ADMIN') ? 'ADMIN' : 
+                             (profile?.role === 'ADMIN') ? 'DIAMOND' : 
                              (profile?.tier || 'GUEST')}
                         </span>
                         <div className="flex items-center text-[11px] text-zinc-600 dark:text-zinc-400 font-bold">
