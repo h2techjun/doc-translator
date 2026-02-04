@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import {
     TransactionType,
     UserProfileInfo,
@@ -11,6 +11,7 @@ import {
  * Why:
  * - 사용자 포인트의 차감, 충전, 등급 보너스를 중앙에서 관리합니다.
  * - `profiles` 테이블과 `point_transactions` 테이블을 동기화합니다.
+ * - [Security] Uses Service Role (Admin) to bypass RLS for reliability.
  */
 export class PointManager {
 
@@ -18,7 +19,7 @@ export class PointManager {
      * 사용자 프로필 정보 조회
      */
     static async getUserProfile(userId: string): Promise<UserProfileInfo> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
 
         const { data, error } = await supabase
             .from('profiles')
@@ -79,7 +80,7 @@ export class PointManager {
         amount: number,
         description: string
     ): Promise<boolean> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const profile = await this.getUserProfile(userId);
 
         // 🌟 GOLD 또는 MASTER 등급은 무제한 전용 (포인트 차감 없음)
@@ -134,7 +135,7 @@ export class PointManager {
         amount: number,
         description: string
     ): Promise<void> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const profile = await this.getUserProfile(userId);
 
         // 1. 트랜잭션 기록
