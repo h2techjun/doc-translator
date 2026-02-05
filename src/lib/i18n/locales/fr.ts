@@ -76,7 +76,7 @@ export const fr = {
         myHistory: "Mes traductions",
         betaBenefits: "Avantages Beta",
         boostTitle: "Recharge de points",
-        boostDesc: "Besoin de points ?\nRegardez une pub et gagnez 2P !",
+        boostDesc: "Besoin de points ?\nRegardez une pub et gagnez 5P !",
         watchAd: "Regarder la pub",
         logout: "Déconnexion",
         loggedOut: "Déconnexion réussie.",

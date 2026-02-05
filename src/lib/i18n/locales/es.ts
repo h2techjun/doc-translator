@@ -76,7 +76,7 @@ export const es = {
         myHistory: "Mis traducciones",
         betaBenefits: "Beneficios Beta",
         boostTitle: "Carga tus puntos",
-        boostDesc: "¿Necesitas más puntos?\n¡Mira un anuncio y obtén 2P!",
+        boostDesc: "¿Necesitas más puntos?\n¡Mira un anuncio y obtén 5P!",
         watchAd: "Ver anuncio",
         logout: "Cerrar sesión",
         loggedOut: "Sesión cerrada con éxito.",

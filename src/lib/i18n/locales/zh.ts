@@ -76,7 +76,7 @@ export const zh = {
         myHistory: "我的翻译",
         betaBenefits: "Beta 福利",
         boostTitle: "积分加速",
-        boostDesc: "积分不够？\n看广告领 2P！",
+        boostDesc: "积分不够？\n看广告领 5P！",
         watchAd: "观看广告",
         logout: "退出登录",
         loggedOut: "已成功退出。",
