@@ -80,17 +80,38 @@ function SignUpContent() {
             }
 
             console.log('[Signup] Calling Supabase signUp...');
-            const { error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
-                    data: {
-                        locale: uiLang // Pass global locale to Supabase
+            
+            // [Check for Anonymous User]
+            const { data: { session } } = await supabase.auth.getSession();
+            const isAnonymous = session?.user?.is_anonymous;
+
+            let resultError;
+
+            if (isAnonymous) {
+                console.log('[Signup] Upgrading anonymous user...');
+                const { error } = await supabase.auth.updateUser({
+                    email,
+                    password,
+                    data: { locale: uiLang }
+                }, { 
+                    emailRedirectTo: `${window.location.origin}/auth/callback` 
+                });
+                resultError = error;
+            } else {
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/auth/callback`,
+                        data: {
+                            locale: uiLang
+                        }
                     }
-                }
-            });
-            if (error) throw error;
+                });
+                resultError = error;
+            }
+
+            if (resultError) throw resultError;
             setShowOtpInput(true); // Shows "Check Email" UI
             toast.success('인증 메일이 발송되었습니다. 스팸함도 꼭 확인해주세요!');
 

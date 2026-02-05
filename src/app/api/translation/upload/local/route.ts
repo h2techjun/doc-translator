@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { OfficeTranslationEngine } from '@/lib/translation/engine';
 import { POINT_COSTS } from '@/lib/payment/types';
 import { PointManager } from '@/lib/payment/point-manager';
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
         // If standard getUser() fails, we manually parse the cookie and force the session.
         let { data: { user } } = await supabase.auth.getUser();
 
+// [Manual Session Recovery Logic from previous lines...]
         if (!user) {
             try {
                 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -45,13 +47,11 @@ export async function POST(req: NextRequest) {
                         let refreshToken: string | undefined;
 
                         try {
-                            // Try parsing plain JSON first
                             const json = JSON.parse(authCookie.value);
                             tokenValue = json.access_token;
                             refreshToken = json.refresh_token;
                         } catch {
                             try {
-                                // Try parsing decoded JSON
                                 const json = JSON.parse(decodeURIComponent(authCookie.value));
                                 tokenValue = json.access_token;
                                 refreshToken = json.refresh_token;
@@ -77,9 +77,42 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // 2. Geo Tracking & IP (Moved up for Limit Check)
+        const ip = req.headers.get('x-forwarded-for') || 'unknown';
+        const countryCode = req.headers.get('x-vercel-ip-country') || 'KR'; 
+        const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
+
+        let userId: string;
+
         if (user) {
-            // Check balance first to provide detailed error message
-            const profile = await PointManager.getUserProfile(user.id);
+            userId = user.id;
+
+            // 🌟 [Guest Limit Check]
+            const isGuest = user.is_anonymous; 
+            
+            if (isGuest) {
+                const admin = getAdminClient();
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                
+                // Count jobs in last 24h by this User OR IP
+                const { count, error: limitError } = await admin
+                    .from('translation_jobs')
+                    .select('*', { count: 'exact', head: true })
+                    .or(`user_id.eq.${userId},ip_address.eq.${ip}`)
+                    .gt('created_at', oneDayAgo);
+
+                if (limitError) {
+                     console.error("Limit check failed:", limitError);
+                } else if (count && count >= 2) {
+                     return NextResponse.json({ 
+                         error: '게스트는 하루에 2번까지만 번역할 수 있습니다. (Guest limit exceeded: 2/day)', 
+                         isLimitError: true 
+                     }, { status: 429 });
+                }
+            }
+
+            // Check balance first
+            const profile = await PointManager.getUserProfile(userId);
             
             // Check for Unlimited Tiers
             if (profile.tier !== 'GOLD' && profile.tier !== 'MASTER') {
@@ -92,14 +125,12 @@ export async function POST(req: NextRequest) {
             }
 
             const success = await PointManager.usePoints(
-                user.id,
+                userId,
                 pointsToDeduct,
                 `[Queue] ${file.name} 번역 (${pageCount}p)`
             );
             
             if (!success) {
-                // This fallback should rarely be hit if the check above passes, 
-                // but kept for safety in case of race conditions
                 return NextResponse.json({ error: '포인트 부족', isPointError: true }, { status: 403 });
             }
         } else {
@@ -110,13 +141,11 @@ export async function POST(req: NextRequest) {
             }, { status: 401 });
         }
 
-        const userId = user!.id;
 
-
-        // 2. Geo Tracking
-        const ip = req.headers.get('x-forwarded-for') || 'unknown';
-        const countryCode = req.headers.get('x-vercel-ip-country') || 'KR'; // Default to KR
-        const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
+        // 2. Geo Tracking (Already defined above)
+        // const ip = req.headers.get('x-forwarded-for') || 'unknown';
+        // const countryCode = req.headers.get('x-vercel-ip-country') || 'KR';
+        // const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
 
         // Transactional Logic: Points already deducted, now attempt creation.
         // If DB Insert or Storage Upload fails, we MUST refund points.

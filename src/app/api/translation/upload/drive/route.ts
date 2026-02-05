@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { google } from 'googleapis';
 import { v4 as uuidv4 } from 'uuid';
 import { POINT_COSTS } from '@/lib/payment/types';
@@ -60,6 +61,33 @@ export async function POST(req: NextRequest) {
         if (!user) {
             return NextResponse.json({ error: '인증되지 않은 사용자입니다. 구글 드라이브 업로드는 로그인이 필요합니다.' }, { status: 401 });
         }
+
+        const ip = req.headers.get('x-forwarded-for') || 'unknown';
+
+        // 🌟 [Guest Limit Check]
+        // Drive uploads typically require Google Login which means they might be OAuth users not "Guest" in the anonymous sense.
+        // BUT if they logged in via "Guest" then connected Drive? Or Drive is handled Client side?
+        // The Drive API receives `accessToken`.
+        // If the user *is* anonymous (Guest), they should still be limited.
+        if (user.is_anonymous) {
+             const admin = getAdminClient();
+             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+             
+             const { count, error: limitError } = await admin
+                 .from('translation_jobs')
+                 .select('*', { count: 'exact', head: true })
+                 .or(`user_id.eq.${user.id},ip_address.eq.${ip}`)
+                 .gt('created_at', oneDayAgo);
+     
+             if (limitError) {
+                  console.error("Limit check failed:", limitError);
+             } else if (count && count >= 2) {
+                  return NextResponse.json({ 
+                      error: '게스트는 하루에 2번까지만 번역할 수 있습니다. (Guest limit exceeded: 2/day)', 
+                      isLimitError: true 
+                  }, { status: 429 });
+             }
+        }
         
         // 1. Download from Google Drive
         const auth = new google.auth.OAuth2();
@@ -108,8 +136,7 @@ export async function POST(req: NextRequest) {
         // Google Drive uploads go to same 'user_id/job_id' structure
         const objectPath = `${user.id}/${jobId}/${safeStorageName}`;
 
-        // Geo Tracking
-        const ip = req.headers.get('x-forwarded-for') || 'unknown';
+        // Geo Tracking (Already defined above)
         const countryCode = req.headers.get('x-vercel-ip-country') || 'KR';
         const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
 
