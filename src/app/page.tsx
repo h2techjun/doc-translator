@@ -113,9 +113,10 @@ export default function HomePage() {
                             toast.success(t.loading.completed.title);
                         } else if (data.status === 'FAILED') {
                             setStatus('failed');
-                            setErrorMessage(t.loading.failed.desc);
+                            // 🔧 Use server-provided error message if available, otherwise fallback to generic dictionary message
+                            setErrorMessage(data.error || data.message || t.loading.failed.desc);
                             clearInterval(timer);
-                            toast.error(t.nav.translateFailed);
+                            toast.error(data.error || t.nav.translateFailed);
                         }
                     }
                 } catch (error) {

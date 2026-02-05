@@ -53,6 +53,7 @@ export async function GET(
         remainingSeconds: job.remaining_seconds,
         translatedFileUrl: downloadUrl,
         errorMessage: job.error_message,
+        error: job.error_message, // 🔧 Add alias for frontend compatibility
         originalFilename: job.original_filename
     });
 }
