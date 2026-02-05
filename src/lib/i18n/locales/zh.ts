@@ -14,7 +14,9 @@ export const zh = {
             guest: { name: "访客", price: "免费", desc: "无需注册", limit: "2pages", button: "体验访客模式", features: ["支持 Word/Excel/PPT", "每文档限 2pages"] },
             bronze: { name: "青铜", price: "免费", desc: "基础会员", bonus: "注册奖励: 50P", button: "免费加入", features: ["社区支持"] },
             silver: { name: "白银", priceKRW: "用户", priceUSD: "$5.00", desc: "获得 50P 并升级", bonus: "即时 50P", button: "充值 50P", features: ["认证徽章", "更快的处理速度"] },
-            gold: { name: "黄金", price: "100k+", unit: "KRW", desc: "累计支付", vip: "VIP 身份", button: "自动升级", features: ["最高优先级", "直接支持专线"] }
+            gold: { name: "黄金", price: "100k+", unit: "KRW", desc: "累计支付", vip: "VIP 身份", button: "自动升级", features: ["最高优先级", "直接支持专线"] },
+            diamond: { name: "钻石", price: "无限", unit: "", desc: "顶型套餐", vip: "UNLIMITED", button: "使用中", features: ["无积分扣除", "无限访问"] },
+            master: { name: "大师", price: "无限", unit: "", desc: "仅限管理员", vip: "GOD MODE", button: "使用中", features: ["系统控制", "无限翻译"] }
         },
         policy: {
             title: "积分与运营政策",
@@ -87,6 +89,8 @@ export const zh = {
         tierBronze: "青铜",
         tierSilver: "白银",
         tierGold: "黄金",
+        tierDiamond: "钻石",
+        tierMaster: "大师",
         memberLogin: "会员登录",
         driveSelected: "已从云端硬盘选择：{name}",
         translateReady: "准备翻译",

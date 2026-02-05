@@ -14,7 +14,9 @@ export const es = {
             guest: { name: "INVITADO", price: "Gratis", desc: "Sin registro", limit: "2pages", button: "Probar modo invitado", features: ["Traducción Word/Excel/PPT", "2pages por doc"] },
             bronze: { name: "BRONCE", price: "Gratis", desc: "Membresía básica", bonus: "BONO DE REGISTRO: 50P", button: "Registrarse gratis", features: ["Soporte comunitario"] },
             silver: { name: "PLATA", priceKRW: "Usuario", priceUSD: "$5.00", desc: "Obtén 50P y mejora", bonus: "50P INSTANTÁNEOS", button: "Cargar 50P", features: ["Insignia verificada", "Procesamiento más rápido"] },
-            gold: { name: "ORO", price: "100k+", unit: "KRW", desc: "Pago acumulativo", vip: "ESTADO VIP", button: "Mejora automática", features: ["Máxima prioridad", "Línea de soporte directo"] }
+            gold: { name: "ORO", price: "100k+", unit: "KRW", desc: "Pago acumulativo", vip: "ESTADO VIP", button: "Mejora automática", features: ["Máxima prioridad", "Línea de soporte directo"] },
+            diamond: { name: "DIAMANTE", price: "Ilimitado", unit: "", desc: "Plan definitivo", vip: "ILIMITADO", button: "Activo", features: ["Sin costo de puntos", "Acceso total"] },
+            master: { name: "MAESTRO", price: "Ilimitado", unit: "", desc: "Solo administradores", vip: "GOD MODE", button: "Activo", features: ["Control total", "Traducción sin fin"] }
         },
         policy: {
             title: "Política de puntos y operación",
@@ -87,6 +89,8 @@ export const es = {
         tierBronze: "BRONZE",
         tierSilver: "PLATA",
         tierGold: "ORO",
+        tierDiamond: "DIAMANTE",
+        tierMaster: "MAESTRO",
         memberLogin: "ACCESSO MIEMBROS",
         driveSelected: "Seleccionado de Drive: {name}",
         translateReady: "Listo para traducir",
