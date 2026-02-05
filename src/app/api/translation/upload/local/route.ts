@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
                     user_id: userId,
                     original_filename: file.name,
                     file_extension: extension,
+                    file_type: file.type || 'application/octet-stream', // Fixed: Missing constraint
                     target_lang: targetLang,
                     status: 'UPLOADING',
                     page_count: pageCount,
