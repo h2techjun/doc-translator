@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
             pointsToDeduct += (pageCount - POINT_COSTS.BASE_PAGES) * POINT_COSTS.ADDITIONAL_PAGE_COST;
         }
 
+        let pointDeductionSuccess = false;
+
         const supabase = await createClient();
         
         // 0. Manual Session Recovery (The Hammer Fix 🔨)
