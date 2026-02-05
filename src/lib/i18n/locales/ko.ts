@@ -76,7 +76,7 @@ export const ko = {
         myHistory: "내 번역 기록",
         betaBenefits: "베타 혜택",
         boostTitle: "포인트 부스트",
-        boostDesc: "포인트가 부족하신가요?\n광고 보고 2P 받기!",
+        boostDesc: "포인트가 부족하신가요?\n광고 보고 5P 받기!",
         watchAd: "광고 보기",
         logout: "로그아웃",
         loggedOut: "성공적으로 로그아웃되었습니다.",
