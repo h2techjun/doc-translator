@@ -113,61 +113,74 @@ export async function POST(req: NextRequest) {
         const countryCode = req.headers.get('x-vercel-ip-country') || 'KR';
         const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
 
-        const { error: dbError } = await supabase
-            .from('translation_jobs')
-            .insert({
-                id: jobId,
-                user_id: user.id,
-                original_filename: filename,
-                file_type: mimeType,
-                file_extension: fileExt, // Added
-                file_size: sizeBytes || 0,
-                target_lang: targetLang,
-                status: 'UPLOADING',
-                original_file_path: objectPath,
-                progress: 0,
-                page_count: pageCount,
-                ip_address: ip,          // Added
-                country_code: countryCode, // Added
-                country_name: city       // Added
-            });
+        // Transactional Logic: Points already deducted
+        try {
+            const { error: dbError } = await supabase
+                .from('translation_jobs')
+                .insert({
+                    id: jobId,
+                    user_id: user.id,
+                    original_filename: filename,
+                    file_type: mimeType,
+                    file_extension: fileExt,
+                    file_size: sizeBytes || 0,
+                    target_lang: targetLang,
+                    status: 'UPLOADING',
+                    original_file_path: objectPath,
+                    progress: 0,
+                    page_count: pageCount,
+                    ip_address: ip,
+                    country_code: countryCode,
+                    country_name: city
+                });
 
-        if (dbError) {
-            console.error('DB Job Creation Error:', dbError);
-            return NextResponse.json({ error: 'Failed to create job record' }, { status: 500 });
-        }
+            if (dbError) {
+                console.error('DB Job Creation Error:', dbError);
+                // 🚨 Refund Points
+                await PointManager.rewardPoints(user.id, pointsToDeduct, `[System] 환불: 업로드 실패 (${filename})`);
+                return NextResponse.json({ error: 'Failed to create job record' }, { status: 500 });
+            }
 
-        // 5. Upload to Supabase Storage
-        console.log(`Attempting upload to 'documents/${objectPath}'`);
+            // 5. Upload to Supabase Storage
+            console.log(`Attempting upload to 'documents/${objectPath}'`);
 
-        const { error: storageError } = await supabase
-            .storage
-            .from('documents')
-            .upload(objectPath, fileBuffer, {
-                contentType: mimeType,
-                upsert: true
-            });
+            const { error: storageError } = await supabase
+                .storage
+                .from('documents')
+                .upload(objectPath, fileBuffer, {
+                    contentType: mimeType,
+                    upsert: true
+                });
 
-        if (storageError) {
-            console.error('Supabase Storage Detail Error:', JSON.stringify(storageError, null, 2));
+            if (storageError) {
+                console.error('Supabase Storage Detail Error:', JSON.stringify(storageError, null, 2));
+                // 🚨 Refund Points
+                await supabase.from('translation_jobs').delete().eq('id', jobId); // Cleanup
+                await PointManager.rewardPoints(user.id, pointsToDeduct, `[System] 환불: 저장소 업로드 실패 ({filename})`);
+                
+                return NextResponse.json({
+                    error: 'Failed to upload to storage',
+                    details: storageError.message
+                }, { status: 500 });
+            }
+
+            // 6. Update Job Status to UPLOADED
+            await supabase
+                .from('translation_jobs')
+                .update({ status: 'UPLOADED', progress: 10 })
+                .eq('id', jobId);
+
             return NextResponse.json({
-                error: 'Failed to upload to storage',
-                details: storageError.message
-            }, { status: 500 });
+                success: true,
+                jobId,
+                objectPath,
+                filename
+            });
+
+        } catch (innerError) {
+             console.error("Drive Transaction Error:", innerError);
+             throw innerError;
         }
-
-        // 6. Update Job Status to UPLOADED
-        await supabase
-            .from('translation_jobs')
-            .update({ status: 'UPLOADED', progress: 10 })
-            .eq('id', jobId);
-
-        return NextResponse.json({
-            success: true,
-            jobId,
-            objectPath,
-            filename
-        });
 
     } catch (error: any) {
         console.error('Drive Upload Error:', error);

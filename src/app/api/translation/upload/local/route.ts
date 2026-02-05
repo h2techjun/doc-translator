@@ -118,48 +118,67 @@ export async function POST(req: NextRequest) {
         const countryCode = req.headers.get('x-vercel-ip-country') || 'KR'; // Default to KR
         const city = req.headers.get('x-vercel-ip-city') || 'Unknown';
 
-        const { data: job, error: jobError } = await supabase
-            .from('translation_jobs')
-            .insert({
-                user_id: userId,
-                original_filename: file.name,
-                file_extension: extension,
-                target_lang: targetLang,
-                status: 'UPLOADING',
-                page_count: pageCount,
-                file_size: buffer.length,
-                ip_address: ip,
-                country_code: countryCode,
-                country_name: city // Using city as name for now, or just map code later
-            })
-            .select()
-            .single();
+        // Transactional Logic: Points already deducted, now attempt creation.
+        // If DB Insert or Storage Upload fails, we MUST refund points.
+        try {
+            const { data: job, error: jobError } = await supabase
+                .from('translation_jobs')
+                .insert({
+                    user_id: userId,
+                    original_filename: file.name,
+                    file_extension: extension,
+                    target_lang: targetLang,
+                    status: 'UPLOADING',
+                    page_count: pageCount,
+                    file_size: buffer.length,
+                    ip_address: ip,
+                    country_code: countryCode,
+                    country_name: city
+                })
+                .select()
+                .single();
 
-        if (jobError || !job) {
-            // RLS Error for Guest -> Return 401
-            if (!userId && jobError?.code === '42501') {
-                return NextResponse.json({ error: '로그인이 필요합니다.', isAuthError: true }, { status: 401 });
+            if (jobError || !job) {
+                console.error("DB Insert Failed:", jobError);
+                // 🚨 Refund Points
+                await PointManager.rewardPoints(userId, pointsToDeduct, `[System] 환불: 업로드 실패 (${file.name})`);
+                
+                if (!userId && jobError?.code === '42501') {
+                    return NextResponse.json({ error: '로그인이 필요합니다.', isAuthError: true }, { status: 401 });
+                }
+                throw new Error(`Job creation failed: ${jobError?.message}`);
             }
-            throw new Error(`Job creation failed: ${jobError?.message}`);
+
+            const jobId = job.id;
+
+            // 3. Upload to Storage
+            const inputPath = await StorageManager.uploadInputFile(userId || 'guest', jobId, file);
+            if (!inputPath) {
+                console.error("Storage Upload Failed");
+                // 🚨 Refund Points (Clean up job might be needed too, but most important is points)
+                await supabase.from('translation_jobs').delete().eq('id', jobId); // Cleanup zombie job
+                await PointManager.rewardPoints(userId, pointsToDeduct, `[System] 환불: 저장소 업로드 실패 (${file.name})`);
+                throw new Error("Storage upload failed");
+            }
+
+            // 4. Update Job (UPLOADED)
+            await supabase
+                .from('translation_jobs')
+                .update({
+                    status: 'UPLOADED',
+                    original_file_path: inputPath,
+                    progress: 10
+                })
+                .eq('id', jobId);
+
+            return NextResponse.json({ jobId, status: 'UPLOADED' });
+
+        } catch (innerError: any) {
+            // Check if we need to refund here if not already handled
+            // (Handled explicitly above for known failure points, but safeguard valid)
+            console.error("Transaction Error:", innerError);
+            throw innerError; 
         }
-
-        const jobId = job.id;
-
-        // 3. Upload to Storage
-        const inputPath = await StorageManager.uploadInputFile(userId || 'guest', jobId, file);
-        if (!inputPath) throw new Error("Storage upload failed");
-
-        // 4. Update Job (UPLOADED)
-        await supabase
-            .from('translation_jobs')
-            .update({
-                status: 'UPLOADED',
-                original_file_path: inputPath,
-                progress: 10
-            })
-            .eq('id', jobId);
-
-        return NextResponse.json({ jobId, status: 'UPLOADED' });
 
     } catch (error: any) {
         console.error('Upload Local Error:', error);
