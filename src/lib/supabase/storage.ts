@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 
 export class StorageManager {
     private static BUCKET = 'documents';
@@ -8,7 +8,7 @@ export class StorageManager {
      * 경로: {userId}/{jobId}/input/{filename}
      */
     static async uploadInputFile(userId: string, jobId: string, file: File): Promise<string | null> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const path = `${userId}/${jobId}/input/${file.name}`;
 
         const { error } = await supabase.storage
@@ -30,7 +30,7 @@ export class StorageManager {
      * 경로: {userId}/{jobId}/output/{filename}
      */
     static async uploadOutputFile(userId: string, jobId: string, filename: string, buffer: Buffer): Promise<string | null> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const path = `${userId}/${jobId}/output/${filename}`;
 
         const { error } = await supabase.storage
@@ -52,7 +52,7 @@ export class StorageManager {
      * 📥 파일을 다운로드합니다 (Server-side).
      */
     static async downloadFile(path: string): Promise<Blob> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const { data, error } = await supabase.storage
             .from(this.BUCKET)
             .download(path);
@@ -68,7 +68,7 @@ export class StorageManager {
      * 🔗 다운로드용 Signed URL 생성
      */
     static async getSignedUrl(path: string): Promise<string> {
-        const supabase = await createClient();
+        const supabase = getAdminClient();
         const { data, error } = await supabase.storage
             .from(this.BUCKET)
             .createSignedUrl(path, 60 * 60); // 1시간 유효
