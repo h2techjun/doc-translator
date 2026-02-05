@@ -9,7 +9,9 @@ export class StorageManager {
      */
     static async uploadInputFile(userId: string, jobId: string, file: File): Promise<string | null> {
         const supabase = getAdminClient();
-        const path = `${userId}/${jobId}/input/${file.name}`;
+        // 🔒 Sanitize filename to strict ASCII to avoid S3/Supabase 'Invalid Key' errors with Korean/Special chars
+        const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const path = `${userId}/${jobId}/input/${Date.now()}_${safeFilename}`;
 
         const { error } = await supabase.storage
             .from(this.BUCKET)
