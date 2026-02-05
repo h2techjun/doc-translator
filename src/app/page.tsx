@@ -99,7 +99,8 @@ export default function HomePage() {
                         const data = await res.json();
                         // 서버로부터 진행 상황 업데이트
                         if (data.progress) setProgress(data.progress);
-                        if (data.remainingSeconds) setEstimatedTime(data.remainingSeconds);
+                        // 🔽 Disable server-side time sync to prevent timer stuttering (Local countdown is smoother)
+                        // if (data.remainingSeconds) setEstimatedTime(data.remainingSeconds);
 
                         if (data.status === 'COMPLETED') {
                             console.log('작업 완료. 데이터:', data); // 디버그 로그

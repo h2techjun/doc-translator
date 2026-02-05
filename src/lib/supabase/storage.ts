@@ -33,7 +33,9 @@ export class StorageManager {
      */
     static async uploadOutputFile(userId: string, jobId: string, filename: string, buffer: Buffer): Promise<string | null> {
         const supabase = getAdminClient();
-        const path = `${userId}/${jobId}/output/${filename}`;
+        // 🔒 Sanitize filename to strict ASCII to avoid S3/Supabase 'Invalid Key' errors
+        const safeFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const path = `${userId}/${jobId}/output/${Date.now()}_${safeFilename}`;
 
         const { error } = await supabase.storage
             .from(this.BUCKET)
