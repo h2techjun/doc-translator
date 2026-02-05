@@ -18,8 +18,8 @@ export class StorageManager {
             });
 
         if (error) {
-            console.error('Storage Upload Error:', error);
-            throw new Error('파일 업로드에 실패했습니다.');
+            console.error('Storage Upload Error Detail:', JSON.stringify(error, null, 2));
+            throw new Error(`파일 업로드 실패: ${error.message} (Code: ${(error as any).code || 'UNKNOWN'})`);
         }
 
         return path;
@@ -41,8 +41,8 @@ export class StorageManager {
             });
 
         if (error) {
-            console.error('Storage Output Upload Error:', error);
-            throw new Error('번역 파일 저장에 실패했습니다.');
+            console.error('Storage Output Upload Error Detail:', JSON.stringify(error, null, 2));
+            throw new Error(`번역 결과 저장 실패: ${error.message} (Code: ${(error as any).code || 'UNKNOWN'})`);
         }
 
         return path;

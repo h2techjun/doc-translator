@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
 
         // 3. Point Deduction
         const profile = await PointManager.getUserProfile(user.id);
-        if (profile.tier !== 'GOLD' && profile.tier !== 'MASTER') {
+        if (profile.tier !== 'GOLD' && profile.tier !== 'DIAMOND' && profile.tier !== 'MASTER') {
                 if ((profile.points || 0) < pointsToDeduct) {
                     return NextResponse.json({ 
                     error: `포인트가 부족합니다. (필요: ${pointsToDeduct}P, 보유: ${profile.points || 0}P)`, 
