@@ -124,6 +124,7 @@ export async function POST(req: NextRequest) {
                  }
             }
 
+            // ... (Inside the user check block)
             const success = await PointManager.usePoints(
                 userId,
                 pointsToDeduct,
@@ -133,7 +134,9 @@ export async function POST(req: NextRequest) {
             if (!success) {
                 return NextResponse.json({ error: '포인트 부족', isPointError: true }, { status: 403 });
             }
+            pointDeductionSuccess = true; // Flag for refund logic
         } else {
+            // ...
             // Guest or not logged in -> Must log in (as Guest or User) to have points
             return NextResponse.json({ 
                 error: '로그인이 필요합니다. (게스트 로그인 포함)', 
@@ -204,9 +207,22 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ jobId, status: 'UPLOADED' });
 
         } catch (innerError: any) {
-            // Check if we need to refund here if not already handled
-            // (Handled explicitly above for known failure points, but safeguard valid)
             console.error("Transaction Error:", innerError);
+
+            // 🚨 Global Refund Safety Net
+            if (pointDeductionSuccess && userId) {
+                console.warn(`[System] Triggering Refund for ${file.name} due to internal error.`);
+                try {
+                    await PointManager.rewardPoints(
+                        userId, 
+                        pointsToDeduct, 
+                        `[System] 환불: 시스템 오류 (${file.name})`
+                    );
+                } catch (refundError) {
+                    console.error("CRITICAL: Refund Failed!", refundError);
+                }
+            }
+
             throw innerError; 
         }
 

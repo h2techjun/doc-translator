@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing required fields (fileId, accessToken, targetLang)' }, { status: 400 });
         }
 
+        let pointDeductionSuccess = false;
+
         const supabase = await createClient();
         
         // 0. Manual Session Recovery (The Hammer Fix 🔨)
@@ -129,6 +131,7 @@ export async function POST(req: NextRequest) {
         if (!pointSuccess) {
             return NextResponse.json({ error: '포인트 부족', isPointError: true }, { status: 403 });
         }
+        pointDeductionSuccess = true;
 
         // 4. Create Job Record
         const jobId = uuidv4();
@@ -206,6 +209,21 @@ export async function POST(req: NextRequest) {
 
         } catch (innerError) {
              console.error("Drive Transaction Error:", innerError);
+
+             // 🚨 Global Refund Safety Net
+            if (pointDeductionSuccess && user && user.id) {
+                console.warn(`[System] Triggering Refund for ${filename} due to internal error.`);
+                try {
+                    await PointManager.rewardPoints(
+                        user.id, 
+                        pointsToDeduct, 
+                        `[System] 환불: 시스템 오류 (${filename})`
+                    );
+                } catch (refundError) {
+                    console.error("CRITICAL: Refund Failed!", refundError);
+                }
+            }
+
              throw innerError;
         }
 
