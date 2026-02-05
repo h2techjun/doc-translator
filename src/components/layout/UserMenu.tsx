@@ -112,6 +112,12 @@ export function UserMenu() {
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
+                    <Link href="/settings/points" className="flex items-center w-full">
+                        <Coins className="w-4 h-4 mr-2 text-amber-500" />
+                        <span>포인트 리포트</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
                     <Link href="/settings/profile" className="flex items-center w-full">
                         <Settings className="w-4 h-4 mr-2" />
                         <span>프로필 설정</span>
