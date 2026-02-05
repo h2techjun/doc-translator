@@ -14,7 +14,9 @@ export const ko = {
             guest: { name: "GUEST", price: "무료", desc: "회원가입 없음", limit: "2pages", button: "게스트 체험하기", features: ["Word/Excel/PPT 번역", "문서당 2pages 제한"] },
             bronze: { name: "BRONZE", price: "무료", desc: "기본 멤버십", bonus: "가입 축하: 50P", button: "무료로 시작하기", features: ["커뮤니티 이용"] },
             silver: { name: "SILVER", priceKRW: "유저", priceUSD: "$5.00", desc: "50P 획득 시 자동 등업", bonus: "즉시 50P 지급", button: "50P 충전하기", features: ["인증 배지 부여", "빠른 처리 속도"] },
-            gold: { name: "GOLD", price: "10만+", unit: "원", desc: "누적 결제액", vip: "VIP 등급", button: "자동 등업", features: ["최우선 순위 처리", "직통 고객센터"] }
+            gold: { name: "GOLD", price: "10만+", unit: "원", desc: "누적 결제액", vip: "VIP 등급", button: "자동 등업", features: ["최우선 순위 처리", "직통 고객센터"] },
+            diamond: { name: "DIAMOND", price: "무제한", unit: "", desc: "최상위 등급", vip: "UNLIMITED", button: "사용 중", features: ["포인트 차감 없음", "모든 기능 무제한"] },
+            master: { name: "MASTER", price: "무제한", unit: "", desc: "관리자 전용", vip: "GOD MODE", button: "사용 중", features: ["시스템 전체 제어", "무제한 번역"] }
         },
         policy: {
             title: "포인트 및 운영 정책",
@@ -87,6 +89,8 @@ export const ko = {
         tierBronze: "브론즈",
         tierSilver: "실버",
         tierGold: "골드",
+        tierDiamond: "다이아몬드",
+        tierMaster: "마스터",
         memberLogin: "회원 접속",
         driveSelected: "드라이브에서 선택됨: {name}",
         translateReady: "번역 준비 완료",

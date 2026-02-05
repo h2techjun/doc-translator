@@ -41,6 +41,7 @@ export interface UserProfileInfo {
     subscriptionTier?: UserTier; // CreditManager use
     points?: number;            // PointManager use
     tier?: UserTier;            // PointManager use
+    role?: string;              // PointManager use
     totalTranslations?: number;
 }
 

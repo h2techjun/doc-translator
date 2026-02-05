@@ -14,7 +14,9 @@ export const en = {
             guest: { name: "GUEST", price: "Free", desc: "No signup required", limit: "2pages", button: "Try Guest Mode", features: ["Word/Excel/PPT Translation", "2pages per doc"] },
             bronze: { name: "BRONZE", price: "Free", desc: "Basic Membership", bonus: "SIGNUP BONUS: 50P", button: "Join for Free", features: ["Community Support"] },
             silver: { name: "SILVER", priceKRW: "User", priceUSD: "$5.00", desc: "Get 50P & Upgrade", bonus: "INSTANT 50P", button: "Load 50P", features: ["Verified Badge", "Faster Processing"] },
-            gold: { name: "GOLD", price: "100k+", unit: "KRW", desc: "Cumulative Pay", vip: "VIP STATUS", button: "Auto-Upgrade", features: ["Highest Priority", "Direct Support Line"] }
+            gold: { name: "GOLD", price: "100k+", unit: "KRW", desc: "Cumulative Pay", vip: "VIP STATUS", button: "Auto-Upgrade", features: ["Highest Priority", "Direct Support Line"] },
+            diamond: { name: "DIAMOND", price: "Unlimited", unit: "", desc: "Top Package", vip: "UNLIMITED", button: "In Use", features: ["No Point Deduction", "Unlimited Access"] },
+            master: { name: "MASTER", price: "Unlimited", unit: "", desc: "Admin Only", vip: "GOD MODE", button: "In Use", features: ["System Control", "Unlimited Everything"] }
         },
         policy: {
             title: "Points & Operation Policy",
@@ -87,6 +89,8 @@ export const en = {
         tierBronze: "BRONZE",
         tierSilver: "SILVER",
         tierGold: "GOLD",
+        tierDiamond: "DIAMOND",
+        tierMaster: "MASTER",
         memberLogin: "MEMBER ACCESS",
         driveSelected: "Drive selected: {name}",
         translateReady: "Translation ready",

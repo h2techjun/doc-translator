@@ -23,7 +23,7 @@ export class PointManager {
 
         const { data, error } = await supabase
             .from('profiles')
-            .select('points, tier, total_translations')
+            .select('points, tier, role, total_translations')
             .eq('id', userId)
             .single();
 
@@ -42,6 +42,7 @@ export class PointManager {
             userId,
             points: data.points || 0,
             tier: data.tier || 'BRONZE',
+            role: data.role,
             totalTranslations: data.total_translations || 0
         };
     }
@@ -83,8 +84,8 @@ export class PointManager {
         const supabase = getAdminClient();
         const profile = await this.getUserProfile(userId);
 
-        // 🌟 GOLD 또는 MASTER 등급은 무제한 전용 (포인트 차감 없음)
-        if (profile.tier === 'GOLD' || profile.tier === 'MASTER') {
+        // 🌟 DIAMOND, MASTER 또는 ADMIN 역할은 무제한 전용 (포인트 차감 없음)
+        if (profile.tier === 'DIAMOND' || profile.tier === 'MASTER' || profile.role === 'MASTER' || profile.role === 'ADMIN') {
             // 횟수만 기록
             await supabase.from('profiles').update({
                 total_translations: (profile.totalTranslations ?? 0) + 1

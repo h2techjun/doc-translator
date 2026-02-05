@@ -18,6 +18,7 @@ import { useGeoSmart } from '@/hooks/use-geo-smart';
 export function UserMenu() {
     const { t, user, profile, isLoading } = useGeoSmart();
     const supabase = createClient();
+    const isUnlimited = profile?.tier === 'DIAMOND' || profile?.tier === 'MASTER' || profile?.role === 'MASTER' || profile?.role === 'ADMIN';
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -61,12 +62,20 @@ export function UserMenu() {
                             'bg-zinc-100 text-zinc-500 dark:bg-zinc-800' // GUEST
                         }`}>
                             {(profile?.role === 'MASTER' || profile?.tier === 'MASTER') ? 'MASTER' : 
-                             (profile?.role === 'ADMIN') ? 'DIAMOND' : 
+                             (profile?.role === 'ADMIN' || profile?.tier === 'DIAMOND') ? 'DIAMOND' : 
                              (profile?.tier || 'GUEST')}
                         </span>
                         <div className="flex items-center text-[11px] text-zinc-600 dark:text-zinc-400 font-bold">
-                            <Coins className="w-3.5 h-3.5 mr-1 text-amber-500" />
-                            {profile?.points || 0}
+                            {isUnlimited ? (
+                                <span className="flex items-center text-indigo-600 dark:text-indigo-400">
+                                    <span className="text-lg leading-none mr-1">∞</span>
+                                </span>
+                            ) : (
+                                <>
+                                    <Coins className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                                    {profile?.points || 0}
+                                </>
+                            )}
                         </div>
                     </div>
                     <div className="relative ml-1">
@@ -86,7 +95,9 @@ export function UserMenu() {
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm font-bold leading-none">{user.email || 'Guest User'}</p>
                         <p className="text-xs leading-none text-muted-foreground mt-1">
-                            {t.nav.pointsHold}: <span className="text-amber-500 font-bold">{profile?.points || 0}P</span>
+                            {t.nav.pointsHold}: <span className="text-amber-500 font-bold">
+                                {isUnlimited ? 'Unlimited' : `${profile?.points || 0}P`}
+                            </span>
                         </p>
                     </div>
                 </DropdownMenuLabel>
@@ -111,12 +122,14 @@ export function UserMenu() {
                         <span>{t.nav.myHistory}</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
-                    <Link href="/settings/points" className="flex items-center w-full">
-                        <Coins className="w-4 h-4 mr-2 text-amber-500" />
-                        <span>포인트 리포트</span>
-                    </Link>
-                </DropdownMenuItem>
+                {!isUnlimited && (
+                    <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
+                        <Link href="/settings/points" className="flex items-center w-full">
+                            <Coins className="w-4 h-4 mr-2 text-amber-500" />
+                            <span>포인트 리포트</span>
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2.5 rounded-lg focus:bg-emerald-500/10 focus:text-emerald-600">
                     <Link href="/settings/profile" className="flex items-center w-full">
                         <Settings className="w-4 h-4 mr-2" />
@@ -127,7 +140,8 @@ export function UserMenu() {
 
                 <DropdownMenuSeparator className="my-2 bg-border/50" />
 
-                {(profile?.points || 0) < 10 && (
+                {/* Hide Ad Boost for Unlimited Tiers */}
+                {!isUnlimited && (profile?.points || 0) < 10 && (
                     <div className="px-2 py-2">
                         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 space-y-2">
                             <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest flex items-center gap-1">

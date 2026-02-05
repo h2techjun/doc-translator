@@ -49,7 +49,7 @@ const FALLBACK_PRICING = {
 export default function PricingPage() {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedPackageId, setSelectedPackageId] = useState<string>('');
-    const { currency, t } = useGeoSmart();
+    const { currency, t, profile, user } = useGeoSmart();
 
     const isKRW = currency === 'KRW';
     // Fallback to English if translation is missing
@@ -112,7 +112,7 @@ export default function PricingPage() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
                     {/* GUEST */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -137,7 +137,9 @@ export default function PricingPage() {
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white text-black hover:bg-slate-200"><Link href="/">{pricing.tiers.guest.button}</Link></Button>
+                                <Button asChild className={`w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest ${!user ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-100 text-zinc-400 cursor-default'}`}>
+                                    <Link href="/">{!user ? pricing.tiers.guest.button : 'Completed'}</Link>
+                                </Button>
                             </CardFooter>
                         </Card>
                     </motion.div>
@@ -166,7 +168,9 @@ export default function PricingPage() {
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button asChild className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white"><Link href="/signin">{pricing.tiers.bronze.button}</Link></Button>
+                                <Button asChild className={`w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest ${profile?.tier === 'BRONZE' ? 'bg-orange-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                                    <Link href={user ? "#" : "/signup"}>{profile?.tier === 'BRONZE' ? 'Active Plan' : pricing.tiers.bronze.button}</Link>
+                                </Button>
                             </CardFooter>
                         </Card>
                     </motion.div>
@@ -197,10 +201,10 @@ export default function PricingPage() {
                             </CardContent>
                             <CardFooter className="mt-auto">
                                 <Button
-                                    onClick={() => handlePurchase('starter_pack')}
-                                    className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                                    onClick={() => profile?.tier !== 'SILVER' && handlePurchase('starter_pack')}
+                                    className={`w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest ${profile?.tier === 'SILVER' ? 'bg-amber-500 text-black' : 'bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]'}`}
                                 >
-                                    {pricing.tiers.silver.button}
+                                    {profile?.tier === 'SILVER' ? 'Active Plan' : pricing.tiers.silver.button}
                                 </Button>
                             </CardFooter>
                         </Card>
@@ -212,7 +216,7 @@ export default function PricingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        <Card className="h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02]">
+                        <Card className={`h-full border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] ${profile?.tier === 'GOLD' ? 'ring-2 ring-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.2)]' : ''}`}>
                             <CardHeader>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-white/5 rounded-lg border border-white/10"><Shield className="w-6 h-6 text-blue-400" /></div>
@@ -230,7 +234,9 @@ export default function PricingPage() {
                                 </ul>
                             </CardContent>
                             <CardFooter className="mt-auto">
-                                <Button className="w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest bg-white/10 text-slate-400 hover:bg-white/20 cursor-default">{pricing.tiers.gold.button}</Button>
+                                <Button className={`w-full py-6 rounded-xl font-black text-sm uppercase tracking-widest cursor-default ${profile?.tier === 'GOLD' ? 'bg-yellow-500 text-black' : 'bg-white/10 text-slate-400 hover:bg-white/20'}`}>
+                                    {profile?.tier === 'GOLD' ? 'Active Plan' : pricing.tiers.gold.button}
+                                </Button>
                             </CardFooter>
                         </Card>
                     </motion.div>

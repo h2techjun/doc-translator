@@ -49,6 +49,7 @@ export default function HomePage() {
         uiLang, targetLang,                          // 가변 값 (사용자 기본 설정)
         t,                                           // 번역 데이터 (자동 동기화)
         setUiLang, setTargetLang,
+        profile,
         isLoading: isGeoLoading
     } = useGeoSmart(); // IP 기반으로 위치를 파악하며, 기본값은 한국어입니다.
 
@@ -56,6 +57,7 @@ export default function HomePage() {
     useUrlSync();
 
     const { estimation, estimateTime } = useSmartEstimation();
+    const isUnlimited = profile?.tier === 'DIAMOND' || profile?.tier === 'MASTER' || profile?.role === 'MASTER' || profile?.role === 'ADMIN';
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles?.length > 0) {
@@ -418,8 +420,8 @@ export default function HomePage() {
                                 )}
                             </p>
 
-                            {/* Estimated Point Cost */}
-                            {file && (
+                            {/* Estimated Point Cost - Hidden for Unlimited Tiers */}
+                            {file && !isUnlimited && (
                                 <div className="mb-6 px-4 py-2 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg flex items-center gap-2">
                                     <Zap className="w-4 h-4 text-blue-600 fill-current" />
                                     <span className="text-[11px] sm:text-xs font-bold text-blue-700 dark:text-blue-300">
@@ -445,12 +447,12 @@ export default function HomePage() {
                             />
 
                             <button
-                                onClick={() => setIsEstimationOpen(true)}
+                                onClick={() => isUnlimited ? handleTranslate() : setIsEstimationOpen(true)}
                                 className="w-full max-w-sm py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center"
                             >
                                 <Zap className="w-5 h-5 mr-2 fill-current" />
                                 {t.button.translate}
-                                <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">Check Cost</span>
+                                {!isUnlimited && <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">Check Cost</span>}
                             </button>
 
                             <button
