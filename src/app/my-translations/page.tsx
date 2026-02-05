@@ -94,26 +94,39 @@ export default function MyTranslationsPage() {
         }
     };
 
-    const handleDownload = async (url: string, filename: string) => {
+    const handleDownload = async (id: string, url: string, filename: string) => {
+        const loadingToast = toast.loading('다운로드 준비 중...');
         try {
-            // Check if it's a Drive download or Storage download
-            if (url.includes('drive.google.com')) {
-                window.open(url, '_blank');
+            // 1. Get signed URL if it's a relative path
+            let finalUrl = url;
+            if (!url.startsWith('http') && !url.includes('drive.google.com')) {
+                const res = await fetch(`/api/translation/${id}`);
+                const data = await res.json();
+                if (data.translatedFileUrl) {
+                    finalUrl = data.translatedFileUrl;
+                } else {
+                    throw new Error('Url not available');
+                }
+            }
+
+            // 2. Drive download logic
+            if (finalUrl.includes('drive.google.com')) {
+                window.open(finalUrl, '_blank');
+                toast.dismiss(loadingToast);
                 return;
             }
 
-            // For Supabase Storage, we might need a proxy if there are CORS issues, 
-            // but usually a direct link works if public.
-            // If we implemented a proxy for Drive, we might use it here too if needed.
-            // For now, try direct open.
+            // 3. Proxy download to bypass CORS and force filename
+            const proxyUrl = `/api/download?url=${encodeURIComponent(finalUrl)}&filename=${encodeURIComponent(filename)}`;
             const link = document.createElement('a');
-            link.href = url;
-            link.download = filename || 'translated_file';
+            link.href = proxyUrl;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            toast.success('다운로드를 시작합니다.', { id: loadingToast });
         } catch (e) {
-            toast.error('다운로드 시작에 실패했습니다.');
+            toast.error('다운로드 시작에 실패했습니다.', { id: loadingToast });
         }
     };
 
@@ -170,7 +183,7 @@ export default function MyTranslationsPage() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="rounded-md border border-border/50 overflow-hidden">
+                        <div className="rounded-md border border-border/50 overflow-x-auto">
                             <Table>
                                 <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
                                     <TableRow>
@@ -245,11 +258,12 @@ export default function MyTranslationsPage() {
                                                         return (
                                                             <Button
                                                                 size="sm"
-                                                                variant="ghost"
-                                                                className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-500 hover:bg-emerald-500/10"
-                                                                onClick={() => handleDownload(job.translated_file_url!, `translated_${job.original_filename}`)}
+                                                                variant="outline"
+                                                                className="gap-2 border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                                                onClick={() => handleDownload(job.id, job.translated_file_url!, `translated_${job.original_filename}`)}
                                                             >
                                                                 <Download className="w-4 h-4" />
+                                                                <span className="hidden sm:inline">다운로드</span>
                                                             </Button>
                                                         );
                                                     }

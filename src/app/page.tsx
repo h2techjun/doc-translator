@@ -50,6 +50,7 @@ export default function HomePage() {
         t,                                           // 번역 데이터 (자동 동기화)
         setUiLang, setTargetLang,
         profile,
+        refreshProfile,
         isLoading: isGeoLoading
     } = useGeoSmart(); // IP 기반으로 위치를 파악하며, 기본값은 한국어입니다.
 
@@ -486,12 +487,16 @@ export default function HomePage() {
                                             a.click();
                                             document.body.removeChild(a);
                                         }
-                                        setStatus('idle');
-                                        setProgress(0);
-                                        setFile(null);
-                                        setDriveFile(null);
-                                        // 🔄 Refresh page to update points after translation
-                                        window.location.reload();
+                                        // 🔄 Refresh context points
+                                        refreshProfile();
+                                        
+                                        // 🔄 Return to idle state after a short delay to allow browser to start download
+                                        setTimeout(() => {
+                                            setStatus('idle');
+                                            setProgress(0);
+                                            setFile(null);
+                                            setDriveFile(null);
+                                        }, 1500);
                                     }
                                 }}
                             />
