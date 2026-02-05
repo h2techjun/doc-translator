@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             const profile = await PointManager.getUserProfile(userId);
             
             // Check for Unlimited Tiers
-            if (profile.tier !== 'GOLD' && profile.tier !== 'DIAMOND' && profile.tier !== 'MASTER') {
+            if (profile.tier !== 'DIAMOND' && profile.tier !== 'MASTER') {
                  if ((profile.points || 0) < pointsToDeduct) {
                      return NextResponse.json({ 
                         error: `포인트가 부족합니다. (필요: ${pointsToDeduct}P, 보유: ${profile.points || 0}P)`, 
