@@ -67,33 +67,60 @@ export async function GET(req: NextRequest) {
         if (entry.can_manage_admins || entry.can_manage_system) adminMap[uid].permissions.add('SYSTEM_SETTINGS');
     });
 
-    // 3. Fetch ALL users with ADMIN role to ensure they appear in the list
+    // 3. Fetch all potential admins from profiles (role check)
     const { data: adminProfiles, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
-        .or('role.eq.ADMIN,role.eq.MASTER');
+        .or('role.ilike.ADMIN,role.ilike.MASTER'); // Case-insensitive just in case
 
     if (profileError) {
         console.error("[Permissions API] Profile Fetch Error:", profileError);
     }
 
-    // 4. Transform to Frontend format (Profiles are the source of truth for the list)
-    const transformedAdmins = (adminProfiles || []).map(p => {
-        // MASTER는 이 목록에서 제외 (수정 불가 보호)
-        if (p.role === 'MASTER') return null;
+    // 4. Combine IDs from both sources (permissions table & high-role profiles)
+    const allAdminIds = new Set([
+        ...userIds, 
+        ...(adminProfiles || []).map(p => p.id)
+    ]);
 
-        const storedPerms = adminMap[p.id]?.permissions || new Set<string>();
+    // 5. Fetch full profile info for everyone in the combined set
+    // (In case some are in permissions but weren't in the high-role profile list)
+    const { data: finalProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, email, role')
+        .in('id', Array.from(allAdminIds));
+
+    const profileMap = Object.fromEntries((finalProfiles || []).map(p => [p.id, p]));
+
+    const { KNOWN_ADMIN_EMAILS } = await import('@/lib/security-admin');
+    
+    // 6. Transform to Frontend format (Profiles are the source of truth for identity)
+    const transformedAdmins = Array.from(allAdminIds).map(uid => {
+        const p = profileMap[uid];
+        if (!p) return null;
+
+        const storedPerms = adminMap[uid]?.permissions || new Set<string>();
+        const isMaster = p.role === 'MASTER' || (p.email && KNOWN_ADMIN_EMAILS[0] === p.email);
 
         return {
-            id: p.id,
+            id: uid,
             full_name: p.full_name || '관리자',
-            email: p.email || '(이메일 없음)',
-            permissions: Array.from(storedPerms)
+            email: p.email || uid.substring(0, 8),
+            role: p.role,
+            is_master: isMaster,
+            permissions: isMaster ? PERMISSION_TYPES.map(t => t.id) : Array.from(storedPerms)
         };
     }).filter(Boolean);
 
     return NextResponse.json(transformedAdmins);
 }
+
+const PERMISSION_TYPES = [
+    { id: 'MANAGE_USERS', label: '사용자 관리' },
+    { id: 'MANAGE_POSTS', label: '게시물 관리' },
+    { id: 'VIEW_AUDIT_LOGS', label: '감사 로그 조회' },
+    { id: 'SYSTEM_SETTINGS', label: '시스템 설정' },
+];
 
 export async function POST(req: NextRequest) {
     // 0. Manual Session Recovery

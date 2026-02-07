@@ -38,6 +38,11 @@ export default function PermissionsPage() {
 
     const { profile } = useGeoSmart();
 
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+
     const fetchPermissions = async () => {
         setLoading(true);
         try {
@@ -55,6 +60,39 @@ export default function PermissionsPage() {
     useEffect(() => {
         fetchPermissions();
     }, []);
+
+    const handleSearch = async () => {
+        if (!searchTerm.trim()) return;
+        setIsSearching(true);
+        try {
+            const res = await fetch(`/api/admin/users?search=${encodeURIComponent(searchTerm)}&limit=5`);
+            const data = await res.json();
+            setSearchResults(data.data || []);
+        } catch (error) {
+            toast.error('사용자 검색 중 오류가 발생했습니다.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleAddAdmin = async (userId: string) => {
+        try {
+            const res = await fetch('/api/admin/permissions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, permissions: [] })
+            });
+
+            if (!res.ok) throw new Error('관리자 추가에 실패했습니다.');
+            toast.success('관리자가 목록에 추가되었습니다. 이제 권한을 설정할 수 있습니다.');
+            setShowAddForm(false);
+            setSearchTerm('');
+            setSearchResults([]);
+            fetchPermissions();
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    };
 
     const handleTogglePermission = async (userId: string, permissionType: string, currentStatus: boolean) => {
         if (profile?.role !== 'MASTER') {
@@ -93,12 +131,58 @@ export default function PermissionsPage() {
                     <p className="text-sm font-bold text-muted-foreground mt-1">총 관리자(MASTER) 계정만 관리자 권한을 부여하거나 취소할 수 있습니다.</p>
                 </div>
                 {profile?.role === 'MASTER' && (
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 font-black italic uppercase tracking-tighter">
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        새 관리자 추가
+                    <Button 
+                        onClick={() => setShowAddForm(!showAddForm)}
+                        className={`${showAddForm ? 'bg-slate-600' : 'bg-indigo-600'} hover:opacity-90 font-black italic uppercase tracking-tighter`}
+                    >
+                        {showAddForm ? <AlertCircle className="w-4 h-4 mr-2" /> : <UserPlus className="w-4 h-4 mr-2" />}
+                        {showAddForm ? '취소' : '새 관리자 추가'}
                     </Button>
                 )}
             </div>
+
+            {showAddForm && (
+                <Card className="mb-8 border-indigo-500/30 bg-indigo-50/10 backdrop-blur-sm animate-in fade-in slide-in-from-top-4">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-black italic uppercase">사용자 검색</CardTitle>
+                        <CardDescription className="text-xs font-bold opacity-60">이메일로 사용자를 찾아 관리자로 등록하세요.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex gap-2">
+                            <input 
+                                type="text" 
+                                placeholder="이메일 주소 입력..." 
+                                className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md px-3 text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Button onClick={handleSearch} disabled={isSearching} size="sm">
+                                {isSearching ? '검색 중...' : '검색'}
+                            </Button>
+                        </div>
+
+                        {searchResults.length > 0 && (
+                            <div className="mt-4 border rounded-md overflow-hidden bg-white dark:bg-slate-950">
+                                {searchResults.map((user: any) => (
+                                    <div key={user.id} className="p-3 flex items-center justify-between border-b last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                                        <div className="flex flex-col">
+                                            <span className="text-xs font-bold">{user.full_name || '이름 없음'}</span>
+                                            <span className="text-[10px] text-muted-foreground">{user.email}</span>
+                                        </div>
+                                        <Button size="sm" variant="outline" onClick={() => handleAddAdmin(user.id)} className="h-7 text-[10px] uppercase font-black">
+                                            추가
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {searchResults.length === 0 && searchTerm && !isSearching && (
+                            <p className="mt-4 text-[10px] text-center italic text-muted-foreground">검색 결과가 없습니다.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             <div className="grid gap-6">
                 <Card className="bg-amber-50/50 dark:bg-amber-950/10 border-amber-500/20">
@@ -148,11 +232,16 @@ export default function PermissionsPage() {
                                         <TableRow key={admin.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
                                             <TableCell className="pl-8 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
-                                                        <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                                                    <div className={`w-8 h-8 rounded-full ${admin.is_master ? 'bg-amber-100 dark:bg-amber-900' : 'bg-indigo-100 dark:bg-indigo-900'} flex items-center justify-center`}>
+                                                        <ShieldCheck className={`w-4 h-4 ${admin.is_master ? 'text-amber-600' : 'text-indigo-500'}`} />
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs font-black dark:text-white">{admin.full_name || '관리자'}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs font-black dark:text-white">{admin.full_name || '관리자'}</span>
+                                                            {admin.is_master && (
+                                                                <span className="text-[8px] px-1.5 py-0.5 bg-amber-500 text-white rounded font-black italic uppercase">MASTER</span>
+                                                            )}
+                                                        </div>
                                                         <span className="text-[10px] text-muted-foreground">{admin.email}</span>
                                                     </div>
                                                 </div>
@@ -163,7 +252,7 @@ export default function PermissionsPage() {
                                                         checked={admin.permissions?.includes(p.id)}
                                                         onCheckedChange={() => handleTogglePermission(admin.id, p.id, admin.permissions?.includes(p.id))}
                                                         className="border-slate-300 dark:border-slate-700 data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
-                                                        disabled={profile?.role !== 'MASTER'}
+                                                        disabled={profile?.role !== 'MASTER' || admin.is_master}
                                                     />
                                                 </TableCell>
                                             ))}
