@@ -67,16 +67,21 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { data, error } = await supabase
+    // Use Admin Client to bypass RLS and fetch all permission data
+    const supabaseAdmin = getAdminClient();
+    const { data, error } = await supabaseAdmin
         .from('admin_permissions')
         .select(`
             *,
-            user:profiles!user_id(full_name, email)
+            profiles:user_id(email)
         `);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+        console.error("[Permissions API] Fetch Error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: data || [] });
 }
 
 export async function POST(req: NextRequest) {
