@@ -11,8 +11,10 @@ const getAdminClient = () => createClient(
 export async function POST(req: NextRequest) {
     const supabase = await createServerClient();
 
-    // 1. 관리자 권한 확인 (Master or Admin)
-    const { data: { user } } = await supabase.auth.getUser();
+    // 0. Manual Session Recovery (The Hammer Fix 🔨)
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
+
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data: currentUserProfile } = await supabase

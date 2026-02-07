@@ -4,9 +4,10 @@ import { createClient as createServerClient } from '@/lib/supabase/server';
 import { getAdminClient } from '@/lib/supabase/admin';
 
 export async function GET(req: NextRequest) {
-    // 1. Authenticate Admin
+    // 0. Manual Session Recovery (The Hammer Fix 🔨)
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
 
     if (!user) return NextResponse.json({ error: '인증되지 않았습니다.' }, { status: 401 });
 
@@ -16,7 +17,12 @@ export async function GET(req: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+    const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+    if (!isAuthorizedAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
         return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 

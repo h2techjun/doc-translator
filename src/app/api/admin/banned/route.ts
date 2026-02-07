@@ -1,59 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * 🛡️ 어드민 전용 차단 관리 API
  * GET: 차단 이력 조회
  * POST: 특정 식별자 차단 해제 (Delete)
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const supabase = await createClient();
         // 0. Manual Session Recovery (The Hammer Fix 🔨)
-        let { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            try {
-                const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-                const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
-                if (projectId) {
-                    const cookieName = `sb-${projectId}-auth-token`;
-                    // @ts-ignore
-                    const authCookie = (await import('next/headers')).cookies().get(cookieName);
-
-                    if (authCookie) {
-                        let tokenValue: string | undefined;
-                        let refreshToken: string | undefined;
-
-                        try {
-                            const json = JSON.parse(authCookie.value);
-                            tokenValue = json.access_token;
-                            refreshToken = json.refresh_token;
-                        } catch {
-                            try {
-                                const json = JSON.parse(decodeURIComponent(authCookie.value));
-                                tokenValue = json.access_token;
-                                refreshToken = json.refresh_token;
-                            } catch (e) {
-                                console.error("[API] Manual Cookie Parse Failed:", e);
-                            }
-                        }
-
-                        if (tokenValue && refreshToken) {
-                            const { data: recoverData } = await supabase.auth.setSession({
-                                access_token: tokenValue,
-                                refresh_token: refreshToken
-                            });
-                            if (recoverData.user) {
-                                user = recoverData.user;
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error("[API] Recovery Error:", e);
-            }
-        }
+        const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+        const user = await getSafeUser(req, supabase);
 
         if (!user) return NextResponse.json({ error: '인증되지 않은 사용자입니다.' }, { status: 401 });
 
@@ -64,7 +22,12 @@ export async function GET() {
             .eq('id', user.id)
             .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+        const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+        if (!isAuthorizedAdmin({ 
+            id: user.id, 
+            email: user.email || null, 
+            role: profile?.role 
+        })) {
             return NextResponse.json({ error: '접근 권한이 없습니다 (관리자 이상의 권한 필요).' }, { status: 403 });
         }
 
@@ -81,55 +44,13 @@ export async function GET() {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
     try {
-        const { action, identifier } = await request.json();
+        const { action, identifier } = await req.json();
         const supabase = await createClient();
         // 0. Manual Session Recovery (The Hammer Fix 🔨)
-        let { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            try {
-                const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-                const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
-                if (projectId) {
-                    const cookieName = `sb-${projectId}-auth-token`;
-                    // @ts-ignore
-                    const authCookie = (await import('next/headers')).cookies().get(cookieName);
-
-                    if (authCookie) {
-                        let tokenValue: string | undefined;
-                        let refreshToken: string | undefined;
-
-                        try {
-                            const json = JSON.parse(authCookie.value);
-                            tokenValue = json.access_token;
-                            refreshToken = json.refresh_token;
-                        } catch {
-                            try {
-                                const json = JSON.parse(decodeURIComponent(authCookie.value));
-                                tokenValue = json.access_token;
-                                refreshToken = json.refresh_token;
-                            } catch (e) {
-                                console.error("[API] Manual Cookie Parse Failed:", e);
-                            }
-                        }
-
-                        if (tokenValue && refreshToken) {
-                            const { data: recoverData } = await supabase.auth.setSession({
-                                access_token: tokenValue,
-                                refresh_token: refreshToken
-                            });
-                            if (recoverData.user) {
-                                user = recoverData.user;
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error("[API] Recovery Error:", e);
-            }
-        }
+        const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+        const user = await getSafeUser(req, supabase);
 
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -139,7 +60,12 @@ export async function POST(request: Request) {
             .eq('id', user.id)
             .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+        const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+        if (!isAuthorizedAdmin({ 
+            id: user.id, 
+            email: user.email || null, 
+            role: profile?.role 
+        })) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 

@@ -8,47 +8,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
     // 0. Manual Session Recovery (The Hammer Fix 🔨)
     const supabase = await createServerClient();
-    let { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        try {
-            const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-            const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
-            if (projectId) {
-                const cookieName = `sb-${projectId}-auth-token`;
-                const authCookie = req.cookies.get(cookieName);
-                if (authCookie) {
-                    let tokenValue: string | undefined;
-                    let refreshToken: string | undefined;
-                    try {
-                        const json = JSON.parse(authCookie.value);
-                        tokenValue = json.access_token;
-                        refreshToken = json.refresh_token;
-                    } catch {
-                        try {
-                            const json = JSON.parse(decodeURIComponent(authCookie.value));
-                            tokenValue = json.access_token;
-                            refreshToken = json.refresh_token;
-                        } catch (e) {
-                            console.error("[Permissions API] Manual Cookie Parse Failed:", e);
-                        }
-                    }
-                    if (tokenValue && refreshToken) {
-                        const { data: recoverData } = await supabase.auth.setSession({
-                            access_token: tokenValue,
-                            refresh_token: refreshToken
-                        });
-                        if (recoverData.user) {
-                            console.log(`[Permissions API] Manual Recovery Success: ${recoverData.user.email}`);
-                            user = recoverData.user;
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("[Permissions API] Recovery logic failed:", e);
-        }
-    }
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
 
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -124,30 +85,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     // 0. Manual Session Recovery
     const supabase = await createServerClient();
-    let { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        try {
-            const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-            const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
-            if (projectId) {
-                const cookieName = `sb-${projectId}-auth-token`;
-                const authCookie = req.cookies.get(cookieName);
-                if (authCookie) {
-                    let json;
-                    try { json = JSON.parse(authCookie.value); }
-                    catch { json = JSON.parse(decodeURIComponent(authCookie.value)); }
-                    if (json?.access_token && json?.refresh_token) {
-                        const { data: recoverData } = await supabase.auth.setSession({
-                            access_token: json.access_token,
-                            refresh_token: json.refresh_token
-                        });
-                        if (recoverData.user) user = recoverData.user;
-                    }
-                }
-            }
-        } catch (e) { console.error("[Permissions POST API] Recovery failed:", e); }
-    }
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
 
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -158,7 +97,12 @@ export async function POST(req: NextRequest) {
         .single();
 
     // Support both role-based and explicit email-based MASTER check
-    const isMaster = profile?.role === 'MASTER' || profile?.email === 'h2techjun@gmail.com' || user.email === 'h2techjun@gmail.com';
+    const { isMasterAdmin } = await import('@/lib/security-admin');
+    const isMaster = isMasterAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    });
     
     if (!isMaster) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

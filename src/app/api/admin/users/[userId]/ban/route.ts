@@ -17,9 +17,10 @@ export async function POST(
     const body = await req.json();
     const { status, reason, bannedUntil } = body;
 
-    // 1. Authenticate Admin (Server Client)
+    // 0. Manual Session Recovery (The Hammer Fix 🔨)
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
 
     if (!user) return NextResponse.json({ error: '인증되지 않았습니다.' }, { status: 401 });
 
@@ -29,7 +30,12 @@ export async function POST(
         .eq('id', user.id)
         .single();
 
-    if (adminProfile?.role !== 'ADMIN' && adminProfile?.role !== 'MASTER') {
+    const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+    if (!isAuthorizedAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: adminProfile?.role 
+    })) {
         return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 

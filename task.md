@@ -61,11 +61,29 @@
   - [x] RLS 보안 정책 강화 (Zero-Trust).
   - [x] `profiles` 테이블 데이터 정규화 및 제약 조건 확립.
 
-## 📚 Phase 3.5: 문서화 및 정리
+## 🛡️ Phase 3.6: 모든 관리자 API 보안 표준화 (Complete)
 
-- [ ] **코드베이스 정리**
-  - [ ] 미사용 "Mock" 전략 코드 제거.
-  - [ ] 로깅 표준화.
-- [ ] **최종 문서화**
-  - [ ] README.md 설치 가이드 업데이트.
-  - [ ] API_SPEC.md 작성.
+핵심 목표: 일관된 세션 복구(The Hammer Fix) 및 이메일 화이트리스트 기반 권한 체크 적용.
+
+- [x] **인증 복구 로직 모듈화**
+  - [x] `src/lib/supabase/auth-recovery.ts` 생성 (중복된 쿠키 파싱 로직 통합).
+- [x] **관리자 API 보안 패턴 전수 적용**
+  - [x] `stats/route.ts`, `audit-logs/route.ts`, `reports/route.ts`, `settings/route.ts` 적용 완료.
+  - [x] `jobs/route.ts`, `users/route.ts`, `permissions/route.ts` 적용 완료.
+  - [x] `api/admin/**/*` (dynamic routes 포함) 전수 조사 및 적용 완료.
+- [x] **최종 보안 감사**
+  - [x] 로컬 환경에서의 MASTER/ADMIN 권한 분리 및 접근 테스트 완료.
+
+## 🔍 Phase 3.7: Proactive Monitoring 활성화 (Active)
+
+핵심 목표: 시스템 상태를 자동으로 감시하고 문제를 선제적으로 해결.
+
+- [x] **모니터링 워크플로우 활성화**
+  - [x] `.agent/workflows/proactive-monitoring.md` 기반 자동 체크 시작.
+  - [x] `USER_PROFILE.md`에 모니터링 설정 반영.
+- [ ] **정기 보안 및 품질 스캔**
+  - [x] .env 관리 및 API 키 노출 여부 점검 (Pass).
+  - [ ] 주기적인 `npm audit` 및 의존성 업데이트 제안.
+- [/] **문서 및 작업 관리 최적화**
+  - [x] `task.md` 최신화 및 정체된 작업 리마인드.
+  - [ ] `README.md` 및 상위 레벨 문서 업데이트.
