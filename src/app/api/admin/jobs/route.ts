@@ -81,25 +81,30 @@ export async function GET(req: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    // Use translation_jobs directly join with profiles to ensure user_email is present
+    // Use translation_jobs with optional join to avoid row loss
     const { data, error, count } = await supabaseAdmin
         .from('translation_jobs')
         .select(`
             *,
-            profiles!user_id(email)
+            profiles:user_id(email)
         `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
     if (error) {
+        console.error("[Jobs API] Query Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Transform data to flatten profiles email
-    const transformedData = data?.map(job => ({
-        ...job,
-        user_email: job.profiles?.email || 'Unknown User'
-    }));
+    // Transform data safely, ensuring even orphaned jobs are shown
+    const transformedData = (data || []).map(job => {
+        // Handle cases where profiles might be an array or an object depending on schema
+        const profile = Array.isArray(job.profiles) ? job.profiles[0] : job.profiles;
+        return {
+            ...job,
+            user_email: profile?.email || 'Unknown User'
+        };
+    });
 
     return NextResponse.json({
         data: transformedData,
