@@ -11,7 +11,8 @@ import {
     TableRow 
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Key, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Key, ShieldCheck, AlertCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGeoSmart } from '@/context/geo-smart-context';
 
@@ -90,6 +91,30 @@ export default function PermissionsPage() {
         }
     };
 
+    const handleDeleteUser = async (userId: string, userName: string) => {
+        if (!confirm(`정말로 '${userName}' 님의 관리자 권한을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/admin/permissions', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || '삭제 실패');
+            }
+
+            toast.success('관리자 권한이 삭제되었습니다.');
+            setAdmins(prev => prev.filter(a => a.id !== userId));
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    };
+
     return (
         <div className="container mx-auto py-10 px-4 max-w-5xl">
             <div className="flex items-center justify-between mb-8">
@@ -149,7 +174,7 @@ export default function PermissionsPage() {
                                     </TableRow>
                                 ) : (
                                     admins.map((admin) => (
-                                        <TableRow key={admin.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
+                                        <TableRow key={admin.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors group">
                                             <TableCell className="pl-8 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-8 h-8 rounded-full ${admin.is_master ? 'bg-amber-100 dark:bg-amber-900' : 'bg-indigo-100 dark:bg-indigo-900'} flex items-center justify-center`}>
@@ -157,7 +182,9 @@ export default function PermissionsPage() {
                                                     </div>
                                                     <div className="flex flex-col text-left">
                                                         <div className="flex items-center gap-1">
-                                                            <span className="text-xs font-black dark:text-white truncate max-w-[120px]">{admin.full_name}</span>
+                                                            <span className={`text-xs font-black dark:text-white truncate max-w-[120px] ${admin.email === 'user_not_found' ? 'text-red-500 line-through' : ''}`}>
+                                                                {admin.full_name}
+                                                            </span>
                                                             {admin.is_master && (
                                                                 <span className="text-[8px] px-1.5 py-0.5 bg-amber-500 text-white rounded font-black italic uppercase">MASTER</span>
                                                             )}
@@ -176,6 +203,19 @@ export default function PermissionsPage() {
                                                     />
                                                 </TableCell>
                                             ))}
+                                            <TableCell className="text-center pr-4">
+                                                {profile?.role === 'MASTER' && !admin.is_master && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 opacity-0 group-hover:opacity-100 transition-all"
+                                                        onClick={() => handleDeleteUser(admin.id, admin.full_name)}
+                                                        title="관리자 권한 삭제"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}

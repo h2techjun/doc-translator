@@ -241,3 +241,65 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
 }
+
+export async function DELETE(req: NextRequest) {
+    // 0. Manual Session Recovery
+    const supabase = await createServerClient();
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
+
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    const { isMasterAdmin } = await import('@/lib/security-admin');
+    if (!isMasterAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { userId } = await req.json();
+
+    if (!userId) {
+        return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+    }
+
+    // Prevent self-deletion
+    if (userId === user.id) {
+        return NextResponse.json({ error: 'Cannot delete yourself' }, { status: 400 });
+    }
+
+    const supabaseAdmin = getAdminClient();
+
+    // 1. Delete from permissions table
+    const { error: deleteError } = await supabaseAdmin
+        .from('admin_permissions')
+        .delete()
+        .eq('user_id', userId);
+
+    if (deleteError) {
+        console.error("[Permissions API] Delete Error:", deleteError);
+        return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    // 2. Downgrade role to USER (if profile exists)
+    // This is "soft delete" for admin status
+    const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({ role: 'USER' })
+        .eq('id', userId);
+
+    if (updateError) {
+        // It's okay if profile doesn't exist (orphan case)
+        console.warn("[Permissions API] Role Downgrade Warning (might be orphan):", updateError);
+    }
+
+    return NextResponse.json({ success: true });
+}
