@@ -195,25 +195,7 @@ export async function POST(req: NextRequest) {
 
     const supabaseAdmin = getAdminClient();
 
-    // 🚀 [Dual Schema Sync Strategy]
-    // 1. Try Normalized Schema Update (One row per permission)
-    // We delete and re-insert to ensure clean state
-    try {
-        await supabaseAdmin.from('admin_permissions').delete().eq('user_id', userId);
-        
-        if (permissions.length > 0) {
-            const insertData = permissions.map(p => ({
-                user_id: userId,
-                permission: p,
-                granted_by: user.id
-            }));
-            await supabaseAdmin.from('admin_permissions').insert(insertData);
-        }
-    } catch (e) {
-        console.warn("[Permissions API] Normalized Update Failed, falling back to Denormalized:", e);
-    }
-
-    // 2. Try Denormalized Schema Update (Boolean columns)
+    // 권한 매핑 (Denormalized Boolean Schema)
     const hasManageUsers = permissions.includes('MANAGE_USERS');
     const hasManagePosts = permissions.includes('MANAGE_POSTS');
     const hasViewAuditLogs = permissions.includes('VIEW_AUDIT_LOGS');
@@ -227,16 +209,17 @@ export async function POST(req: NextRequest) {
             can_manage_admins: hasManageUsers,
             can_manage_posts: hasManagePosts,
             can_view_audit_logs: hasViewAuditLogs,
-            can_access_security: hasViewAuditLogs, // Bridge naming gap
+            can_access_security: hasViewAuditLogs,
             can_manage_system: hasSystemSettings,
             updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
-    // Both updates failed or denormalized failed when it's the primary schema
-    if (upsertError && !permissions.includes('VIEW_AUDIT_LOGS')) {
-         // Only report if it's a real failure (not just column mismatch)
-         console.error("[Permissions API] Sync Error:", upsertError);
-         // If upsert fails after normalized delete, it might leave partial state, but usually the UI will re-fetch
+    if (upsertError) {
+        console.error("[Permissions API] Upsert Error:", upsertError);
+        return NextResponse.json({ 
+            error: 'Failed to update permissions',
+            details: upsertError.message 
+        }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
