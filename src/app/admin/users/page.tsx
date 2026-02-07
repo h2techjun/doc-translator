@@ -452,105 +452,17 @@ export default function AdminUsersPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right pr-6">
-                                                <Dialog open={isDialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                                                    if (!open) setIsDialogOpen(false);
-                                                }}>
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="h-8 px-4 text-[10px] font-black uppercase border-indigo-500/30 text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-sm transition-all"
-                                                            onClick={() => {
-                                                                setSelectedUser(user);
-                                                                setIsDialogOpen(true);
-                                                            }}
-                                                        >
-                                                            관리
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="max-w-md bg-white dark:bg-slate-900 border-border shadow-2xl rounded-3xl p-8 focus:ring-0 ring-0 outline-none">
-                                                        <DialogHeader className="mb-6">
-                                                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-4">
-                                                                <Shield className="w-6 h-6 text-indigo-600" />
-                                                            </div>
-                                                            <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase text-indigo-600">권한 및 자산 수정</DialogTitle>
-                                                            <DialogDescription className="text-xs font-bold opacity-70">
-                                                                사용자 <span className="text-foreground underline underline-offset-4 decoration-indigo-500/30">{selectedUser?.email || selectedUser?.id}</span>의 데이터를 즉시 변경합니다.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        
-                                                        <div className="grid gap-6">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">포인트 (Points Balance)</Label>
-                                                                <div className="relative">
-                                                                    <Input
-                                                                        type="number"
-                                                                        className="h-14 bg-slate-50 dark:bg-slate-950/50 border-border/50 text-amber-500 font-black text-2xl pl-12 rounded-2xl transition-all focus:ring-2 focus:ring-amber-500"
-                                                                        defaultValue={selectedUser?.points}
-                                                                        id={`points-${user.id}`}
-                                                                    />
-                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-amber-500/40 italic">P</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div className="space-y-2">
-                                                                    <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">등급 (Tier Plan)</Label>
-                                                                    <Select defaultValue={selectedUser?.tier} onValueChange={(v) => setSelectedUser(prev => prev ? { ...prev, tier: v as any } : null)}>
-                                                                        <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-black text-xs rounded-xl">
-                                                                            <SelectValue />
-                                                                        </SelectTrigger>
-                                                                        <SelectContent className="rounded-2xl border-border/50">
-                                                                            <SelectItem value="BRONZE" className="text-xs font-bold">BRONZE</SelectItem>
-                                                                            <SelectItem value="SILVER" className="text-xs font-bold">SILVER</SelectItem>
-                                                                            <SelectItem value="GOLD" className="text-xs font-bold text-yellow-600">GOLD</SelectItem>
-                                                                            <SelectItem value="DIAMOND" className="text-xs font-bold text-indigo-600">DIAMOND</SelectItem>
-                                                                            <SelectItem value="MASTER" className="text-xs font-black italic text-rose-600">MASTER</SelectItem>
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">역할 (User Role)</Label>
-                                                                    <Select defaultValue={selectedUser?.role} onValueChange={(v) => setSelectedUser(prev => prev ? { ...prev, role: v as any } : null)}>
-                                                                        <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-black text-xs rounded-xl">
-                                                                            <SelectValue />
-                                                                        </SelectTrigger>
-                                                                        <SelectContent className="rounded-2xl border-border/50">
-                                                                            <SelectItem value="USER" className="text-xs font-bold">USER</SelectItem>
-                                                                            <SelectItem value="ADMIN" className="text-xs font-black text-indigo-600">ADMIN</SelectItem>
-                                                                            <SelectItem value="MASTER" className="text-xs font-black text-rose-600">MASTER</SelectItem>
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <DialogFooter className="mt-8 flex gap-3">
-                                                            <Button
-                                                                variant="ghost"
-                                                                className="h-12 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground hover:bg-slate-100 rounded-xl"
-                                                                onClick={() => setIsDialogOpen(false)}
-                                                            >
-                                                                취소
-                                                            </Button>
-                                                            <Button
-                                                                className="h-12 flex-1 text-xs font-black uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20 rounded-xl transition-all active:scale-95"
-                                                                onClick={() => {
-                                                                    const pointsInput = document.getElementById(`points-${user.id}`) as HTMLInputElement;
-                                                                    const points = parseInt(pointsInput.value);
-                                                                    handleUpdateUser({
-                                                                        points,
-                                                                        tier: selectedUser?.tier || user.tier,
-                                                                        role: selectedUser?.role || user.role
-                                                                    });
-                                                                }}
-                                                                disabled={isUpdating}
-                                                            >
-                                                                {isUpdating ? '데이터 갱신 중...' : '변경 사항 저장'}
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 px-4 text-[10px] font-black uppercase border-indigo-500/30 text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-sm transition-all"
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setIsDialogOpen(true);
+                                                    }}
+                                                >
+                                                    관리
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -560,6 +472,7 @@ export default function AdminUsersPage() {
                     </div>
 
                     <div className="flex items-center justify-between py-6">
+                        {/* Pagination Controls ... (omitted for brevity, keep existing) */}
                         <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
                             DOC-TRANSLATION ADMIN CORE
                         </div>
@@ -575,7 +488,7 @@ export default function AdminUsersPage() {
                             </Button>
                             <div className="flex items-center px-4 h-9 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-black tracking-tighter">
                                 <span className="text-indigo-600">{page}</span>
-                                <span className="mx-2 opacity-20">/</span>
+                                <span className="opacity-20 mx-2">/</span>
                                 <span className="opacity-50">{totalPages}</span>
                             </div>
                             <Button
@@ -591,6 +504,103 @@ export default function AdminUsersPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* User Edit Dialog */}
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) setSelectedUser(null);
+            }}>
+                <DialogContent className="max-w-md bg-white dark:bg-slate-900 border-border shadow-2xl rounded-3xl p-8 focus:ring-0 ring-0 outline-none">
+                    <DialogHeader className="mb-6">
+                        <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-4">
+                            <Shield className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase text-indigo-600">권한 및 자산 수정</DialogTitle>
+                        <DialogDescription className="text-xs font-bold opacity-70">
+                            사용자 <span className="text-foreground underline underline-offset-4 decoration-indigo-500/30">{selectedUser?.email || selectedUser?.id}</span>의 데이터를 즉시 변경합니다.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedUser && (
+                        <div className="grid gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">포인트 (Points Balance)</Label>
+                                <div className="relative">
+                                    <Input
+                                        type="number"
+                                        className="h-14 bg-slate-50 dark:bg-slate-950/50 border-border/50 text-amber-500 font-black text-2xl pl-12 rounded-2xl transition-all focus:ring-2 focus:ring-amber-500"
+                                        value={selectedUser.points}
+                                        onChange={(e) => setSelectedUser({ ...selectedUser, points: parseInt(e.target.value) || 0 })}
+                                    />
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-amber-500/40 italic">P</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">등급 (Tier Plan)</Label>
+                                    <Select 
+                                        value={selectedUser.tier} 
+                                        onValueChange={(v: any) => setSelectedUser({ ...selectedUser, tier: v })}
+                                    >
+                                        <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-black text-xs rounded-xl">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-border/50">
+                                            <SelectItem value="BRONZE" className="text-xs font-bold">BRONZE</SelectItem>
+                                            <SelectItem value="SILVER" className="text-xs font-bold">SILVER</SelectItem>
+                                            <SelectItem value="GOLD" className="text-xs font-bold text-yellow-600">GOLD</SelectItem>
+                                            <SelectItem value="DIAMOND" className="text-xs font-bold text-indigo-600">DIAMOND</SelectItem>
+                                            <SelectItem value="MASTER" className="text-xs font-black italic text-rose-600">MASTER</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase opacity-60 ml-1 tracking-widest text-indigo-600">역할 (User Role)</Label>
+                                    <Select 
+                                        value={selectedUser.role} 
+                                        onValueChange={(v: any) => setSelectedUser({ ...selectedUser, role: v })}
+                                    >
+                                        <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-border/50 font-black text-xs rounded-xl">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-border/50">
+                                            <SelectItem value="USER" className="text-xs font-bold">USER</SelectItem>
+                                            <SelectItem value="ADMIN" className="text-xs font-black text-indigo-600">ADMIN</SelectItem>
+                                            <SelectItem value="MASTER" className="text-xs font-black text-rose-600">MASTER</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter className="mt-8 flex gap-3">
+                        <Button
+                            variant="ghost"
+                            className="h-12 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground hover:bg-slate-100 rounded-xl"
+                            onClick={() => setIsDialogOpen(false)}
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            className="h-12 flex-1 text-xs font-black uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20 rounded-xl transition-all active:scale-95"
+                            onClick={() => {
+                                if (selectedUser) {
+                                    handleUpdateUser({
+                                        points: selectedUser.points,
+                                        tier: selectedUser.tier,
+                                        role: selectedUser.role
+                                    });
+                                }
+                            }}
+                            disabled={isUpdating}
+                        >
+                            {isUpdating ? '데이터 갱신 중...' : '변경 사항 저장'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
