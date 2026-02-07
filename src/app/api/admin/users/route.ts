@@ -22,7 +22,12 @@ export async function GET(req: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+    const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+    if (!isAuthorizedAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

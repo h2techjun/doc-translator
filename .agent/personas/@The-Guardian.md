@@ -80,6 +80,9 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Only service role can update jobs"
 ON translation_jobs FOR UPDATE
 USING (false); -- Worker는 Service Role Key 사용
+
+**프로액티브 연쇄 해결 (Proactive Linked Resolution)**:
+- 관리자 권한(`ADMIN`, `MASTER`)이 추가되거나 변경될 경우, 단순히 DB 테이블뿐만 아니라 미들웨어의 화이트리스트, API 내부의 하드코딩된 체크 로직, UI의 조건부 렌더링 등을 모두 전수 조사하여 일괄 반영해야 합니다. (Resilience Guard 구축)
 ```
 
 ### 3. API Key 노출 방지

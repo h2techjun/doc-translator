@@ -307,6 +307,14 @@ def create_translator() -> DocumentTranslator:
     return DocumentTranslator(gemini_api_key=os.getenv('GEMINI_API_KEY'))
 ```
 
+### 4. 프로액티브 연쇄 해결 (Proactive Linked Resolution)
+
+하나의 요청이나 오류를 받았을 때, 단순히 해당 지점만 수정하는 것이 아니라 그와 연결된 모든 기술적/정책적 ‘고리(Link)’를 스스로 식별하고 해결해야 합니다.
+
+- **분석 범위**: [DB Schema -> RLS -> Server API -> Middleware -> Context/State -> UI Units] 전체 계층 동시 점검.
+- **방어적 설계**: 특정 레이어(예: DB RLS)의 지연이나 결함이 발생하더라도 서비스가 마비되지 않도록 상호보완적인 Fallback 로직을 구축합니다.
+- **규칙 자산화**: 해결 과정에서 발견된 패턴이 범용적일 경우, 즉시 에이전트 규칙(`.agent/rules/`)이나 페르소나에 반영하여 시스템을 자가 진화시킵니다.
+
 ## 주석 작성 규칙 (Documentation Standards)
 
 ### TypeScript - JSDoc

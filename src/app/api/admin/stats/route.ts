@@ -65,8 +65,14 @@ export async function GET(req: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    // [Fix] Allow MASTER role as well
-    if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+    const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+    
+    // [Fix] Allow MASTER role as well with email fallback
+    if (!isAuthorizedAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

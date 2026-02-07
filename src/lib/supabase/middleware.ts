@@ -191,13 +191,17 @@ export async function updateSession(request: NextRequest) {
                 }
 
                 // 3. Admin Route Protection
+                const { isAuthorizedAdmin } = await import('@/lib/security-admin');
                 const userRole = user.user_metadata?.role || profile?.role;
-                const adminEmails = ['h2techjun@gmail.com', 'gagum80@hotmail.com', 'subadmin@doctranslation.co'];
-                const isKnownAdmin = adminEmails.includes(authUser.email || '');
+                const adminUser = {
+                    id: authUser.id,
+                    email: authUser.email || null,
+                    role: userRole
+                };
 
-                console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Detected Role: ${userRole}, Email: ${authUser.email}`);
+                console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Role: ${userRole}, Email: ${authUser.email}`);
 
-                if (!isKnownAdmin && (!userRole || (userRole !== 'ADMIN' && userRole !== 'MASTER'))) {
+                if (!isAuthorizedAdmin(adminUser)) {
                     console.warn(`[Middleware] Unauthorized Admin access by user ${authUser.id}. Role: ${userRole || 'None'}`);
                     const url = request.nextUrl.clone();
                     url.pathname = '/forbidden';
@@ -205,7 +209,8 @@ export async function updateSession(request: NextRequest) {
                 }
 
                 // 3-1. [Security] Granular Permission Checks for ADMIN (MASTER bypasses)
-                if (userRole === 'ADMIN' && !isKnownAdmin) {
+                const { isMasterAdmin } = await import('@/lib/security-admin');
+                if (userRole === 'ADMIN' && !isMasterAdmin(adminUser)) {
                     const { data: permissions } = await supabase
                         .from('admin_permissions')
                         .select('*')
