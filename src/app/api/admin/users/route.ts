@@ -11,12 +11,51 @@ const getAdminClient = () => createClient(
 );
 
 export async function GET(req: NextRequest) {
-    // [Debug] Verify Service Role Key Presence
-    const checkKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log(`[Admin Users API] Service Role Key Status: ${checkKey ? `FOUND (Len: ${checkKey.length})` : 'MISSING'}`);
-    // 1. Authenticate Admin
+    // 0. Manual Session Recovery (The Hammer Fix 🔨)
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        try {
+            const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+            const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
+            if (projectId) {
+                const cookieName = `sb-${projectId}-auth-token`;
+                const authCookie = req.cookies.get(cookieName);
+
+                if (authCookie) {
+                    let tokenValue: string | undefined;
+                    let refreshToken: string | undefined;
+                    try {
+                        const json = JSON.parse(authCookie.value);
+                        tokenValue = json.access_token;
+                        refreshToken = json.refresh_token;
+                    } catch {
+                        try {
+                            const json = JSON.parse(decodeURIComponent(authCookie.value));
+                            tokenValue = json.access_token;
+                            refreshToken = json.refresh_token;
+                        } catch (e) {
+                            console.error("[Users API] Manual Cookie Parse Failed:", e);
+                        }
+                    }
+
+                    if (tokenValue && refreshToken) {
+                        const { data: recoverData } = await supabase.auth.setSession({
+                            access_token: tokenValue,
+                            refresh_token: refreshToken
+                        });
+                        if (recoverData.user) {
+                            console.log(`[Users API] Manual Recovery Success: ${recoverData.user.email}`);
+                            user = recoverData.user;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("[Users API] Recovery logic failed:", e);
+        }
+    }
 
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
