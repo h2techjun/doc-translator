@@ -94,26 +94,31 @@ export async function GET(req: NextRequest) {
     // 4. Transform to Frontend format
     const transformedAdmins = Array.from(allAdminIds).map(uid => {
         const p = profileMap[uid];
-        if (!p) return null;
+        
+        // p가 없더라도 현재 접속한 본인이거나 화이트리스트라면 기본 정보 생성
+        const effectiveEmail = p?.email || (uid === user.id ? user.email : null);
+        const isMaster = p?.role === 'MASTER' || (effectiveEmail && effectiveEmail === KNOWN_ADMIN_EMAILS[0]);
+        
+        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) return null;
 
         const storedPerms = adminMap[uid]?.permissions || new Set<string>();
-        // MASTER check: check role OR if it's the primary bootstrap email
-        const isMaster = p.role === 'MASTER' || (p.email && p.email === KNOWN_ADMIN_EMAILS[0]);
 
         return {
             id: uid,
-            full_name: p.full_name || '관리자',
-            email: p.email || uid.substring(0, 8),
-            role: p.role || (KNOWN_ADMIN_EMAILS.includes(p.email || '') ? 'ADMIN' : 'USER'),
+            full_name: p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자'),
+            email: effectiveEmail || uid.substring(0, 8),
+            role: p?.role || (isMaster ? 'MASTER' : 'ADMIN'),
             is_master: isMaster,
             permissions: isMaster ? PERMISSION_TYPES.map(t => t.id) : Array.from(storedPerms)
         };
     }).filter(Boolean);
 
+    console.log(`[Permissions API] Returning ${transformedAdmins.length} admins.`);
+
     // Sorting: MASTER first, then by name
     transformedAdmins.sort((a: any, b: any) => {
-        if (a.is_master) return -1;
-        if (b.is_master) return 1;
+        if (a.is_master && !b.is_master) return -1;
+        if (!a.is_master && b.is_master) return 1;
         return (a.full_name || '').localeCompare(b.full_name || '');
     });
 

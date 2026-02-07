@@ -46,12 +46,28 @@ export default function PermissionsPage() {
     const fetchPermissions = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/admin/permissions');
-            if (!res.ok) throw new Error('권한 데이터를 불러오는데 실패했습니다.');
+            console.log("[Permissions] Fetching data...");
+            const res = await fetch('/api/admin/permissions', {
+                cache: 'no-store', // 강제 캐시 무효화
+                headers: { 'Pragma': 'no-cache' }
+            });
+            
+            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+            
             const data = await res.json();
-            setAdmins(data || []);
+            console.log("[Permissions] Received Data:", data);
+            
+            // 데이터가 배열인지 확인하고, 비어있지 않다면 상태 업데이트
+            if (Array.isArray(data)) {
+                setAdmins(data);
+                console.log(`[Permissions] Set ${data.length} admins to state.`);
+            } else {
+                console.warn("[Permissions] Data is not an array:", data);
+                setAdmins([]);
+            }
         } catch (error: any) {
-            toast.error(error.message);
+            console.error("[Permissions] Fetch Failed:", error);
+            toast.error(`데이터 로드 실패: ${error.message}`);
         } finally {
             setLoading(false);
         }
