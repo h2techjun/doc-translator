@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminSidebar from './_components/AdminSidebar';
 import { Loader2 } from 'lucide-react';
+import { AdminProvider } from '@/context/admin-context';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, profile, isLoading } = useGeoSmart();
@@ -58,11 +59,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="min-h-screen bg-[#020617] text-slate-200 flex font-sans">
-            <AdminSidebar />
-            <main className="flex-grow h-screen overflow-y-auto bg-gradient-to-br from-[#020617] via-[#050b1a] to-[#0f172a]">
-                {children}
-            </main>
-        </div>
+        <AdminProvider>
+            <div className="min-h-screen bg-[#020617] text-slate-200 flex font-sans">
+                <AdminSidebar />
+                <main className="flex-grow h-screen overflow-y-auto bg-gradient-to-br from-[#020617] via-[#050b1a] to-[#0f172a]">
+                    {children}
+                </main>
+            </div>
+        </AdminProvider>
     );
 }

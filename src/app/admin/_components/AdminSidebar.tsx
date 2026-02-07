@@ -12,34 +12,51 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/config';
 import { useGeoSmart } from '@/context/geo-smart-context';
+import { useAdmin, AdminPermissions } from '@/context/admin-context';
 import { motion } from 'framer-motion';
 
 export default function AdminSidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const supabase = createClient();
-    const { profile } = useGeoSmart(); // useGeoSmart를 통해 profile.role 가져오기 (가장 정확)
+    const { profile } = useGeoSmart();
+    const { permissions, isMaster } = useAdmin();
 
     const isActive = (path: string) => pathname === path;
 
-    // 🔒 권한별 메뉴 필터링
-    const navItems = [
-        { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard, role: ['MASTER', 'ADMIN'] },
-        { href: '/admin/users', label: '회원 관리', icon: Users, role: ['MASTER', 'ADMIN'] },
-        { href: '/admin/jobs', label: '작업 감시', icon: FileText, role: ['MASTER', 'ADMIN'] },
-        { href: '/admin/posts', label: '커뮤니티', icon: MessageSquare, role: ['MASTER', 'ADMIN'] },
-        { href: '/admin/finance', label: '자금 관리', icon: DollarSign, role: ['MASTER'] },
-        { href: '/admin/reports', label: '신고 관리', icon: Flag, role: ['MASTER', 'ADMIN'] },
-        { href: '/admin/permissions', label: '권한 관리', icon: ShieldAlert, role: ['MASTER'] },
-        // 🔹 아래 메뉴는 MASTER 전용
-        { href: '/admin/settings', label: '시스템 설정', icon: Settings, role: ['MASTER'] },
-        { href: '/admin/security', label: '보안 센터', icon: ShieldAlert, role: ['MASTER'] },
+    interface NavItem {
+        href: string;
+        label: string;
+        icon: any;
+        permission?: keyof AdminPermissions;
+    }
+
+    // 🔒 권한별 메뉴 매핑
+    const navItems: NavItem[] = [
+        { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
+        { href: '/admin/users', label: '회원 관리', icon: Users, permission: 'can_manage_users' },
+        { href: '/admin/jobs', label: '작업 감시', icon: FileText, permission: 'can_manage_system' },
+        { href: '/admin/posts', label: '커뮤니티', icon: MessageSquare, permission: 'can_manage_posts' },
+        { href: '/admin/finance', label: '자금 관리', icon: DollarSign, permission: 'can_manage_finance' },
+        { href: '/admin/reports', label: '신고 관리', icon: Flag, permission: 'can_manage_posts' },
+        { href: '/admin/permissions', label: '권한 관리', icon: ShieldAlert, permission: 'can_manage_admins' },
+        { href: '/admin/settings', label: '시스템 설정', icon: Settings, permission: 'can_manage_system' },
+        { href: '/admin/security', label: '보안 센터', icon: ShieldAlert, permission: 'can_access_security' },
     ];
 
     // 현재 사용자의 권한으로 필터링
-    const visibleNavItems = navItems.filter(item =>
-        !item.role || (profile?.role && item.role.includes(profile.role))
-    );
+    const visibleNavItems = navItems.filter(item => {
+        // 1. Master는 모든 메뉴 접근 가능
+        if (isMaster) return true;
+
+        // 2. 권한 필드가 있는 경우, 해당 권한 확인
+        if (item.permission) {
+            return !!permissions?.[item.permission];
+        }
+
+        // 3. 권한 필드가 없는 경우 (대시보드 등), 기본 허용
+        return true;
+    });
 
     return (
         <aside

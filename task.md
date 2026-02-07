@@ -13,9 +13,23 @@
   - [x] **.xlsx** (Excel) 문서 전체 수명주기 테스트.
   - [x] **.pdf** (PDF) 문서 전체 수명주기 테스트.
   - [x] "개발자 테스트 로그인" 신뢰성 검증 (`x-test-user-id` 헤더 지원).
-  - [x] **Google Drive 통합 및 다운로드 (Drive Integration)**
-    - [x] 다운로드 프록시 및 CORS 이슈 해결.
-    - [x] 파일명 인코딩 이슈 해결.
+  - [x] **2. 권한 페이지 (`src/app/admin/permissions/page.tsx`) 수정**
+    - [x] 관리자 추가 기능 제거 (회원 관리 페이지로 이관)
+    - [x] `MASTER` 권한 보호 로직 강화
+    - [x] 권한 변경 API (`POST`) 디버깅 및 안정화
+    - [x] 유령 관리자(Unknown User) 삭제 기능 추가
+
+### 3. **회원 관리 페이지 (`src/app/admin/users/page.tsx`) 고도화** (Current)
+
+- [ ] **테이블 컬럼 확장**:
+  - 포인트 잔액, 회원 등급(Tier), 최근 접속일, 가입일 표시
+- [ ] **검색 및 필터링**:
+  - 이메일/이름 검색창 구현
+  - 등급(Free/Pro/Team) 및 역할(User/Admin) 필터
+- [ ] **사용자 제어 모달 (User Detail Modal)**:
+  - **포인트 관리**: 임의 지급 및 차감 (사유 기록)
+  - **등급 관리**: 등급 수동 변경 (Free ↔ Pro)
+  - **역할 관리**: 관리자 승격/해임 (기존 권한 페이지 기능 이관)
 
 ## ⏸️ Phase 3.2: 번역 품질 및 견고성 강화 (Post-Deployment Test 예정)
 
@@ -43,6 +57,11 @@
   - [x] 실시간 상태 업데이트 (Polling).
 - [x] **상세 진행 상태 UI**
   - [x] 세분화된 단계 표시 ("업로드 중", "분석 중", "번역 중", "재조립 중").
+
+- [x] **관리자 권한 및 사이드바 개선**
+  - [x] AdminContext 생성: 관리자 권한 전역 상태 관리
+  - [x] Sidebar 동적 렌더링: 권한에 따른 메뉴 노출
+  - [x] Dashboard 위젯 권한 적용: 민감 정보(수익 등) 권한별 제어 (Master Only)
 
 ## 👮 Phase 3.4: 관리자 대시보드 & 운영 도구 (Complete)
 
