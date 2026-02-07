@@ -73,7 +73,7 @@ export default function AdminDashboard() {
         <div className="container mx-auto py-10 px-4 max-w-7xl">
             <h1 className="text-4xl font-black mb-8 dark:text-white flex items-center gap-3 italic tracking-tighter uppercase">
                 <Activity className="w-10 h-10 text-indigo-500" />
-                관리자 대시보드 {/* '마스터' -> '관리자'로 일반화 */}
+                {isMaster ? '마스터 대시보드' : '관리자 대시보드'}
             </h1>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
