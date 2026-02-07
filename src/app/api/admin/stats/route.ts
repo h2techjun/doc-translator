@@ -1,9 +1,17 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     const supabase = await createClient();
+    
+    // [Debug] Verify Service Role Key Presence
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const keyStatus = serviceRoleKey 
+        ? `FOUND (Length: ${serviceRoleKey.length}, Starts: ${serviceRoleKey.substring(0, 10)}...)`
+        : 'MISSING';
+    console.log(`[Admin Stats API] Service Role Key Status: ${keyStatus}`);
 
     // 0. Manual Session Recovery (The Hammer Fix 🔨)
     // If standard getUser() fails, we manually parse the cookie and force the session.
@@ -77,7 +85,6 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Fetch Stats with Admin Client (Bypass RLS for accurately counting)
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey) {
         return NextResponse.json({ 
             error: 'Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing.' 

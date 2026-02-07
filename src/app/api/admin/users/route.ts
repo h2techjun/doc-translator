@@ -1,15 +1,19 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 
-// Service Role Client for Admin Operations (Lazy initialized to avoid build-time errors)
+export const dynamic = 'force-dynamic';
+
+// Service Role Client for Admin Operations
 const getAdminClient = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function GET(req: NextRequest) {
+    // [Debug] Verify Service Role Key Presence
+    const checkKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log(`[Admin Users API] Service Role Key Status: ${checkKey ? `FOUND (Len: ${checkKey.length})` : 'MISSING'}`);
     // 1. Authenticate Admin
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
