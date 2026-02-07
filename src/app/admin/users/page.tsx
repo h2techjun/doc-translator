@@ -43,7 +43,8 @@ type User = {
     tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'MASTER';
     points: number;
     total_translations: number;
-    signed_up_at: string;
+    created_at: string;
+    signed_up_at?: string; // 하위 호환성 유지
     last_sign_in_at: string | null;
 };
 
@@ -423,7 +424,7 @@ export default function AdminUsersPage() {
                                             </TableCell>
                                             <TableCell className="font-bold opacity-70">{user.total_translations}</TableCell>
                                             <TableCell className="text-xs text-muted-foreground opacity-60">
-                                                {formatDistanceToNow(new Date(user.signed_up_at), { addSuffix: true, locale: ko })}
+                                                {formatDistanceToNow(new Date(user.created_at || user.signed_up_at || new Date()), { addSuffix: true, locale: ko })}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Dialog open={isDialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {

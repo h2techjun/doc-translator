@@ -35,11 +35,11 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // 2. Fetch Users from View with Filters
+    // 2. Fetch Users from Profiles Table (The Source of Truth)
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey) {
         return NextResponse.json({ 
-            error: 'Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing. Check environment variables.' 
+            error: 'Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing.' 
         }, { status: 500 });
     }
 
@@ -54,18 +54,18 @@ export async function GET(req: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
+    console.log(`[Admin Users API] Querying profiles for ${limit} users (Page ${page})`);
+
     let query = supabaseAdmin
-        .from('admin_users_view')
+        .from('profiles')
         .select('*', { count: 'exact' });
 
-    // Apply Search (Case insensitive handled by ilike in Postgres)
-    if (search) {
-        // [Fix] id.eq.${search} can fail if search is not a valid UUID.
-        // We use text casting for safer comparison.
-        query = query.or(`email.ilike.%${search}%,id::text.ilike.%${search}%`);
+    // Apply Simple Search if provided
+    if (search && search.trim() !== '') {
+        query = query.ilike('email', `%${search}%`);
     }
 
-    // Apply Filters
+    // Apply Basic Filters
     if (roleFilter && roleFilter !== 'ALL') {
         query = query.eq('role', roleFilter);
     }
@@ -74,20 +74,20 @@ export async function GET(req: NextRequest) {
     }
 
     const { data, error, count } = await query
-        .order('signed_up_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .range(from, to);
 
     if (error) {
         console.error('[Admin Users API Error]:', error);
-        return NextResponse.json({ error: error.message, details: error.details }, { status: 500 });
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({
-        data,
+        data: data || [],
         pagination: {
             page,
             limit,
-            total: count
+            total: count || 0
         }
     });
 }
