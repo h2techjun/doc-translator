@@ -29,29 +29,25 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    // 1. 유저 정보 획득 (이 과정에서 세션이 자동 리프레시됨)
-    const { data: { user } } = await supabase.auth.getUser()
+    // 💡 원래 코드의 핵심: getUser()를 통해 세션을 확인
+    const { data: { user } } = await supabase.auth.getUser();
 
     const pathname = request.nextUrl.pathname;
 
-    // 2. 관리자 페이지 보호 로직
+    // 1. 관리자 페이지 보호 (/admin)
     if (pathname.startsWith('/admin')) {
-        // 유저가 없다면 한 번 더 확실하게 세션 체크
+        // 새로고침 시 세션 복구가 늦어지는 경우를 대비해 getSession()으로 한 번 더 검증
         if (!user) {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                // 정말 세션이 없는 경우에만 로그인으로 리다이렉트
+                // 로그인 페이지인 /signin 으로 정확히 리다이렉트
                 const url = request.nextUrl.clone()
-                url.pathname = '/login'
+                url.pathname = '/signin'
                 url.searchParams.set('redirectedFrom', pathname)
                 return NextResponse.redirect(url)
             }
         }
-        
-        // 유저가 있다면 role 체크 (보안 강화)
-        // 주의: getUser() 이후의 흐름이므로 세션은 보장됨
     }
 
-    // 3. Sliding Expiration: 활동 시 세션 만료 시간 연장을 위해 response 리턴
     return response
 }

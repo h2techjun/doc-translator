@@ -7,11 +7,11 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
     const supabase = await createServerClient();
     
-    // 1. 세션 확인 (이미 미들웨어에서 통과됨)
+    // 1. 유저 인증
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // 2. 관리자 권한 확인 (Master 여부)
+    // 2. 관리자 권한 확인 (Master 혹은 Admin)
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const { isMasterAdmin, KNOWN_ADMIN_EMAILS } = await import('@/lib/security-admin');
     
@@ -21,32 +21,32 @@ export async function GET(req: NextRequest) {
 
     const supabaseAdmin = getAdminClient();
 
-    // ⚡ [SUPREME DISCOVERY] 모든 관리자를 찾는 가장 확실한 방법
-    // 방법 1: profiles 테이블에서 role이 ADMIN 또는 MASTER인 사람 전원 조회
+    // 💡 [PRECISION AUDIT] 모든 관리자 후보군 전수 조사
+    // 1. profiles 테이블에서 role이 ADMIN 또는 MASTER인 사람 (대소문자 무관)
+    // 2. KNOWN_ADMIN_EMAILS 화이트리스트 이메일을 가진 사람
     const { data: adminProfiles, error: pError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
         .or(`role.ilike.ADMIN,role.ilike.MASTER,email.in.(${KNOWN_ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`);
 
-    if (pError) console.error("[Permissions API] Profile Error:", pError);
+    if (pError) console.error("[Permissions API] Profile Audit Error:", pError);
 
-    // 방법 2: admin_permissions 테이블에 등록된 사람 전원 조회
+    // 3. 기존에 저장된 권한 레코드 조회
     const { data: permRecords } = await supabaseAdmin.from('admin_permissions').select('user_id, permission');
 
-    // ID 합치기
+    // 모든 관리자 ID 합치기
     const allAdminIds = new Set<string>();
     (adminProfiles || []).forEach(p => allAdminIds.add(p.id));
     (permRecords || []).forEach(r => allAdminIds.add(r.user_id));
-    allAdminIds.add(user.id); // 나 자신 포함
+    allAdminIds.add(user.id);
 
-    // 전체 프로필 재조회 (누락 방지)
-    const { data: finalProfiles } = await supabaseAdmin
-        .from('profiles')
-        .select('id, full_name, email, role')
-        .in('id', Array.from(allAdminIds));
+    // 프로필 정보 맵 구성
+    const profileMap = Object.fromEntries((adminProfiles || []).map((p: any) => [p.id, p]));
+    // 내가 발견되지 않았다면 현재 세션 정보로 보강
+    if (!profileMap[user.id]) {
+        profileMap[user.id] = { id: user.id, full_name: '나 (MASTER)', email: user.email, role: profile?.role || 'MASTER' };
+    }
 
-    const profileMap = Object.fromEntries((finalProfiles || []).map((p: any) => [p.id, p]));
-    
     // 권한 맵 구성
     const adminPermsMap: Record<string, string[]> = {};
     (permRecords || []).forEach(r => {
@@ -56,26 +56,25 @@ export async function GET(req: NextRequest) {
 
     const PERMISSION_TYPES = ['MANAGE_USERS', 'MANAGE_POSTS', 'VIEW_AUDIT_LOGS', 'SYSTEM_SETTINGS'];
 
-    // 데이터 변환
+    // 최종 데이터 변환
     const result = Array.from(allAdminIds).map(uid => {
         const p = profileMap[uid];
-        const email = p?.email || (uid === user.id ? user.email : 'Unknown');
-        const isMaster = p?.role === 'MASTER' || email === KNOWN_ADMIN_EMAILS[0];
-        
-        // 프로필이 없는 유저는 제외 (단, 나 자신이나 화이트리스트는 살림)
-        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(email || '')) return null;
+        if (!p) return null; // 프로필이 전수 조사에서 안 나왔다면 제외
+
+        const email = p.email || '';
+        const isMaster = p.role === 'MASTER' || email === KNOWN_ADMIN_EMAILS[0];
 
         return {
             id: uid,
-            full_name: p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자'),
+            full_name: p.full_name || '관리자',
             email: email,
-            role: p?.role || (isMaster ? 'MASTER' : 'ADMIN'),
+            role: p.role || (isMaster ? 'MASTER' : 'ADMIN'),
             is_master: isMaster,
             permissions: isMaster ? PERMISSION_TYPES : (adminPermsMap[uid] || [])
         };
     }).filter(Boolean);
 
-    // 정렬: MASTER 먼저, 그 다음 이름순
+    // 정렬 (MASTER 우선 -> 이름순)
     result.sort((a: any, b: any) => {
         if (a.is_master && !b.is_master) return -1;
         if (!a.is_master && b.is_master) return 1;
@@ -93,10 +92,10 @@ export async function POST(req: NextRequest) {
     const { userId, permissions } = await req.json();
     const supabaseAdmin = getAdminClient();
 
-    // 기존 권한 삭제 후 재삽입
+    // 트랜잭션 대신 순차 처리 (기존 권한 삭제 후 선별적 재삽입)
     await supabaseAdmin.from('admin_permissions').delete().eq('user_id', userId);
     
-    if (permissions && permissions.length > 0) {
+    if (permissions && Array.isArray(permissions) && permissions.length > 0) {
         const inserts = permissions.map((p: string) => ({
             user_id: userId,
             permission: p,
