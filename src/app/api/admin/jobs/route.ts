@@ -81,9 +81,13 @@ export async function GET(req: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
+    // Use translation_jobs directly join with profiles to ensure user_email is present
     const { data, error, count } = await supabaseAdmin
-        .from('admin_jobs_view')
-        .select('*', { count: 'exact' })
+        .from('translation_jobs')
+        .select(`
+            *,
+            profiles!user_id(email)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -91,12 +95,18 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Transform data to flatten profiles email
+    const transformedData = data?.map(job => ({
+        ...job,
+        user_email: job.profiles?.email || 'Unknown User'
+    }));
+
     return NextResponse.json({
-        data,
+        data: transformedData,
         pagination: {
             page,
             limit,
-            total: count
+            total: count || 0
         }
     });
 }

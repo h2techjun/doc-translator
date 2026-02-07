@@ -171,16 +171,24 @@ export default function AdminJobsPage() {
                                                         size="icon"
                                                         variant="ghost"
                                                         className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                        onClick={async () => {
-                                                            if (!confirm('정말 이 작업 기록을 삭제하시겠습니까?')) return;
+                                                        onClick={async (e) => {
+                                                            const target = e.currentTarget;
+                                                            if (!window.confirm('정말 이 작업 기록을 삭제하시겠습니까?')) return;
+                                                            
+                                                            target.disabled = true;
                                                             try {
                                                                 const res = await fetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
                                                                 if (res.ok) {
                                                                     toast.success('작업 기록이 삭제되었습니다');
                                                                     fetchJobs(page);
+                                                                } else {
+                                                                    const err = await res.json();
+                                                                    toast.error(err.error || '삭제 실패');
                                                                 }
                                                             } catch (e) {
-                                                                toast.error('삭제 실패');
+                                                                toast.error('네트워크 오류');
+                                                            } finally {
+                                                                target.disabled = false;
                                                             }
                                                         }}
                                                     >

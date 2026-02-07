@@ -13,8 +13,49 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
+        // 0. Manual Session Recovery (The Hammer Fix 🔨)
         const supabase = await createServerClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        let { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            try {
+                const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+                const projectId = url.match(/https?:\/\/([^.]+)\./)?.[1];
+                if (projectId) {
+                    const cookieName = `sb-${projectId}-auth-token`;
+                    const authCookie = req.cookies.get(cookieName);
+                    if (authCookie) {
+                        let tokenValue: string | undefined;
+                        let refreshToken: string | undefined;
+                        try {
+                            const json = JSON.parse(authCookie.value);
+                            tokenValue = json.access_token;
+                            refreshToken = json.refresh_token;
+                        } catch {
+                            try {
+                                const json = JSON.parse(decodeURIComponent(authCookie.value));
+                                tokenValue = json.access_token;
+                                refreshToken = json.refresh_token;
+                            } catch (e) {
+                                console.error("[Delete Job API] Manual Cookie Parse Failed:", e);
+                            }
+                        }
+                        if (tokenValue && refreshToken) {
+                            const { data: recoverData } = await supabase.auth.setSession({
+                                access_token: tokenValue,
+                                refresh_token: refreshToken
+                            });
+                            if (recoverData.user) {
+                                console.log(`[Delete Job API] Manual Recovery Success: ${recoverData.user.email}`);
+                                user = recoverData.user;
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("[Delete Job API] Recovery logic failed:", e);
+            }
+        }
 
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -24,7 +65,12 @@ export async function DELETE(
             .eq('id', user.id)
             .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+        const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+        if (!isAuthorizedAdmin({ 
+            id: user.id, 
+            email: user.email || null, 
+            role: profile?.role 
+        })) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
