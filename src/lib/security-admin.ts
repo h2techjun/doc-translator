@@ -40,8 +40,12 @@ export function isAuthorizedAdmin(user: AdminUser): boolean {
 /**
  * MASTER 권한 여부를 확인합니다.
  */
+/**
+ * MASTER 권한 여부를 확인합니다.
+ * Role이 MASTER이거나, 화이트리스트에 포함된 이메일이면 무조건 MASTER 권한을 갖습니다.
+ */
 export function isMasterAdmin(user: AdminUser): boolean {
     if (user.role === 'MASTER') return true;
-    if (user.email === 'h2techjun@gmail.com') return true;
+    if (user.email && KNOWN_ADMIN_EMAILS.includes(user.email)) return true;
     return false;
 }
