@@ -89,15 +89,25 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search') || '';
     const roleFilter = searchParams.get('role');
     const tierFilter = searchParams.get('tier');
+    const tab = searchParams.get('tab') || 'normal'; // 'normal' (with email) or 'guest' (without email)
     
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    console.log(`[Admin Users API] Querying profiles for ${limit} users (Page ${page})`);
+    console.log(`[Admin Users API] Querying profiles for ${limit} users (Page ${page}, Tab ${tab})`);
 
     let query = supabaseAdmin
         .from('profiles')
         .select('*', { count: 'exact' });
+
+    // 🌟 Tab Filtering: Separation of Regular Users and Guests
+    if (tab === 'normal') {
+        // Show only users with email
+        query = query.not('email', 'is', null);
+    } else if (tab === 'guest') {
+        // Show only users without email (Unknown Guests)
+        query = query.is('email', null);
+    }
 
     // Apply Simple Search if provided
     if (search && search.trim() !== '') {

@@ -88,29 +88,35 @@ export async function GET(req: NextRequest) {
     const userIds = permissionsData.map(p => p.user_id).filter(Boolean);
     const { data: profilesData } = await supabaseAdmin
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, email, role')
         .in('id', userIds);
 
     const profileMap = Object.fromEntries((profilesData || []).map(p => [p.id, p]));
 
     // 4. Transform DB columns to FE permission array
-    const transformedAdmins = permissionsData.map(entry => {
-        const profile = profileMap[entry.user_id];
-        const permissions: string[] = [];
-        
-        // Use real DB column names found via SQL check
-        if (entry.can_manage_users) permissions.push('MANAGE_USERS');
-        if (entry.can_manage_admins) permissions.push('MANAGE_USERS');
-        if (entry.can_access_security) permissions.push('MANAGE_USERS');
-        if (entry.can_view_stats) permissions.push('MANAGE_USERS');
-        
-        return {
-            id: entry.user_id, // FE expects 'id'
-            full_name: profile?.full_name || '관리자',
-            email: profile?.email || 'Unknown',
-            permissions: Array.from(new Set(permissions))
-        };
-    });
+    const transformedAdmins = permissionsData
+        .map(entry => {
+            const adminProfile = profileMap[entry.user_id];
+            
+            // MASTER는 이 목록에 표시될 필요가 없거나 수정 대상이 아님
+            if (adminProfile?.role === 'MASTER') return null;
+
+            const permissions: string[] = [];
+            
+            // DB columns match canonical names from migrations/middleware
+            if (entry.can_manage_users) permissions.push('MANAGE_USERS');
+            if (entry.can_manage_posts) permissions.push('MANAGE_POSTS');
+            if (entry.can_view_audit_logs) permissions.push('VIEW_AUDIT_LOGS');
+            if (entry.can_manage_admins || entry.can_manage_system) permissions.push('SYSTEM_SETTINGS');
+            
+            return {
+                id: entry.user_id,
+                full_name: adminProfile?.full_name || '관리자',
+                email: adminProfile?.email || entry.user_id.substring(0, 8),
+                permissions: Array.from(new Set(permissions))
+            };
+        })
+        .filter(Boolean);
 
     return NextResponse.json(transformedAdmins);
 }
@@ -166,18 +172,21 @@ export async function POST(req: NextRequest) {
 
     // Map FE permissions array back to REAL DB columns
     const hasManageUsers = permissions.includes('MANAGE_USERS');
+    const hasManagePosts = permissions.includes('MANAGE_POSTS');
+    const hasViewAuditLogs = permissions.includes('VIEW_AUDIT_LOGS');
+    const hasSystemSettings = permissions.includes('SYSTEM_SETTINGS');
 
     const supabaseAdmin = getAdminClient();
     const { error } = await supabaseAdmin
         .from('admin_permissions')
         .upsert({
             user_id: userId,
-            permission: hasManageUsers ? 'all' : 'none',
             can_manage_users: hasManageUsers,
-            can_manage_admins: hasManageUsers,
-            can_access_security: hasManageUsers,
-            can_view_stats: hasManageUsers,
-            created_at: new Date().toISOString()
+            can_manage_admins: hasManageUsers, // MANAGE_USERS 권한이 있으면 어드민 관리 접근도 허용 (어드민 페이지용)
+            can_manage_posts: hasManagePosts,
+            can_view_audit_logs: hasViewAuditLogs,
+            can_manage_system: hasSystemSettings,
+            updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
     if (error) {
