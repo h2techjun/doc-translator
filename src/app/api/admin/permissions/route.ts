@@ -66,11 +66,11 @@ export async function GET(req: NextRequest) {
     // Source B: Users with explicit ADMIN/MASTER roles in profiles table
     // Source C: Users in the KNOWN_ADMIN_EMAILS whitelist
     
-    // Fetch profiles by role OR whitelist emails
+    // Fetch profiles by role OR whitelist emails (Case-insensitive check)
     const { data: discoveredProfiles, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
-        .or(`role.ilike.ADMIN,role.ilike.MASTER,email.in.(${KNOWN_ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`);
+        .or(`role.ilike.ADMIN,role.ilike.MASTER,role.ilike.admin,role.ilike.master,email.in.(${KNOWN_ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`);
 
     if (profileError) {
         console.error("[Permissions API] Discovery Error:", profileError);
@@ -97,9 +97,11 @@ export async function GET(req: NextRequest) {
         
         // p가 없더라도 현재 접속한 본인이거나 화이트리스트라면 기본 정보 생성
         const effectiveEmail = p?.email || (uid === user.id ? user.email : null);
+        const isKnownEmail = effectiveEmail && KNOWN_ADMIN_EMAILS.includes(effectiveEmail);
         const isMaster = p?.role === 'MASTER' || (effectiveEmail && effectiveEmail === KNOWN_ADMIN_EMAILS[0]);
         
-        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) return null;
+        // 프로필이 없고, 나도 아니고, 화이트리스트 이메일도 없다면 제외
+        if (!p && uid !== user.id && !isKnownEmail) return null;
 
         const storedPerms = adminMap[uid]?.permissions || new Set<string>();
 

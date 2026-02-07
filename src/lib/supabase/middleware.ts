@@ -54,9 +54,15 @@ export async function updateSession(request: NextRequest) {
         )
 
         // 4. Refresh Session (with Explicit Recovery)
-    let { data: { user }, error } = await supabase.auth.getUser();
+        let { data: { user }, error } = await supabase.auth.getUser();
 
-        // 0. Manual Recovery (Improved)
+        // 💡 Sliding Expiration: 활동이 있을 때마다 세션 갱신 시도
+        if (user) {
+            // getUser() 호출 자체가 내부적으로 갱신을 트리거하며,
+            // 새 쿠키가 setAll에서 응답 헤더에 실려 나갑니다.
+        }
+
+        // 0. Manual Recovery (Improved for Refresh stability)
         if (!user) {
             try {
                 // Try standard cookie name first
