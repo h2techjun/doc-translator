@@ -12,7 +12,7 @@ import {
     TableRow 
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Key, ShieldCheck, UserPlus, Save, AlertCircle } from 'lucide-react';
+import { Key, ShieldCheck, UserPlus, Save, AlertCircle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGeoSmart } from '@/context/geo-smart-context';
 
@@ -77,15 +77,34 @@ export default function PermissionsPage() {
         fetchPermissions();
     }, []);
 
+    // 실시간 검색 디바운스 적용
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchTerm.trim().length >= 1) {
+                handleSearch();
+            } else {
+                setSearchResults([]);
+            }
+        }, 300); // 300ms 지연
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
     const handleSearch = async () => {
         if (!searchTerm.trim()) return;
         setIsSearching(true);
         try {
-            const res = await fetch(`/api/admin/users?search=${encodeURIComponent(searchTerm)}&limit=5`);
+            // 이메일이나 이름으로 검색 가능하도록 API 호출
+            const res = await fetch(`/api/admin/users?search=${encodeURIComponent(searchTerm)}&limit=8`);
             const data = await res.json();
-            setSearchResults(data.data || []);
+            
+            // 이미 등록된 관리자는 검색 결과에서 제외
+            const registeredIds = admins.map(a => a.id);
+            const filteredResults = (data.data || []).filter((u: any) => !registeredIds.includes(u.id));
+            
+            setSearchResults(filteredResults);
         } catch (error) {
-            toast.error('사용자 검색 중 오류가 발생했습니다.');
+            console.error("Search failed:", error);
         } finally {
             setIsSearching(false);
         }
@@ -100,10 +119,10 @@ export default function PermissionsPage() {
             });
 
             if (!res.ok) throw new Error('관리자 추가에 실패했습니다.');
-            toast.success('관리자가 목록에 추가되었습니다. 이제 권한을 설정할 수 있습니다.');
-            setShowAddForm(false);
+            toast.success('관리자가 추가되었습니다.');
             setSearchTerm('');
             setSearchResults([]);
+            setShowAddForm(false);
             fetchPermissions();
         } catch (error: any) {
             toast.error(error.message);
@@ -158,43 +177,57 @@ export default function PermissionsPage() {
             </div>
 
             {showAddForm && (
-                <Card className="mb-8 border-indigo-500/30 bg-indigo-50/10 backdrop-blur-sm animate-in fade-in slide-in-from-top-4">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-black italic uppercase">사용자 검색</CardTitle>
-                        <CardDescription className="text-xs font-bold opacity-60">이메일로 사용자를 찾아 관리자로 등록하세요.</CardDescription>
+                <Card className="mb-8 border-indigo-500/30 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 shadow-2xl overflow-visible">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-black italic uppercase flex items-center gap-2">
+                             <UserPlus className="w-4 h-4 text-indigo-500" />
+                             새 관리자 검색
+                        </CardTitle>
+                        <CardDescription className="text-[10px] font-bold opacity-60">사용자의 이름이나 이메일을 입력하세요.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="flex gap-2">
+                    <CardContent className="relative">
+                        <div className="relative">
                             <input 
                                 type="text" 
-                                placeholder="이메일 주소 입력..." 
-                                className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md px-3 text-sm"
+                                placeholder="사용자 이름 또는 이메일 입력..." 
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                autoFocus
                             />
-                            <Button onClick={handleSearch} disabled={isSearching} size="sm">
-                                {isSearching ? '검색 중...' : '검색'}
-                            </Button>
+                            {isSearching && (
+                                <div className="absolute right-4 top-3.5 italic text-[10px] text-muted-foreground animate-pulse font-bold">
+                                    검색 중...
+                                </div>
+                            )}
                         </div>
 
-                        {searchResults.length > 0 && (
-                            <div className="mt-4 border rounded-md overflow-hidden bg-white dark:bg-slate-950">
-                                {searchResults.map((user: any) => (
-                                    <div key={user.id} className="p-3 flex items-center justify-between border-b last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-bold">{user.full_name || '이름 없음'}</span>
-                                            <span className="text-[10px] text-muted-foreground">{user.email}</span>
-                                        </div>
-                                        <Button size="sm" variant="outline" onClick={() => handleAddAdmin(user.id)} className="h-7 text-[10px] uppercase font-black">
-                                            추가
-                                        </Button>
+                        {/* 📍 Dropdown Result List */}
+                        {searchTerm.length >= 1 && (
+                            <div className="absolute left-6 right-6 mt-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                                {searchResults.length > 0 ? (
+                                    searchResults.map((user: any) => (
+                                        <button 
+                                            key={user.id} 
+                                            onClick={() => handleAddAdmin(user.id)}
+                                            className="w-full p-4 flex items-center justify-between hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-left transition-colors border-b last:border-0 border-slate-100 dark:border-slate-800/50"
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-black">{user.full_name || '이름 없음'}</span>
+                                                <span className="text-[10px] text-muted-foreground font-medium">{user.email}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[8px] px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-muted-foreground font-black uppercase">Click to Add</span>
+                                                <Plus className="w-4 h-4 text-indigo-500" />
+                                            </div>
+                                        </button>
+                                    ))
+                                ) : !isSearching && (
+                                    <div className="p-8 text-center">
+                                        <p className="text-xs font-bold text-muted-foreground italic">검색 결과가 없습니다.</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
-                        )}
-                        {searchResults.length === 0 && searchTerm && !isSearching && (
-                            <p className="mt-4 text-[10px] text-center italic text-muted-foreground">검색 결과가 없습니다.</p>
                         )}
                     </CardContent>
                 </Card>
