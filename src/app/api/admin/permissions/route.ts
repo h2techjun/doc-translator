@@ -67,27 +67,28 @@ export async function GET(req: NextRequest) {
         if (entry.can_manage_admins || entry.can_manage_system) adminMap[uid].permissions.add('SYSTEM_SETTINGS');
     });
 
-    // 3. Fetch Profile Info (Source of Identity)
-    // Profiles table might be missing some admins, so we fetch what we can
-    const { data: profilesData } = await supabaseAdmin
+    // 3. Fetch ALL users with ADMIN role to ensure they appear in the list
+    const { data: adminProfiles, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
-        .in('id', userIds);
+        .or('role.eq.ADMIN,role.eq.MASTER');
 
-    const profileMap = Object.fromEntries((profilesData || []).map(p => [p.id, p]));
+    if (profileError) {
+        console.error("[Permissions API] Profile Fetch Error:", profileError);
+    }
 
-    // 4. Transform to Frontend format
-    const transformedAdmins = userIds.map(uid => {
-        const p = profileMap[uid];
-        
+    // 4. Transform to Frontend format (Profiles are the source of truth for the list)
+    const transformedAdmins = (adminProfiles || []).map(p => {
         // MASTER는 이 목록에서 제외 (수정 불가 보호)
-        if (p?.role === 'MASTER') return null;
+        if (p.role === 'MASTER') return null;
+
+        const storedPerms = adminMap[p.id]?.permissions || new Set<string>();
 
         return {
-            id: uid,
-            full_name: p?.full_name || '관리자',
-            email: p?.email || uid.substring(0, 8),
-            permissions: Array.from(adminMap[uid].permissions)
+            id: p.id,
+            full_name: p.full_name || '관리자',
+            email: p.email || '(이메일 없음)',
+            permissions: Array.from(storedPerms)
         };
     }).filter(Boolean);
 
