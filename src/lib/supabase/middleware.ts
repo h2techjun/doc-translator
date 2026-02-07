@@ -191,47 +191,41 @@ export async function updateSession(request: NextRequest) {
                 }
 
                 // 3. Admin Route Protection
-                // 'isAdminPath' is already true here because of the outer check (line 111)
+                const userRole = user.user_metadata?.role || profile?.role;
+                const adminEmails = ['h2techjun@gmail.com', 'gagum80@hotmail.com', 'subadmin@doctranslation.co'];
+                const isKnownAdmin = adminEmails.includes(authUser.email || '');
 
-                console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Role: ${profile?.role}`);
+                console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Detected Role: ${userRole}, Email: ${authUser.email}`);
 
-                if (profileError || (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER')) {
-                    // [Urgent Fix] MASTER 계정은 프로필 로드 실패 시에도 이메일 매칭되면 일단 통과 (RLS 지연 현상 대비)
-                    if (authUser.email === 'h2techjun@gmail.com') {
-                        console.log(`[Middleware] MASTER bypass for ${authUser.email}`);
-                        return response;
-                    }
-
-                    console.warn(`[Middleware] Unauthorized Admin access by user ${authUser.id}. Role: ${profile?.role || 'None'}`);
+                if (!isKnownAdmin && (!userRole || (userRole !== 'ADMIN' && userRole !== 'MASTER'))) {
+                    console.warn(`[Middleware] Unauthorized Admin access by user ${authUser.id}. Role: ${userRole || 'None'}`);
                     const url = request.nextUrl.clone();
                     url.pathname = '/forbidden';
                     return NextResponse.rewrite(url);
                 }
 
                 // 3-1. [Security] Granular Permission Checks for ADMIN (MASTER bypasses)
-                if (profile.role === 'ADMIN') {
+                if (userRole === 'ADMIN' && !isKnownAdmin) {
                     const { data: permissions } = await supabase
                         .from('admin_permissions')
                         .select('*')
                         .eq('user_id', authUser.id)
-                        .maybeSingle(); // Use maybeSingle to avoid 406 error if row missing
+                        .maybeSingle();
 
                     const subPath = pathname.replace(/^\/[a-z]{2}\/admin/, '/admin');
 
-                    // If no permissions row exists, permissions is null. Default to false (Block).
-                    
                     if (subPath.startsWith('/admin/users') && !permissions?.can_manage_users) {
-                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/users (Missing can_manage_users)`);
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/users`);
                         return NextResponse.redirect(new URL('/forbidden', request.url));
                     }
 
                     if (subPath.startsWith('/admin/permissions') && !permissions?.can_manage_admins) {
-                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/permissions (Missing can_manage_admins)`);
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/permissions`);
                         return NextResponse.redirect(new URL('/forbidden', request.url));
                     }
 
                     if (subPath.startsWith('/admin/audit-logs') && !permissions?.can_access_security) {
-                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/audit-logs (Missing can_access_security)`);
+                        console.warn(`[Middleware] Admin ${authUser.id} denied access to /admin/audit-logs`);
                         return NextResponse.redirect(new URL('/forbidden', request.url));
                     }
                 }
