@@ -100,22 +100,22 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [], pagination: { page, limit, total: 0 } });
     }
 
-    // 3. Final Transform with Field Mapping (DB -> FE)
+    // 3. Final Transform with Field Mapping (DB -> FE) - Using actual schema columns
     const transformedData = rawJobs.map(job => {
         // Handle case where profiles could be an array or object
         const profile = Array.isArray(job.profiles) ? job.profiles[0] : job.profiles;
         
         return {
             id: job.id,
-            original_filename: job.file_name || 'No Name',
+            original_filename: job.original_filename || 'No Name', // DB: original_filename
             user_email: profile?.email || 'Unknown User',
-            file_type: 'File',
-            target_lang: job.target_language || 'EN',
+            file_type: job.file_type || 'File',
+            target_lang: job.target_lang || 'EN', // DB: target_lang
             status: job.status,
             progress: job.progress || 0,
             created_at: job.created_at,
-            translated_file_url: job.result_url || null,
-            error_message: job.status === 'FAILED' ? 'Translation Error' : null
+            translated_file_url: job.translated_file_url || null, // DB: translated_file_url
+            error_message: job.error_message || (job.status === 'FAILED' ? 'Translation Error' : null)
         };
     });
 
