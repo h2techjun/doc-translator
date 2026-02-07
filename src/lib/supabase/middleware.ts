@@ -196,6 +196,12 @@ export async function updateSession(request: NextRequest) {
                 console.log(`[Middleware] Admin Access Check - Path: ${pathname}, Role: ${profile?.role}`);
 
                 if (profileError || (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER')) {
+                    // [Urgent Fix] MASTER 계정은 프로필 로드 실패 시에도 이메일 매칭되면 일단 통과 (RLS 지연 현상 대비)
+                    if (authUser.email === 'h2techjun@gmail.com') {
+                        console.log(`[Middleware] MASTER bypass for ${authUser.email}`);
+                        return response;
+                    }
+
                     console.warn(`[Middleware] Unauthorized Admin access by user ${authUser.id}. Role: ${profile?.role || 'None'}`);
                     const url = request.nextUrl.clone();
                     url.pathname = '/forbidden';
