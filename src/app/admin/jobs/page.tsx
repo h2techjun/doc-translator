@@ -170,24 +170,32 @@ export default function AdminJobsPage() {
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
                                                         onClick={async (e) => {
                                                             const target = e.currentTarget;
-                                                            if (!window.confirm('정말 이 작업 기록을 삭제하시겠습니까?')) return;
+                                                            if (target.disabled) return;
+                                                            
+                                                            const confirmed = window.confirm('정말 이 작업 기록을 삭제하시겠습니까?');
+                                                            if (!confirmed) return;
                                                             
                                                             target.disabled = true;
                                                             try {
-                                                                const res = await fetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
+                                                                const res = await fetch(`/api/admin/jobs/${job.id}`, { 
+                                                                    method: 'DELETE',
+                                                                    cache: 'no-store'
+                                                                });
+                                                                
                                                                 if (res.ok) {
                                                                     toast.success('작업 기록이 삭제되었습니다');
-                                                                    fetchJobs(page);
+                                                                    await fetchJobs(page);
                                                                 } else {
                                                                     const err = await res.json();
                                                                     toast.error(err.error || '삭제 실패');
+                                                                    target.disabled = false;
                                                                 }
-                                                            } catch (e) {
+                                                            } catch (error) {
+                                                                console.error("Delete failed:", error);
                                                                 toast.error('네트워크 오류');
-                                                            } finally {
                                                                 target.disabled = false;
                                                             }
                                                         }}

@@ -81,10 +81,13 @@ export async function GET(req: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    // 2. Fetch Jobs Safely (Independent Query to avoid Join Loss)
+    // 2. Fetch Jobs Safely with Explicit Join to Profiles
     const { data: rawJobs, error: jobsError, count } = await supabaseAdmin
         .from('translation_jobs')
-        .select('*', { count: 'exact' })
+        .select(`
+            *,
+            profiles(email)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -97,28 +100,24 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [], pagination: { page, limit, total: 0 } });
     }
 
-    // 3. Batch Fetch User Emails to map them
-    const userIds = Array.from(new Set(rawJobs.map(j => j.user_id).filter(Boolean)));
-    const { data: userProfiles } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email')
-        .in('id', userIds);
-
-    const emailMap = Object.fromEntries((userProfiles || []).map(p => [p.id, p.email]));
-
-    // 4. Final Transform with Safety
-    const transformedData = rawJobs.map(job => ({
-        id: job.id,
-        original_filename: job.file_name || 'No Name', // DB: file_name -> FE: original_filename
-        user_email: emailMap[job.user_id] || 'Unknown User',
-        file_type: 'File',
-        target_lang: job.target_language || 'EN',
-        status: job.status,
-        progress: job.progress,
-        created_at: job.created_at,
-        translated_file_url: job.result_url || null,
-        error_message: job.status === 'FAILED' ? 'Translation Error' : null
-    }));
+    // 3. Final Transform with Field Mapping (DB -> FE)
+    const transformedData = rawJobs.map(job => {
+        // Handle case where profiles could be an array or object
+        const profile = Array.isArray(job.profiles) ? job.profiles[0] : job.profiles;
+        
+        return {
+            id: job.id,
+            original_filename: job.file_name || 'No Name',
+            user_email: profile?.email || 'Unknown User',
+            file_type: 'File',
+            target_lang: job.target_language || 'EN',
+            status: job.status,
+            progress: job.progress || 0,
+            created_at: job.created_at,
+            translated_file_url: job.result_url || null,
+            error_message: job.status === 'FAILED' ? 'Translation Error' : null
+        };
+    });
 
     return NextResponse.json({
         data: transformedData,
