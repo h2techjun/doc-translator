@@ -76,7 +76,20 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // 2. Fetch Stats
+    // 2. Fetch Stats with Admin Client (Bypass RLS for accurately counting)
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceRoleKey) {
+        return NextResponse.json({ 
+            error: 'Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing.' 
+        }, { status: 500 });
+    }
+
+    const { createClient: createAdminClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceRoleKey
+    );
+
     // Parallel fetching for performance
     const [
         { count: userCount },
@@ -84,21 +97,20 @@ export async function GET(req: NextRequest) {
         { count: completedJobCount },
         { count: failedJobCount }
     ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('translation_jobs').select('*', { count: 'exact', head: true }),
-        supabase.from('translation_jobs').select('*', { count: 'exact', head: true }).eq('status', 'COMPLETED'),
-        supabase.from('translation_jobs').select('*', { count: 'exact', head: true }).eq('status', 'FAILED'),
+        supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('translation_jobs').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('translation_jobs').select('*', { count: 'exact', head: true }).eq('status', 'COMPLETED'),
+        supabaseAdmin.from('translation_jobs').select('*', { count: 'exact', head: true }).eq('status', 'FAILED'),
     ]);
 
     // Calculate revenue estimate (Mock calculation: users * 10 or jobs * 0.5)
-    // This will be replaced by actual payment table query later
     const estimatedRevenue = (jobCount || 0) * 0.5;
 
     // Calculate Success Rate
     const successRate = jobCount ? Math.round(((completedJobCount || 0) / jobCount) * 100) : 0;
 
     // 3. Fetch Recent Activity (Real Data)
-    const { data: recentJobs } = await supabase
+    const { data: recentJobs } = await supabaseAdmin
         .from('translation_jobs')
         .select('id, original_filename, status, created_at, country_code, country_name, ip_address, user_email')
         .order('created_at', { ascending: false })

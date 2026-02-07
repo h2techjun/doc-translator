@@ -143,8 +143,11 @@ export default function AdminUsersPage() {
         }
     };
 
+    const [configError, setConfigError] = useState<string | null>(null);
+
     const fetchUsers = async (pageNum: number) => {
         setLoading(true);
+        setConfigError(null);
         setSelectedIds(new Set()); // 페이지 변경 시 선택 초기화
         try {
             const url = new URL('/api/admin/users', window.location.origin);
@@ -155,10 +158,18 @@ export default function AdminUsersPage() {
             if (tierFilter !== 'ALL') url.searchParams.set('tier', tierFilter);
 
             const res = await fetch(url.toString());
+            const result = await res.json();
+
             if (res.ok) {
-                const { data, pagination } = await res.json();
-                setUsers(data);
-                setTotalPages(Math.ceil(pagination.total / pagination.limit));
+                setUsers(result.data || []);
+                setTotalPages(Math.ceil((result.pagination?.total || 0) / (result.pagination?.limit || 20)));
+            } else {
+                // 환경 변수 누락 등 설정 오류 감지
+                if (result.error?.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+                    setConfigError('시스템 설정 오류: SUPABASE_SERVICE_ROLE_KEY가 누락되었습니다. Vercel 환경 변수를 확인하십시오.');
+                } else {
+                    console.error('Fetch Error:', result.error);
+                }
             }
         } catch (error) {
             console.error(error);
@@ -189,9 +200,22 @@ export default function AdminUsersPage() {
                 <Users className="w-8 h-8 text-indigo-500" />
                 회원 관리 (User Management)
             </h1>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-6">
                 플랫폼 회원, 역할 및 포인트 관리.
             </p>
+
+            {/* ⚠️ Config Error Banner */}
+            {configError && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-3 text-red-500 animate-pulse">
+                    <Shield className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-sm font-bold">
+                        {configError}
+                        <p className="text-[10px] opacity-80 mt-1 font-normal">
+                             이 오류가 해결되기 전까지는 모든 데이터가 0건으로 표시되거나 차단됩니다.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-border/50">
                 <CardHeader className="flex flex-row items-center justify-between">

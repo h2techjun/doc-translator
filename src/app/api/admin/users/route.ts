@@ -32,6 +32,13 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Fetch Users from View with Filters
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceRoleKey) {
+        return NextResponse.json({ 
+            error: 'Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing. Check environment variables.' 
+        }, { status: 500 });
+    }
+
     const supabaseAdmin = getAdminClient();
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
@@ -47,9 +54,11 @@ export async function GET(req: NextRequest) {
         .from('admin_users_view')
         .select('*', { count: 'exact' });
 
-    // Apply Search (Case sensitive handled by ilike in Postgres)
+    // Apply Search (Case insensitive handled by ilike in Postgres)
     if (search) {
-        query = query.or(`email.ilike.%${search}%,id.eq.${search}`);
+        // [Fix] id.eq.${search} can fail if search is not a valid UUID.
+        // We use text casting for safer comparison.
+        query = query.or(`email.ilike.%${search}%,id::text.ilike.%${search}%`);
     }
 
     // Apply Filters
@@ -65,7 +74,8 @@ export async function GET(req: NextRequest) {
         .range(from, to);
 
     if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error('[Admin Users API Error]:', error);
+        return NextResponse.json({ error: error.message, details: error.details }, { status: 500 });
     }
 
     return NextResponse.json({
