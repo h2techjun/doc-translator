@@ -38,7 +38,12 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
     const [region, setRegion] = useState<string>('UNKNOWN');
     const [uiLang, setUiLangState] = useState<Locale>('ko'); // Default fallback
     const [targetLang, setTargetLangState] = useState<string>('en');
-    const [isLoading, setIsLoading] = useState(true);
+    
+    // [Fix] Split Loading Check to ensure both Geo and Auth are ready
+    const [isGeoReady, setIsGeoReady] = useState(false);
+    const [isAuthReady, setIsAuthReady] = useState(false);
+    const isLoading = !isGeoReady || !isAuthReady;
+
     const [isInitialized, setIsInitialized] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<any | null>(null);
@@ -75,7 +80,7 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
              setProfile(null);
              localStorage.removeItem('sb-access-token');
              localStorage.removeItem('sb-refresh-token');
-             supabase.auth.signOut(); // Ensure client SDK is also cleared
+             supabase.auth.signOut(); 
         }
 
         if (isInitialized) return;
@@ -88,7 +93,6 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
                 let countryCode = 'US';
 
                 // 🌍 1. Browser-based Geo Detection (Fastest & Zero Errors)
-                // Why? 외부 무료 API(ipapi.co)는 Rate Limit(429) 및 CORS 문제 잦음.
                 const browserLang = navigator.language || 'en';
 
                 if (browserLang.startsWith('ko')) {
@@ -109,11 +113,8 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
                 else setTargetLangState(policy.defaultTargetLang);
 
             } catch (error) {
-                // 심각한 로직 에러(거의 발생 안 함)
-                // console.error("Critical Geo Logic Error:", error);
-
-                // 최후의 보루: 한국어 브라우저면 KR, 아니면 US
-                const browserLang = navigator.language || 'en';
+                // ... error logic
+                 const browserLang = navigator.language || 'en';
                 if (browserLang.startsWith('ko')) {
                     setConfig(GEO_CONFIG['KR']);
                     setRegion('KR');
@@ -123,7 +124,7 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
                     setRegion('US');
                 }
             } finally {
-                setIsLoading(false);
+                setIsGeoReady(true);
                 setIsInitialized(true);
             }
         };
@@ -131,18 +132,28 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
         detectGeo();
     }, [isInitialized]);
 
-    // 🔐 Auth Sync Logic (Lifecycle management)
+    // 🔐 Auth Sync Logic (Critical Fix)
     useEffect(() => {
-        // 1. Initial User Sync
-        supabase.auth.getUser().then(({ data }) => {
-            if (data.user) {
-                setUser(data.user);
-                refreshProfile();
+        const initAuth = async () => {
+            try {
+                const { data } = await supabase.auth.getUser();
+                if (data.user) {
+                    setUser(data.user);
+                    await refreshProfile();
+                } else {
+                    setUser(null);
+                    setProfile(null);
+                }
+            } catch (e) {
+                console.error("[GeoSmart] Auth Init Error:", e);
+                setUser(null);
+                setProfile(null);
+            } finally {
+                setIsAuthReady(true); // Auth Check Complete
             }
-        }).catch(() => {
-            setUser(null);
-            setProfile(null);
-        });
+        };
+
+        initAuth();
 
         // 2. Auth State Listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -156,6 +167,9 @@ export function GeoSmartProvider({ children }: { children: React.ReactNode }) {
             if (event === 'SIGNED_OUT') {
                 localStorage.removeItem('sb-access-token');
                 localStorage.removeItem('sb-refresh-token');
+            }
+             if (event === 'INITIAL_SESSION') {
+                 setIsAuthReady(true);
             }
         });
 

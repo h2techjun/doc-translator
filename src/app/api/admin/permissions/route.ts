@@ -99,38 +99,51 @@ export async function GET(req: NextRequest) {
 
     const profileMap = Object.fromEntries((finalProfiles || []).map((p: any) => [p.id, p]));
 
-    // 5. Transform to Frontend format
-    const transformedAdmins = Array.from(allAdminIds).map(uid => {
+    // 5. Transform to Frontend format (Async Recovery)
+    const transformedAdmins = await Promise.all(Array.from(allAdminIds).map(async (uid) => {
         const p = profileMap[uid];
         
         // 데이터 정합성 보장: 프로필이 없으면 최소한의 정보로라도 표시 (투명성)
         const effectiveEmail = p?.email || (uid === user.id ? user.email : null);
         const isMaster = p?.role === 'MASTER' || (effectiveEmail && effectiveEmail === KNOWN_ADMIN_EMAILS[0]);
         
-        // p가 없고 본인도 아니고 화이트리스트도 아니면? -> 권한 테이블에만 남은 고아 레코드일 수 있음.
-        // 그래도 보여줘야 관리자가 '권한 회수'를 할 수 있음.
+        let finalFullName = p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자');
+        let finalEmail = effectiveEmail;
+        let finalRole = p?.role || (isMaster ? 'MASTER' : 'USER'); // Default fallback
+
+        // [Recovery] 프로필이 없고 화이트리스트도 아니면 Auth API 직접 조회
         if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) {
-             return {
-                id: uid,
-                full_name: 'Unknown User (데이터 불일치)',
-                email: 'user_not_found',
-                role: 'USER', // 기본값
-                is_master: false,
-                permissions: Array.from(adminMap[uid]?.permissions || [])
-             };
+             try {
+                const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.admin.getUserById(uid);
+                
+                if (authUser) {
+                    finalEmail = authUser.email || 'No Email';
+                    finalFullName = authUser.user_metadata?.full_name || 'Auth User';
+                    finalRole = authUser.user_metadata?.role || 'USER'; // Metadata role fallback
+                    // Auth 유저가 확인되면 'Unknown'이 아님
+                } else {
+                    // 진짜 없는 유저 (삭제됨)
+                    finalFullName = 'Unknown User (삭제됨)';
+                    finalEmail = 'user_not_found';
+                }
+             } catch (e) {
+                 console.warn(`[Permissions API] Auth Recovery Failed for ${uid}:`, e);
+                 finalFullName = 'Unknown User (Error)';
+                 finalEmail = 'error';
+             }
         }
 
         const storedPerms = adminMap[uid]?.permissions || new Set<string>();
 
         return {
             id: uid,
-            full_name: p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자'),
-            email: effectiveEmail || uid.substring(0, 8),
-            role: p?.role || (isMaster ? 'MASTER' : 'USER'), // ADMIN이 아니더라도 권한목록에 있으면 USER로라도 표시
+            full_name: finalFullName,
+            email: finalEmail || uid.substring(0, 8),
+            role: finalRole,
             is_master: isMaster,
             permissions: isMaster ? PERMISSION_TYPES.map(t => t.id) : Array.from(storedPerms)
         };
-    }); // .filter(Boolean) 제거하여 모든 ID 노출
+    }));
 
     console.log(`[Permissions API] Returning ${transformedAdmins.length} admins.`);
 
