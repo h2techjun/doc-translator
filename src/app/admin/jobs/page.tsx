@@ -172,38 +172,51 @@ export default function AdminJobsPage() {
                                                         variant="ghost"
                                                         className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
                                                         onClick={async (e) => {
-                                                            const confirmed = window.confirm('정말 이 작업 기록을 삭제하시겠습니까?');
-                                                            if (!confirmed) return;
-                                                            
                                                             const target = e.currentTarget;
-                                                            target.disabled = true;
+                                                            if (target.disabled) return;
+
+                                                            // 1. Immediate UI Feedback (Before any blocking call)
+                                                            target.style.opacity = '0.5';
                                                             
-                                                            // Optimistic Update: Remove from local state immediately
-                                                            const originalJobs = [...jobs];
-                                                            setJobs(jobs.filter(j => j.id !== job.id));
-                                                            
-                                                            try {
-                                                                const res = await fetch(`/api/admin/jobs/${job.id}`, { 
-                                                                    method: 'DELETE',
-                                                                    cache: 'no-store'
-                                                                });
+                                                            // Use setTimeout to wrap the confirm, letting the browser pulse the UI first
+                                                            setTimeout(async () => {
+                                                                const confirmed = window.confirm('정말 이 작업 기록을 삭제하시겠습니까?');
                                                                 
-                                                                if (res.ok) {
-                                                                    toast.success('작업 기록이 삭제되었습니다');
-                                                                    // Refresh to ensure server sync
-                                                                    await fetchJobs(page);
-                                                                } else {
-                                                                    const err = await res.json();
-                                                                    toast.error(err.error || '삭제 실패');
+                                                                if (!confirmed) {
+                                                                    target.style.opacity = '1';
+                                                                    return;
+                                                                }
+                                                                
+                                                                target.disabled = true;
+                                                                
+                                                                // Optimistic Update: Remove from local state immediately
+                                                                const originalJobs = [...jobs];
+                                                                setJobs(prev => prev.filter(j => j.id !== job.id));
+                                                                
+                                                                try {
+                                                                    const res = await fetch(`/api/admin/jobs/${job.id}`, { 
+                                                                        method: 'DELETE',
+                                                                        cache: 'no-store'
+                                                                    });
+                                                                    
+                                                                    if (res.ok) {
+                                                                        toast.success('작업 기록이 삭제되었습니다');
+                                                                        await fetchJobs(page);
+                                                                    } else {
+                                                                        const err = await res.json();
+                                                                        toast.error(err.error || '삭제 실패');
+                                                                        setJobs(originalJobs); // Rollback
+                                                                        target.disabled = false;
+                                                                        target.style.opacity = '1';
+                                                                    }
+                                                                } catch (error) {
+                                                                    console.error("Delete failed:", error);
+                                                                    toast.error('네트워크 오류');
                                                                     setJobs(originalJobs); // Rollback
                                                                     target.disabled = false;
+                                                                    target.style.opacity = '1';
                                                                 }
-                                                            } catch (error) {
-                                                                console.error("Delete failed:", error);
-                                                                toast.error('네트워크 오류');
-                                                                setJobs(originalJobs); // Rollback
-                                                                target.disabled = false;
-                                                            }
+                                                            }, 10);
                                                         }}
                                                     >
                                                         <Trash2 className="w-4 h-4" />
