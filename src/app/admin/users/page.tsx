@@ -40,7 +40,7 @@ type User = {
     id: string;
     email: string;
     role: 'USER' | 'ADMIN' | 'MASTER';
-    tier: 'BRONZE' | 'SILVER' | 'GOLD';
+    tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'MASTER';
     points: number;
     total_translations: number;
     signed_up_at: string;
@@ -297,10 +297,12 @@ export default function AdminUsersPage() {
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className={`font-bold
+                                                <Badge variant="outline" className={`font-bold transition-all duration-300
+                                                    ${user.tier === 'MASTER' ? 'bg-black text-white dark:bg-white dark:text-black border-purple-500' : ''}
+                                                    ${user.tier === 'DIAMOND' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 border-indigo-200' : ''}
                                                     ${user.tier === 'GOLD' ? 'text-yellow-600 border-yellow-500/20 bg-yellow-500/5' : ''}
                                                     ${user.tier === 'SILVER' ? 'text-blue-500 border-blue-500/20 bg-blue-500/5' : ''}
-                                                    ${user.tier === 'BRONZE' ? 'text-slate-400 border-slate-400/20 bg-slate-400/5' : ''}
+                                                    ${user.tier === 'BRONZE' ? 'text-orange-700 border-orange-200 bg-orange-50' : ''}
                                                 `}>
                                                     {user.tier}
                                                 </Badge>
@@ -356,6 +358,8 @@ export default function AdminUsersPage() {
                                                                         <SelectItem value="BRONZE">BRONZE (기본)</SelectItem>
                                                                         <SelectItem value="SILVER">SILVER (프리미엄)</SelectItem>
                                                                         <SelectItem value="GOLD">GOLD (VIP)</SelectItem>
+                                                                        <SelectItem value="DIAMOND">DIAMOND (VVIP)</SelectItem>
+                                                                        <SelectItem value="MASTER">MASTER (최고권한)</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>

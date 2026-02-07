@@ -27,7 +27,7 @@ type Job = {
 
 type Profile = {
     email: string;
-    tier: 'BRONZE' | 'SILVER' | 'GOLD';
+    tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'MASTER';
     points: number;
     role: string;
 };
@@ -119,10 +119,17 @@ export default function DashboardPage() {
                     <CardContent>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Crown className={`w-5 h-5 ${profile?.tier === 'GOLD' ? 'text-yellow-500' :
+                                <Crown className={`w-5 h-5 ${
+                                    profile?.tier === 'MASTER' ? 'text-purple-500' :
+                                    profile?.tier === 'DIAMOND' ? 'text-indigo-500' :
+                                    profile?.tier === 'GOLD' ? 'text-yellow-500' :
                                     profile?.tier === 'SILVER' ? 'text-slate-400' : 'text-amber-700'
-                                    }`} />
-                                <span className="text-2xl font-bold">{profile?.tier || 'FREE'}</span>
+                                }`} />
+                                <span className={`text-2xl font-bold ${
+                                    profile?.tier === 'MASTER' ? 'bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600' : ''
+                                }`}>
+                                    {profile?.tier || 'FREE'}
+                                </span>
                             </div>
                             <Link href="/pricing">
                                 <Button variant="ghost" size="sm" className="text-xs text-primary">업그레이드</Button>
@@ -225,7 +232,7 @@ export default function DashboardPage() {
                                     <FileText className="w-4 h-4 mr-2" /> 번역 기록 전체
                                 </Button>
                             </Link>
-                            {profile?.role === 'ADMIN' && (
+                            {(profile?.role === 'ADMIN' || profile?.role === 'MASTER') && (
                                 <div className="pt-2 mt-2 border-t">
                                     <Link href="/admin">
                                         <Button variant="ghost" className="w-full justify-start h-12 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20">
