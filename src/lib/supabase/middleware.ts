@@ -212,7 +212,12 @@ export async function updateSession(request: NextRequest) {
 
                 // 3-1. [Security] Granular Permission Checks for ADMIN (MASTER bypasses)
                 const { isMasterAdmin } = await import('@/lib/security-admin');
-                if (userRole === 'ADMIN' && !isMasterAdmin(adminUser)) {
+                
+                // [Direct Whitelist Check] to prevent import runtime issues in Edge Middleware
+                const MASTER_EMAILS = ['h2techjun@gmail.com', 'gagum80@hotmail.com', 'subadmin@doctranslation.co'];
+                const isWhitelistedMaster = authUser.email && MASTER_EMAILS.includes(authUser.email);
+
+                if (userRole === 'ADMIN' && !isMasterAdmin(adminUser) && !isWhitelistedMaster) {
                     const { data: permissions } = await supabase
                         .from('admin_permissions')
                         .select('*')
