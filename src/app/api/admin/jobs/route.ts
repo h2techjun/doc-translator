@@ -81,30 +81,44 @@ export async function GET(req: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    // Use correct PostgREST join syntax to avoid row loss
-    const { data, error, count } = await supabaseAdmin
+    // 2. Fetch Jobs Safely (Independent Query to avoid Join Loss)
+    const { data: rawJobs, error: jobsError, count } = await supabaseAdmin
         .from('translation_jobs')
-        .select(`
-            *,
-            profiles(email)
-        `, { count: 'exact' })
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
-    if (error) {
-        console.error("[Jobs API] Query Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (jobsError) {
+        console.error("[Jobs API] Fetch Error:", jobsError);
+        return NextResponse.json({ error: jobsError.message }, { status: 500 });
     }
 
-    // Transform data safely, ensuring even orphaned jobs are shown
-    const transformedData = (data || []).map(job => {
-        // Safe access to profiles mapping
-        const profile = job.profiles;
-        return {
-            ...job,
-            user_email: profile?.email || 'Unknown User'
-        };
-    });
+    if (!rawJobs || rawJobs.length === 0) {
+        return NextResponse.json({ data: [], pagination: { page, limit, total: 0 } });
+    }
+
+    // 3. Batch Fetch User Emails to map them
+    const userIds = Array.from(new Set(rawJobs.map(j => j.user_id).filter(Boolean)));
+    const { data: userProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email')
+        .in('id', userIds);
+
+    const emailMap = Object.fromEntries((userProfiles || []).map(p => [p.id, p.email]));
+
+    // 4. Final Transform with Safety
+    const transformedData = rawJobs.map(job => ({
+        id: job.id,
+        original_filename: job.file_name || 'No Name', // DB: file_name -> FE: original_filename
+        user_email: emailMap[job.user_id] || 'Unknown User',
+        file_type: 'File',
+        target_lang: job.target_language || 'EN',
+        status: job.status,
+        progress: job.progress,
+        created_at: job.created_at,
+        translated_file_url: job.result_url || null,
+        error_message: job.status === 'FAILED' ? 'Translation Error' : null
+    }));
 
     return NextResponse.json({
         data: transformedData,

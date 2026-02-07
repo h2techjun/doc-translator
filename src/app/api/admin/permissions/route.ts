@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
         .from('admin_permissions')
         .select(`
             *,
-            profiles:user_id(email)
+            profiles:admin_id(full_name, email)
         `);
 
     if (error) {
@@ -81,7 +81,29 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [] });
+    // Transform DB booleans to FE permission array to prevent crashing
+    const transformedAdmins = (data || []).map(entry => {
+        // Safe access to profiles mapping (it might be an array or object in PostgREST)
+        const profile = Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles;
+        
+        const permissions: string[] = [];
+        // Map DB booleans to FE permission string keys
+        if (entry.can_adjust_points) permissions.push('MANAGE_USERS');
+        if (entry.can_block_users) permissions.push('MANAGE_USERS');
+        if (entry.can_kick_users) permissions.push('MANAGE_USERS');
+        
+        // Remove duplicates if any
+        const uniquePermissions = Array.from(new Set(permissions));
+
+        return {
+            id: entry.admin_id, // Important: FE expects 'id'
+            full_name: profile?.full_name || '관리자',
+            email: profile?.email || 'Unknown',
+            permissions: uniquePermissions // Always an array
+        };
+    });
+
+    return NextResponse.json(transformedAdmins);
 }
 
 export async function POST(req: NextRequest) {
@@ -146,23 +168,31 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { userId, permission, action } = await req.json();
+    const { userId, permissions } = await req.json();
 
-    if (action === 'ADD') {
-        const { error } = await supabase
-            .from('admin_permissions')
-            .insert({
-                user_id: userId,
-                permission,
-                granted_by: user.id
-            });
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-        const { error } = await supabase
-            .from('admin_permissions')
-            .delete()
-            .match({ user_id: userId, permission });
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!userId || !Array.isArray(permissions)) {
+        return NextResponse.json({ error: 'Invalid search parameters' }, { status: 400 });
+    }
+
+    // Map FE permissions array back to DB boolean columns
+    const canAdjustPoints = permissions.includes('MANAGE_USERS');
+    const canBlockUsers = permissions.includes('MANAGE_USERS');
+    const canKickUsers = permissions.includes('MANAGE_USERS');
+
+    const supabaseAdmin = getAdminClient();
+    const { error } = await supabaseAdmin
+        .from('admin_permissions')
+        .upsert({
+            admin_id: userId,
+            can_adjust_points: canAdjustPoints,
+            can_block_users: canBlockUsers,
+            can_kick_users: canKickUsers,
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'admin_id' });
+
+    if (error) {
+        console.error("[Permissions POST API] Upsert Error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
