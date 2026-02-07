@@ -31,17 +31,36 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // 2. Fetch Users from View
+    // 2. Fetch Users from View with Filters
     const supabaseAdmin = getAdminClient();
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
+    const search = searchParams.get('search') || '';
+    const roleFilter = searchParams.get('role');
+    const tierFilter = searchParams.get('tier');
+    
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const { data, error, count } = await supabaseAdmin
+    let query = supabaseAdmin
         .from('admin_users_view')
-        .select('*', { count: 'exact' })
+        .select('*', { count: 'exact' });
+
+    // Apply Search (Case sensitive handled by ilike in Postgres)
+    if (search) {
+        query = query.or(`email.ilike.%${search}%,id.eq.${search}`);
+    }
+
+    // Apply Filters
+    if (roleFilter && roleFilter !== 'ALL') {
+        query = query.eq('role', roleFilter);
+    }
+    if (tierFilter && tierFilter !== 'ALL') {
+        query = query.eq('tier', tierFilter);
+    }
+
+    const { data, error, count } = await query
         .order('signed_up_at', { ascending: false })
         .range(from, to);
 

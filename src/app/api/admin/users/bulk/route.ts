@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
+
+// Service Role Client for Admin Operations
+const getAdminClient = () => createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     // 1. 관리자 권한 확인 (Master or Admin)
     const { data: { user } } = await supabase.auth.getUser();
@@ -14,9 +21,16 @@ export async function POST(req: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    if (!currentUserProfile || !['ADMIN', 'MASTER'].includes(currentUserProfile.role)) {
+    const { isAuthorizedAdmin, isMasterAdmin } = await import('@/lib/security-admin');
+    if (!isAuthorizedAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: currentUserProfile?.role 
+    })) {
         return NextResponse.json({ error: '권한이 없습니다 (Admin only).' }, { status: 403 });
     }
+
+    const currentAdminUser = { id: user.id, email: user.email || null, role: currentUserProfile?.role };
 
     // 2. 요청 본문 파싱
     const { userIds, action, value } = await req.json();
@@ -26,17 +40,37 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+        const supabaseAdmin = getAdminClient();
+        
+        // 2-1. [Security] Check if any target is an ADMIN or MASTER
+        // If so, only a MASTER can proceed.
+        if (!isMasterAdmin(currentAdminUser)) {
+            const { data: targets } = await supabaseAdmin
+                .from('profiles')
+                .select('role')
+                .in('id', userIds);
+            
+            const hasPrivilegedTarget = targets?.some((t: any) => t.role === 'ADMIN' || t.role === 'MASTER');
+            if (hasPrivilegedTarget) {
+                return NextResponse.json({ error: '관리자 또는 마스터 계정이 포함된 일괄 작업은 마스터만 수행할 수 있습니다.' }, { status: 403 });
+            }
+        }
+
         let updateData: any = {};
         
         switch (action) {
             case 'update_role':
                 // MASTER만 MASTER/ADMIN으로 승격 가능
                 if (value === 'MASTER' || value === 'ADMIN') {
-                    if (currentUserProfile.role !== 'MASTER') {
+                    if (!isMasterAdmin(currentAdminUser)) {
                         return NextResponse.json({ error: '관리자 임명은 MASTER만 가능합니다.' }, { status: 403 });
                     }
                 }
                 updateData = { role: value };
+                break;
+            
+            case 'update_tier':
+                updateData = { tier: value };
                 break;
             
             case 'update_status':

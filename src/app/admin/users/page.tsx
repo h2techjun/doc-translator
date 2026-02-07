@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Shield, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Shield, MoreHorizontal, ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -59,8 +59,13 @@ export default function AdminUsersPage() {
     // 🌟 Bulk Selection State
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isBulkProcessing, setIsBulkProcessing] = useState(false);
-    const [bulkAction, setBulkAction] = useState<'grant_points' | 'update_role' | null>(null);
+    const [bulkAction, setBulkAction] = useState<'grant_points' | 'update_role' | 'update_tier' | null>(null);
     const [bulkValue, setBulkValue] = useState<string>('');
+
+    // 🔍 Search & Filter State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [roleFilter, setRoleFilter] = useState('ALL');
+    const [tierFilter, setTierFilter] = useState('ALL');
 
     const toggleSelectAll = () => {
         if (selectedIds.size === users.length) {
@@ -142,7 +147,14 @@ export default function AdminUsersPage() {
         setLoading(true);
         setSelectedIds(new Set()); // 페이지 변경 시 선택 초기화
         try {
-            const res = await fetch(`/api/admin/users?page=${pageNum}&limit=20`);
+            const url = new URL('/api/admin/users', window.location.origin);
+            url.searchParams.set('page', pageNum.toString());
+            url.searchParams.set('limit', '20');
+            if (searchQuery) url.searchParams.set('search', searchQuery);
+            if (roleFilter !== 'ALL') url.searchParams.set('role', roleFilter);
+            if (tierFilter !== 'ALL') url.searchParams.set('tier', tierFilter);
+
+            const res = await fetch(url.toString());
             if (res.ok) {
                 const { data, pagination } = await res.json();
                 setUsers(data);
@@ -157,7 +169,19 @@ export default function AdminUsersPage() {
 
     useEffect(() => {
         fetchUsers(page);
-    }, [page]);
+    }, [page, roleFilter, tierFilter]);
+
+    // 검색어 변경 시 디바운스 처리 또는 엔터키 입력 시 트리거
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        setPage(1);
+        fetchUsers(1);
+    };
+
+    // 필터 변경 시 1페이지로 이동
+    useEffect(() => {
+        setPage(1);
+    }, [roleFilter, tierFilter]);
 
     return (
         <div className="container mx-auto py-10 px-4 max-w-7xl">
@@ -191,8 +215,24 @@ export default function AdminUsersPage() {
                                 <SelectContent>
                                     <SelectItem value="grant_points">🎁 포인트 지급</SelectItem>
                                     <SelectItem value="update_role">👑 역할 변경</SelectItem>
+                                    <SelectItem value="update_tier">💎 등급 변경</SelectItem>
                                 </SelectContent>
                             </Select>
+
+                            {bulkAction === 'update_tier' && (
+                                <Select onValueChange={setBulkValue}>
+                                    <SelectTrigger className="w-[120px] h-9 text-xs font-bold">
+                                        <SelectValue placeholder="등급 선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="BRONZE">BRONZE</SelectItem>
+                                        <SelectItem value="SILVER">SILVER</SelectItem>
+                                        <SelectItem value="GOLD">GOLD</SelectItem>
+                                        <SelectItem value="DIAMOND">DIAMOND</SelectItem>
+                                        <SelectItem value="MASTER">MASTER</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
 
                             {bulkAction === 'grant_points' && (
                                 <Input 
@@ -228,6 +268,53 @@ export default function AdminUsersPage() {
                     )}
                 </CardHeader>
                 <CardContent>
+                    {/* 🔍 Search & Filter Bar */}
+                    <div className="flex flex-col md:flex-row gap-4 mb-6">
+                        <form onSubmit={handleSearch} className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground mr-2" />
+                            <Input 
+                                placeholder="이메일 또는 ID로 검색... (엔터)" 
+                                className="pl-10 h-10 text-sm font-bold bg-white dark:bg-slate-900 border-border/50"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </form>
+                        
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                                <span className="text-[10px] font-black uppercase text-muted-foreground px-2">Role</span>
+                                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                                    <SelectTrigger className="w-[100px] h-8 text-xs font-bold border-none bg-transparent">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="ALL">전체</SelectItem>
+                                        <SelectItem value="USER">USER</SelectItem>
+                                        <SelectItem value="ADMIN">ADMIN</SelectItem>
+                                        <SelectItem value="MASTER">MASTER</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                                <span className="text-[10px] font-black uppercase text-muted-foreground px-2">Tier</span>
+                                <Select value={tierFilter} onValueChange={setTierFilter}>
+                                    <SelectTrigger className="w-[100px] h-8 text-xs font-bold border-none bg-transparent">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="ALL">전체</SelectItem>
+                                        <SelectItem value="BRONZE">BRONZE</SelectItem>
+                                        <SelectItem value="SILVER">SILVER</SelectItem>
+                                        <SelectItem value="GOLD">GOLD</SelectItem>
+                                        <SelectItem value="DIAMOND">DIAMOND</SelectItem>
+                                        <SelectItem value="MASTER">MASTER</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="rounded-md border border-border/50 overflow-hidden">
                         <Table>
                             <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">

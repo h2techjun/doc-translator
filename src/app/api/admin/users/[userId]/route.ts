@@ -30,12 +30,32 @@ export async function PATCH(
             .eq('id', user.id)
             .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'MASTER') {
+        const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+        if (!isAuthorizedAdmin({ 
+            id: user.id, 
+            email: user.email || null, 
+            role: profile?.role 
+        })) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        // 2. Update User Profile
+        // 2. Fetch Target Profile to Check Hierarchy
         const supabaseAdmin = getAdminClient();
+        const { data: targetProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', id)
+            .single();
+
+        const { isMasterAdmin } = await import('@/lib/security-admin');
+        const isRequesterMaster = isMasterAdmin({ id: user.id, email: user.email || null, role: profile?.role });
+
+        // MASTER가 아닌 ADMIN이 다른 ADMIN이나 MASTER를 수정하려 할 때 차단
+        if (!isRequesterMaster && (targetProfile?.role === 'ADMIN' || targetProfile?.role === 'MASTER')) {
+            return NextResponse.json({ error: '관리자 또는 마스터 정보는 마스터만 수정할 수 있습니다.' }, { status: 403 });
+        }
+
+        // 3. Update User Profile
         const updateData: any = {};
 
         if (points !== undefined) updateData.points = points;
