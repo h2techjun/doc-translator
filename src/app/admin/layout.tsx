@@ -8,28 +8,47 @@ import AdminSidebar from './_components/AdminSidebar';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { profile, isLoading } = useGeoSmart();
+    const { user, profile, isLoading } = useGeoSmart();
     const router = useRouter();
     const pathname = usePathname();
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        if (!isLoading) {
-            if (!profile) {
-                // Not logged in
+        // 1. 전역 로딩이 끝날 때까지 대기
+        if (isLoading) return;
+
+        const verifyAdmin = async () => {
+            // 2. 로그인 여부 확인
+            if (!user) {
                 const loginUrl = `/signin?redirect=${encodeURIComponent(pathname)}`;
                 router.replace(loginUrl);
-            } else if (profile.role !== 'ADMIN' && profile.role !== 'MASTER') {
-                // Logged in but not admin
-                router.replace('/');
-            } else {
-                // Authorized
-                setIsAuthorized(true);
+                return;
             }
-        }
-    }, [profile, isLoading, router, pathname]);
 
-    if (isLoading || !isAuthorized) {
+            // 3. 권한 확인 (Profile 또는 Email Whitelist 활용)
+            // Profile 로딩이 지연되더라도 이메일이 화이트리스트에 있으면 즉시 통과 (Fail-safe)
+            const { isAuthorizedAdmin } = await import('@/lib/security-admin');
+            
+            const adminUser = {
+                id: user.id,
+                email: user.email || null,
+                role: profile?.role
+            };
+
+            if (isAuthorizedAdmin(adminUser)) {
+                setIsAuthorized(true);
+            } else {
+                console.warn('[Admin Access Denied]', adminUser);
+                router.replace('/');
+            }
+            setIsChecking(false);
+        };
+
+        verifyAdmin();
+    }, [user, profile, isLoading, router, pathname]);
+
+    if (isLoading || isChecking || !isAuthorized) {
         return (
             <div className="h-screen w-full flex flex-col items-center justify-center bg-[#020617] text-slate-400 gap-4">
                 <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />

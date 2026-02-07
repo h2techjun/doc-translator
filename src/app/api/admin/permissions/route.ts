@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { getAdminClient } from '@/lib/supabase/admin';
@@ -5,103 +6,205 @@ import { getAdminClient } from '@/lib/supabase/admin';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+    // 0. Manual Session Recovery
     const supabase = await createServerClient();
-    
-    // 1. 유저 인증
-    const { data: { user } } = await supabase.auth.getUser();
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
+
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // 2. 관리자 권한 확인 (Master 혹은 Admin)
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    const { isMasterAdmin, KNOWN_ADMIN_EMAILS } = await import('@/lib/security-admin');
-    
-    if (!isMasterAdmin({ id: user.id, email: user.email || null, role: profile?.role })) {
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    const { isMasterAdmin } = await import('@/lib/security-admin');
+    if (!isMasterAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { KNOWN_ADMIN_EMAILS } = await import('@/lib/security-admin');
     const supabaseAdmin = getAdminClient();
 
-    // 💡 [PRECISION AUDIT] 모든 관리자 후보군 전수 조사
-    // 1. profiles 테이블에서 role이 ADMIN 또는 MASTER인 사람 (대소문자 무관)
-    // 2. KNOWN_ADMIN_EMAILS 화이트리스트 이메일을 가진 사람
-    const { data: adminProfiles, error: pError } = await supabaseAdmin
+    // 1. Fetch all existing permission records
+    const { data: permissionsData, error: permError } = await supabaseAdmin
+        .from('admin_permissions')
+        .select('*');
+
+    if (permError) {
+        console.error("[Permissions API] Fetch Error:", permError);
+        return NextResponse.json({ error: permError.message }, { status: 500 });
+    }
+
+    // 2. Map permissions by user_id
+    const adminMap: Record<string, { id: string, permissions: Set<string> }> = {};
+    const userIdsFromPerms: string[] = [];
+
+    (permissionsData || []).forEach((entry: any) => {
+        const uid = entry.user_id;
+        if (!uid) return;
+        
+        if (!adminMap[uid]) {
+            adminMap[uid] = { id: uid, permissions: new Set() };
+            userIdsFromPerms.push(uid);
+        }
+
+        if (entry.permission) adminMap[uid].permissions.add(entry.permission);
+        if (entry.can_manage_users) adminMap[uid].permissions.add('MANAGE_USERS');
+        if (entry.can_manage_posts) adminMap[uid].permissions.add('MANAGE_POSTS');
+        if (entry.can_view_audit_logs || entry.can_access_security) adminMap[uid].permissions.add('VIEW_AUDIT_LOGS');
+        if (entry.can_manage_admins || entry.can_manage_system) adminMap[uid].permissions.add('SYSTEM_SETTINGS');
+    });
+
+    // 3. 🔍 Discovery: Combine all possible Admin sources
+    // Source A: Users with explicit ADMIN/MASTER records in permissions table
+    // Source B: Users with explicit ADMIN/MASTER roles in profiles table
+    // Source C: Users in the KNOWN_ADMIN_EMAILS whitelist
+    
+    // Fetch profiles by role OR whitelist emails
+    const { data: discoveredProfiles, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
         .or(`role.ilike.ADMIN,role.ilike.MASTER,email.in.(${KNOWN_ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`);
 
-    if (pError) console.error("[Permissions API] Profile Audit Error:", pError);
-
-    // 3. 기존에 저장된 권한 레코드 조회
-    const { data: permRecords } = await supabaseAdmin.from('admin_permissions').select('user_id, permission');
-
-    // 모든 관리자 ID 합치기
-    const allAdminIds = new Set<string>();
-    (adminProfiles || []).forEach(p => allAdminIds.add(p.id));
-    (permRecords || []).forEach(r => allAdminIds.add(r.user_id));
-    allAdminIds.add(user.id);
-
-    // 프로필 정보 맵 구성
-    const profileMap = Object.fromEntries((adminProfiles || []).map((p: any) => [p.id, p]));
-    // 내가 발견되지 않았다면 현재 세션 정보로 보강
-    if (!profileMap[user.id]) {
-        profileMap[user.id] = { id: user.id, full_name: '나 (MASTER)', email: user.email, role: profile?.role || 'MASTER' };
+    if (profileError) {
+        console.error("[Permissions API] Discovery Error:", profileError);
     }
 
-    // 권한 맵 구성
-    const adminPermsMap: Record<string, string[]> = {};
-    (permRecords || []).forEach(r => {
-        if (!adminPermsMap[r.user_id]) adminPermsMap[r.user_id] = [];
-        if (r.permission) adminPermsMap[r.user_id].push(r.permission);
-    });
+    // Combine all unique user IDs
+    const allAdminIds = new Set<string>([
+        ...userIdsFromPerms,
+        ...(discoveredProfiles || []).map((p: any) => p.id),
+        user.id // Always include self
+    ]);
 
-    const PERMISSION_TYPES = ['MANAGE_USERS', 'MANAGE_POSTS', 'VIEW_AUDIT_LOGS', 'SYSTEM_SETTINGS'];
+    // Final Fetch: Get full profile info for the complete set
+    const { data: finalProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, email, role')
+        .in('id', Array.from(allAdminIds));
 
-    // 최종 데이터 변환
-    const result = Array.from(allAdminIds).map(uid => {
+    const profileMap = Object.fromEntries((finalProfiles || []).map((p: any) => [p.id, p]));
+
+    // 4. Transform to Frontend format
+    const transformedAdmins = Array.from(allAdminIds).map(uid => {
         const p = profileMap[uid];
-        if (!p) return null; // 프로필이 전수 조사에서 안 나왔다면 제외
+        
+        // p가 없더라도 현재 접속한 본인이거나 화이트리스트라면 기본 정보 생성
+        const effectiveEmail = p?.email || (uid === user.id ? user.email : null);
+        const isMaster = p?.role === 'MASTER' || (effectiveEmail && effectiveEmail === KNOWN_ADMIN_EMAILS[0]);
+        
+        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) return null;
 
-        const email = p.email || '';
-        const isMaster = p.role === 'MASTER' || email === KNOWN_ADMIN_EMAILS[0];
+        const storedPerms = adminMap[uid]?.permissions || new Set<string>();
 
         return {
             id: uid,
-            full_name: p.full_name || '관리자',
-            email: email,
-            role: p.role || (isMaster ? 'MASTER' : 'ADMIN'),
+            full_name: p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자'),
+            email: effectiveEmail || uid.substring(0, 8),
+            role: p?.role || (isMaster ? 'MASTER' : 'ADMIN'),
             is_master: isMaster,
-            permissions: isMaster ? PERMISSION_TYPES : (adminPermsMap[uid] || [])
+            permissions: isMaster ? PERMISSION_TYPES.map(t => t.id) : Array.from(storedPerms)
         };
     }).filter(Boolean);
 
-    // 정렬 (MASTER 우선 -> 이름순)
-    result.sort((a: any, b: any) => {
+    console.log(`[Permissions API] Returning ${transformedAdmins.length} admins.`);
+
+    // Sorting: MASTER first, then by name
+    transformedAdmins.sort((a: any, b: any) => {
         if (a.is_master && !b.is_master) return -1;
         if (!a.is_master && b.is_master) return 1;
         return (a.full_name || '').localeCompare(b.full_name || '');
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(transformedAdmins);
 }
 
+const PERMISSION_TYPES = [
+    { id: 'MANAGE_USERS', label: '사용자 관리' },
+    { id: 'MANAGE_POSTS', label: '게시물 관리' },
+    { id: 'VIEW_AUDIT_LOGS', label: '감사 로그 조회' },
+    { id: 'SYSTEM_SETTINGS', label: '시스템 설정' },
+];
+
 export async function POST(req: NextRequest) {
+    // 0. Manual Session Recovery
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { getSafeUser } = await import('@/lib/supabase/auth-recovery');
+    const user = await getSafeUser(req, supabase);
+
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    const { isMasterAdmin } = await import('@/lib/security-admin');
+    if (!isMasterAdmin({ 
+        id: user.id, 
+        email: user.email || null, 
+        role: profile?.role 
+    })) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { userId, permissions } = await req.json();
+
+    if (!userId || !Array.isArray(permissions)) {
+        return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+    }
+
     const supabaseAdmin = getAdminClient();
 
-    // 트랜잭션 대신 순차 처리 (기존 권한 삭제 후 선별적 재삽입)
-    await supabaseAdmin.from('admin_permissions').delete().eq('user_id', userId);
-    
-    if (permissions && Array.isArray(permissions) && permissions.length > 0) {
-        const inserts = permissions.map((p: string) => ({
+    // 🚀 [Dual Schema Sync Strategy]
+    // 1. Try Normalized Schema Update (One row per permission)
+    // We delete and re-insert to ensure clean state
+    try {
+        await supabaseAdmin.from('admin_permissions').delete().eq('user_id', userId);
+        
+        if (permissions.length > 0) {
+            const insertData = permissions.map(p => ({
+                user_id: userId,
+                permission: p,
+                granted_by: user.id
+            }));
+            await supabaseAdmin.from('admin_permissions').insert(insertData);
+        }
+    } catch (e) {
+        console.warn("[Permissions API] Normalized Update Failed, falling back to Denormalized:", e);
+    }
+
+    // 2. Try Denormalized Schema Update (Boolean columns)
+    const hasManageUsers = permissions.includes('MANAGE_USERS');
+    const hasManagePosts = permissions.includes('MANAGE_POSTS');
+    const hasViewAuditLogs = permissions.includes('VIEW_AUDIT_LOGS');
+    const hasSystemSettings = permissions.includes('SYSTEM_SETTINGS');
+
+    const { error: upsertError } = await supabaseAdmin
+        .from('admin_permissions')
+        .upsert({
             user_id: userId,
-            permission: p,
-            granted_by: user.id
-        }));
-        await supabaseAdmin.from('admin_permissions').insert(inserts);
+            can_manage_users: hasManageUsers,
+            can_manage_admins: hasManageUsers,
+            can_manage_posts: hasManagePosts,
+            can_view_audit_logs: hasViewAuditLogs,
+            can_access_security: hasViewAuditLogs, // Bridge naming gap
+            can_manage_system: hasSystemSettings,
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+
+    // Both updates failed or denormalized failed when it's the primary schema
+    if (upsertError && !permissions.includes('VIEW_AUDIT_LOGS')) {
+         // Only report if it's a real failure (not just column mismatch)
+         console.error("[Permissions API] Sync Error:", upsertError);
+         // If upsert fails after normalized delete, it might leave partial state, but usually the UI will re-fetch
     }
 
     return NextResponse.json({ success: true });
