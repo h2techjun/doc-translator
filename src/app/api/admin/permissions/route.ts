@@ -61,45 +61,64 @@ export async function GET(req: NextRequest) {
         if (entry.can_manage_admins || entry.can_manage_system) adminMap[uid].permissions.add('SYSTEM_SETTINGS');
     });
 
-    // 3. 🔍 Discovery: Combine all possible Admin sources
-    // Source A: Users with explicit ADMIN/MASTER records in permissions table
-    // Source B: Users with explicit ADMIN/MASTER roles in profiles table
-    // Source C: Users in the KNOWN_ADMIN_EMAILS whitelist
-    
-    // Fetch profiles by role OR whitelist emails
-    const { data: discoveredProfiles, error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .select('id, full_name, email, role')
-        .or(`role.ilike.ADMIN,role.ilike.MASTER,email.in.(${KNOWN_ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`);
+    // 3. 🔍 Discovery: Combine all possible Admin sources (Robust Strategy)
+    const allAdminIds = new Set<string>(userIdsFromPerms);
+    allAdminIds.add(user.id); // Always include self
 
-    if (profileError) {
-        console.error("[Permissions API] Discovery Error:", profileError);
+    try {
+        // Source A: Users with explicit ADMIN/MASTER roles
+        const { data: roleProfiles } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .in('role', ['ADMIN', 'MASTER']);
+        
+        roleProfiles?.forEach(p => allAdminIds.add(p.id));
+
+        // Source B: Users in the KNOWN_ADMIN_EMAILS whitelist
+        if (KNOWN_ADMIN_EMAILS.length > 0) {
+            const { data: whiteProfiles } = await supabaseAdmin
+                .from('profiles')
+                .select('id')
+                .in('email', KNOWN_ADMIN_EMAILS);
+            
+            whiteProfiles?.forEach(p => allAdminIds.add(p.id));
+        }
+    } catch (e) {
+        console.error("[Permissions API] ID Collection Error:", e);
     }
 
-    // Combine all unique user IDs
-    const allAdminIds = new Set<string>([
-        ...userIdsFromPerms,
-        ...(discoveredProfiles || []).map((p: any) => p.id),
-        user.id // Always include self
-    ]);
-
-    // Final Fetch: Get full profile info for the complete set
-    const { data: finalProfiles } = await supabaseAdmin
+    // 4. Final Fetch: Get full profile info for the complete set
+    const { data: finalProfiles, error: finalError } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name, email, role')
         .in('id', Array.from(allAdminIds));
 
+    if (finalError) {
+        console.error("[Permissions API] Final Profile Fetch Error:", finalError);
+    }
+
     const profileMap = Object.fromEntries((finalProfiles || []).map((p: any) => [p.id, p]));
 
-    // 4. Transform to Frontend format
+    // 5. Transform to Frontend format
     const transformedAdmins = Array.from(allAdminIds).map(uid => {
         const p = profileMap[uid];
         
-        // p가 없더라도 현재 접속한 본인이거나 화이트리스트라면 기본 정보 생성
+        // 데이터 정합성 보장: 프로필이 없으면 최소한의 정보로라도 표시 (투명성)
         const effectiveEmail = p?.email || (uid === user.id ? user.email : null);
         const isMaster = p?.role === 'MASTER' || (effectiveEmail && effectiveEmail === KNOWN_ADMIN_EMAILS[0]);
         
-        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) return null;
+        // p가 없고 본인도 아니고 화이트리스트도 아니면? -> 권한 테이블에만 남은 고아 레코드일 수 있음.
+        // 그래도 보여줘야 관리자가 '권한 회수'를 할 수 있음.
+        if (!p && uid !== user.id && !KNOWN_ADMIN_EMAILS.includes(effectiveEmail || '')) {
+             return {
+                id: uid,
+                full_name: 'Unknown User (데이터 불일치)',
+                email: 'user_not_found',
+                role: 'USER', // 기본값
+                is_master: false,
+                permissions: Array.from(adminMap[uid]?.permissions || [])
+             };
+        }
 
         const storedPerms = adminMap[uid]?.permissions || new Set<string>();
 
@@ -107,11 +126,11 @@ export async function GET(req: NextRequest) {
             id: uid,
             full_name: p?.full_name || (uid === user.id ? '나 (MASTER)' : '관리자'),
             email: effectiveEmail || uid.substring(0, 8),
-            role: p?.role || (isMaster ? 'MASTER' : 'ADMIN'),
+            role: p?.role || (isMaster ? 'MASTER' : 'USER'), // ADMIN이 아니더라도 권한목록에 있으면 USER로라도 표시
             is_master: isMaster,
             permissions: isMaster ? PERMISSION_TYPES.map(t => t.id) : Array.from(storedPerms)
         };
-    }).filter(Boolean);
+    }); // .filter(Boolean) 제거하여 모든 ID 노출
 
     console.log(`[Permissions API] Returning ${transformedAdmins.length} admins.`);
 
